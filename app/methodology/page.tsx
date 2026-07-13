@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
-import { loadEvaluationArtifacts } from "../../lib/evaluation/validate-set.server";
+import {
+  publicEvaluationResults,
+  publicEvaluationSet,
+} from "../../lib/evaluation/public-results";
 
 export const metadata: Metadata = {
   title: "Evaluation methodology",
@@ -21,8 +24,9 @@ function readableCategory(category: string): string {
   return category.replaceAll("-", " ");
 }
 
-export default async function MethodologyPage() {
-  const { evaluationSet, results } = await loadEvaluationArtifacts();
+export default function MethodologyPage() {
+  const evaluationSet = publicEvaluationSet;
+  const results = publicEvaluationResults;
   const isNotRun = results.status === "not-run";
 
   return (

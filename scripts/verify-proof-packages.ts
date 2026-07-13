@@ -4,7 +4,8 @@ import { spawn } from "node:child_process";
 import { readFile, rename, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-import { listProofIds, loadProofPackage } from "../lib/proof-packages/registry.server";
+import { loadProofPackageFromDirectory } from "../lib/proof-packages/load-package.server";
+import { listProofIds } from "../lib/proof-packages/registry.server";
 import { resolveExistingPackagePath, resolvePackagePath } from "../lib/proof-packages/locations";
 import { VerificationRecordSchema, type VerificationRecord } from "../lib/verification/schema";
 
@@ -80,8 +81,8 @@ async function runCommand(command: string, args: string[], cwd: string): Promise
 }
 
 async function verifyPackage(id: string): Promise<"passed" | "failed" | "skipped"> {
-  const loaded = await loadProofPackage(id);
-  if (!loaded) throw new Error(`Unknown proof package: ${id}`);
+  const packageDirectory = await resolveExistingPackagePath(process.cwd(), `proofs/${id}`);
+  const loaded = await loadProofPackageFromDirectory(packageDirectory);
   if (loaded.manifest.lean.displayMode !== "full") {
     console.log(`↷ ${id}: not run (package contains display excerpts, not a local Lean project)`);
     return "skipped";
