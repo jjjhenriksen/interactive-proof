@@ -39,7 +39,6 @@ export async function loadEvaluationArtifacts(repositoryRoot = process.cwd()): P
 
 export async function validateEvaluationSet(
   evaluationSet: EvaluationSet,
-  repositoryRoot = process.cwd(),
 ): Promise<EvaluationValidationReport> {
   if (evaluationSet.promptVersion !== EXPLANATION_PROMPT_VERSION) {
     throw new Error(
@@ -61,10 +60,7 @@ export async function validateEvaluationSet(
   }
 
   for (const evaluationCase of evaluationSet.cases) {
-    const { context } = await buildExplanationContext(
-      evaluationCase.request,
-      repositoryRoot,
-    );
+    const { context } = await buildExplanationContext(evaluationCase.request);
     if (!sameMembers(context.allowedSourceIds, evaluationCase.expected.allowedSourceIds)) {
       throw new Error(
         `${evaluationCase.id}: expected allowed source IDs do not match authoritative context`,

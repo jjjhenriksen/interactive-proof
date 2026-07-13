@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -35,26 +32,18 @@ export default async function ProofPage({ params }: ProofPageProps) {
   const loaded = await loadProofPackage(proofId);
   if (!loaded) notFound();
 
-  const mappings = await Promise.all(
-    loaded.manifest.mappings.map(async (mapping) => ({
+  const mappings = loaded.manifest.mappings.map((mapping) => ({
       id: mapping.id,
       label: mapping.label,
       paper: mapping.paper,
       prerequisites: mapping.prerequisites,
       correspondence: mapping.correspondence,
       correspondenceNote: mapping.correspondenceNote,
-      lean: await Promise.all(
-        mapping.lean.map(async (source) => {
-          const file = await readFile(path.join(loaded.directory, source.file), "utf8");
-          const lines = file.split(/\r?\n/);
-          return {
-            ...source,
-            code: lines.slice(source.startLine - 1, source.endLine).join("\n"),
-          };
-        }),
-      ),
-    })),
-  );
+      lean: mapping.lean.map((source) => ({
+        ...source,
+        code: loaded.leanExcerpts[source.sourceId],
+      })),
+    }));
 
   const proof: ProofReaderViewModel = {
     id: loaded.manifest.id,
@@ -62,7 +51,7 @@ export default async function ProofPage({ params }: ProofPageProps) {
     summary: loaded.manifest.summary,
     audience: loaded.manifest.audience,
     paperTitle: loaded.manifest.paper.title,
-    paperHref: `/proofs/${loaded.manifest.id}/paper`,
+    paperHref: loaded.paperAssetUrl,
     licenseStatus: loaded.manifest.paper.license.status,
     leanRevision: loaded.manifest.lean.revision,
     verification: {

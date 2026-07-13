@@ -4,6 +4,8 @@
 # Next.js build output
 /.next/
 /out/
+/dist/
+/.wrangler/
 
 # test output
 /coverage/
