@@ -14,6 +14,7 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test tests/e2e/reader-smoke.spec.ts --project=chromium",
     "proof:registry": "tsx scripts/build-proof-registry.ts",
     "proof:validate": "tsx scripts/validate-proof-packages.ts",
     "proof:extract": "node --experimental-strip-types scripts/extract-paper-pages.ts"

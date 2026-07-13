@@ -14,6 +14,8 @@ interface ProofPageProps {
   params: Promise<{ proofId: string }>;
 }
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return listProofIds().map((proofId) => ({ proofId }));
 }
