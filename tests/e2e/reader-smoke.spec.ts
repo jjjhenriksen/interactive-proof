@@ -6,25 +6,38 @@ async function openProof(page: Page): Promise<void> {
   await page.goto(PROOF_PATH, { waitUntil: "networkidle" });
 }
 
-async function selectSourceBlock(block: Locator): Promise<string> {
-  const selectedText = (await block.textContent())?.trim();
-  expect(selectedText).toBeTruthy();
+async function selectPdfHeading(page: Page): Promise<{
+  anchor: Locator;
+  selectedText: string;
+}> {
+  const reader = page.getByTestId("pdf-paper-reader");
+  const textLayer = page.getByTestId("pdf-text-layer");
+  await expect(reader).toHaveAttribute("aria-busy", "false", { timeout: 20_000 });
 
-  await block.evaluate((element) => {
-    if (!(element instanceof HTMLElement)) {
-      throw new Error("Expected an HTML source block");
+  const headingText = textLayer.locator("span").filter({ hasText: /^Introduction$/ }).first();
+  await expect(headingText).toBeAttached();
+  await headingText.evaluate((node) => {
+    const layer = node.closest('[data-testid="pdf-text-layer"]');
+    const spans = Array.from(layer?.querySelectorAll<HTMLSpanElement>("span") ?? []);
+    const headingIndex = spans.indexOf(node as HTMLSpanElement);
+    const headingNumber = spans
+      .slice(0, headingIndex)
+      .reverse()
+      .find((span) => span.textContent?.trim() === "1.");
+    if (!headingNumber?.firstChild || !node.firstChild) {
+      throw new Error("The PDF heading text items were not found");
     }
 
-    element.focus();
     const range = document.createRange();
-    range.selectNodeContents(element);
+    range.setStart(headingNumber.firstChild, 0);
+    range.setEnd(node.firstChild, node.firstChild.textContent?.length ?? 0);
     const selection = window.getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
-    element.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
   });
+  await textLayer.dispatchEvent("pointerup", { button: 0 });
 
-  return selectedText ?? "";
+  return { anchor: textLayer, selectedText: "1. Introduction" };
 }
 
 async function waitForExplanationOrError(page: Page): Promise<void> {
@@ -101,8 +114,7 @@ test("opens More details for a paper selection and restores focus on dismissal",
 }) => {
   await openProof(page);
 
-  const sourceBlock = page.locator('[data-source-block="page-1-block-3"]');
-  const selectedText = await selectSourceBlock(sourceBlock);
+  const { anchor, selectedText } = await selectPdfHeading(page);
   const toolbar = page.getByRole("toolbar", { name: "Explain selected passage" });
 
   await expect(toolbar).toBeVisible();
@@ -118,13 +130,13 @@ test("opens More details for a paper selection and restores focus on dismissal",
 
   await page.keyboard.press("Escape");
   await expect(panelHeading).toBeHidden();
-  await expect(sourceBlock).toBeFocused();
+  await expect(anchor).toBeFocused();
 });
 
 test("dismisses the contextual toolbar with Escape", async ({ page }) => {
   await openProof(page);
 
-  await selectSourceBlock(page.locator('[data-source-block="page-1-block-3"]'));
+  await selectPdfHeading(page);
   const toolbar = page.getByRole("toolbar", { name: "Explain selected passage" });
   await expect(toolbar).toBeVisible();
 
