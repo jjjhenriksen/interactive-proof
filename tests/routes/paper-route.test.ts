@@ -5,16 +5,17 @@ import { GET } from "../../app/proofs/[proofId]/paper/route";
 
 describe("proof paper route", () => {
   it.each(["cycle-double-cover", "odd-sum-square"])(
-    "serves the registered %s PDF through the shared route",
+    "redirects the registered %s PDF to a static asset",
     async (proofId) => {
       const response = await GET(
         new NextRequest(`http://localhost/proofs/${proofId}/paper`),
         { params: Promise.resolve({ proofId }) },
       );
 
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toBe("application/pdf");
-      expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(1_000);
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toMatch(
+        new RegExp(`/proof-assets/${proofId}/[a-f0-9]{64}\\.pdf$`),
+      );
     },
   );
 
@@ -26,4 +27,3 @@ describe("proof paper route", () => {
     expect(response.status).toBe(404);
   });
 });
-

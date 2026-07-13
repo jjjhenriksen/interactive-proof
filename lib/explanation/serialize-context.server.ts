@@ -1,5 +1,3 @@
-import { readFile } from "node:fs/promises";
-
 import { CONTEXT_BUDGETS } from "./context-budgets";
 import type { ExplainRequest } from "./request-schema";
 import type {
@@ -9,10 +7,9 @@ import type {
   SourceExcerpt,
   VerificationSummary,
 } from "./types";
-import { resolveExistingPackagePath } from "../proof-packages/locations";
-import type { LoadedProofPackage } from "../proof-packages/load-package.server";
 import { loadProofPackage } from "../proof-packages/registry.server";
 import type { LeanSource, ProofMapping } from "../proof-packages/schema";
+import type { RuntimeProofPackage } from "../proof-packages/types";
 import { verificationStatus } from "../verification/audit";
 
 export type ExplanationContextErrorCode = "SOURCE_NOT_FOUND" | "SELECTION_MISMATCH";
@@ -29,9 +26,8 @@ export class ExplanationContextError extends Error {
 
 export async function buildExplanationContext(
   request: ExplainRequest,
-  repositoryRoot = process.cwd(),
 ): Promise<{ context: ContextBundle; publicContext: PublicContext }> {
-  const loaded = await loadProofPackage(request.proofId, repositoryRoot);
+  const loaded = await loadProofPackage(request.proofId);
   if (!loaded) {
     throw new ExplanationContextError("SOURCE_NOT_FOUND", "Proof package not found");
   }
@@ -127,7 +123,7 @@ type MappedExcerpt = SourceExcerpt & { publicSource: PublicSource };
 
 async function resolvePaperSelection(
   request: ExplainRequest,
-  loaded: LoadedProofPackage,
+  loaded: RuntimeProofPackage,
 ): Promise<ResolvedSelection> {
   if (request.location.source !== "paper") return fail("SOURCE_NOT_FOUND", "Invalid paper location");
   const location = request.location;
@@ -159,7 +155,7 @@ async function resolvePaperSelection(
 
 async function resolveLeanSelection(
   request: ExplainRequest,
-  loaded: LoadedProofPackage,
+  loaded: RuntimeProofPackage,
 ): Promise<ResolvedSelection> {
   if (request.location.source !== "lean") return fail("SOURCE_NOT_FOUND", "Invalid Lean location");
   const location = request.location;
@@ -192,7 +188,7 @@ async function resolveLeanSelection(
 async function resolveMappedSources(
   selectedKind: "paper" | "lean",
   mapping: ProofMapping,
-  loaded: LoadedProofPackage,
+  loaded: RuntimeProofPackage,
 ): Promise<MappedExcerpt[]> {
   if (selectedKind === "paper") {
     return Promise.all(
@@ -224,15 +220,15 @@ async function resolveMappedSources(
   ];
 }
 
-async function readLeanExcerpt(loaded: LoadedProofPackage, source: LeanSource): Promise<string> {
-  const file = await resolveExistingPackagePath(loaded.directory, source.file);
-  const lines = (await readFile(file, "utf8")).split(/\r?\n/);
-  return lines.slice(source.startLine - 1, source.endLine).join("\n");
+function readLeanExcerpt(loaded: RuntimeProofPackage, source: LeanSource): string {
+  const excerpt = loaded.leanExcerpts[source.sourceId];
+  if (!excerpt) return fail("SOURCE_NOT_FOUND", "Bundled Lean source not found");
+  return excerpt;
 }
 
 function leanPublicSource(
   source: LeanSource,
-  loaded: LoadedProofPackage,
+  loaded: RuntimeProofPackage,
   label: string,
 ): PublicSource {
   return {
@@ -245,7 +241,7 @@ function leanPublicSource(
   };
 }
 
-function verificationSummary(loaded: LoadedProofPackage): VerificationSummary {
+function verificationSummary(loaded: RuntimeProofPackage): VerificationSummary {
   const record = loaded.verification;
   return {
     status: verificationStatus(loaded.manifest, record),

@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-
 import { NextResponse } from "next/server";
 
 import { buildExplanationContext, ExplanationContextError } from "../../../lib/explanation/build-context.server";
@@ -7,7 +5,7 @@ import { createExplanationStream } from "../../../lib/explanation/openai-respons
 import { checkRateLimit } from "../../../lib/explanation/rate-limit.server";
 import { explainRequestSchema } from "../../../lib/explanation/request-schema";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 const MAX_REQUEST_BYTES = 32_000;
 
@@ -89,7 +87,7 @@ export async function POST(request: Request) {
     return publicError(500, "INTERNAL_ERROR", "The explanation context could not be prepared.");
   }
 
-  const requestId = randomUUID();
+  const requestId = crypto.randomUUID();
   const stream = createExplanationStream({
     request: parsed.data,
     ...explanationContext,
