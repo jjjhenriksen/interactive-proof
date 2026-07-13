@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 
+import { CONTEXT_BUDGETS } from "./context-budgets";
 import type { ExplainRequest } from "./request-schema";
 import type {
   ContextBundle,
@@ -13,10 +14,6 @@ import type { LoadedProofPackage } from "../proof-packages/load-package.server";
 import { loadProofPackage } from "../proof-packages/registry.server";
 import type { LeanSource, ProofMapping } from "../proof-packages/schema";
 import { verificationStatus } from "../verification/audit";
-
-const SURROUNDING_SOURCE_LIMIT = 8_000;
-const MAPPED_SOURCES_LIMIT = 16_000;
-const SUPPORTING_MATERIAL_LIMIT = 5_000;
 
 export type ExplanationContextErrorCode = "SOURCE_NOT_FOUND" | "SELECTION_MISMATCH";
 
@@ -55,7 +52,7 @@ export async function buildExplanationContext(
     ...mappedSources.map((source) => source.publicSource),
   ]);
 
-  const glossary = takeSupportingMaterial(
+  const supportingMaterial = takeSupportingMaterial(
     loaded.manifest.glossary
       .filter((entry) => entry.sourceIds.some((id) => allSourceIds.includes(id)))
       .map(({ term, explanation, sourceIds }) => ({
@@ -63,8 +60,8 @@ export async function buildExplanationContext(
         explanation,
         sourceIds: sourceIds.filter((id) => allSourceIds.includes(id)),
       })),
+    mapping?.prerequisites ?? [],
   );
-  const prerequisites = takeStrings(mapping?.prerequisites ?? [], SUPPORTING_MATERIAL_LIMIT);
   const mappingIndex = new Map(loaded.manifest.mappings.map((item) => [item.id, item]));
   const dependencies = (mapping?.dependencies ?? []).map((id) => ({
     id,
@@ -89,13 +86,16 @@ export async function buildExplanationContext(
     },
     surroundingSource: {
       ...resolved.excerpt,
-      text: truncate(resolved.excerpt.text, SURROUNDING_SOURCE_LIMIT),
+      text: truncate(
+        resolved.excerpt.text,
+        CONTEXT_BUDGETS.surroundingSourceCharacters,
+      ),
     },
     mappedSources: boundExcerpts(
       mappedSources.map(({ id, type, label, text }) => ({ id, type, label, text })),
     ),
-    glossary,
-    prerequisites,
+    glossary: supportingMaterial.glossary,
+    prerequisites: supportingMaterial.prerequisites,
     dependencies,
     usedBy,
     verification,
@@ -272,7 +272,7 @@ function truncate(value: string, limit: number): string {
 }
 
 function boundExcerpts(excerpts: SourceExcerpt[]): SourceExcerpt[] {
-  let remaining = MAPPED_SOURCES_LIMIT;
+  let remaining = CONTEXT_BUDGETS.mappedSourcesCharacters;
   return excerpts.flatMap((excerpt) => {
     if (remaining <= 0) return [];
     const text = truncate(excerpt.text, remaining);
@@ -281,24 +281,24 @@ function boundExcerpts(excerpts: SourceExcerpt[]): SourceExcerpt[] {
   });
 }
 
-function takeStrings(values: string[], limit: number): string[] {
-  let remaining = limit;
-  return values.flatMap((value) => {
+function takeSupportingMaterial<T extends { term: string; explanation: string }>(
+  values: T[],
+  prerequisites: string[],
+): { glossary: T[]; prerequisites: string[] } {
+  let remaining = CONTEXT_BUDGETS.supportingMaterialCharacters;
+  const glossary = values.flatMap((value) => {
+    if (remaining <= value.term.length) return [];
+    const explanation = truncate(value.explanation, Math.max(0, remaining - value.term.length));
+    remaining -= value.term.length + explanation.length;
+    return [{ ...value, explanation }];
+  });
+  const boundedPrerequisites = prerequisites.flatMap((value) => {
     if (remaining <= 0) return [];
     const item = truncate(value, remaining);
     remaining -= item.length;
     return [item];
   });
-}
-
-function takeSupportingMaterial<T extends { term: string; explanation: string }>(values: T[]): T[] {
-  let remaining = SUPPORTING_MATERIAL_LIMIT;
-  return values.flatMap((value) => {
-    if (remaining <= 0) return [];
-    const explanation = truncate(value.explanation, Math.max(0, remaining - value.term.length));
-    remaining -= value.term.length + explanation.length;
-    return [{ ...value, explanation }];
-  });
+  return { glossary, prerequisites: boundedPrerequisites };
 }
 
 function unique(values: string[]): string[] {

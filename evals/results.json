@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "status": "not-run",
+  "promptVersion": "2026-07-13.1",
+  "model": null,
+  "lastRunAt": null,
+  "casesRun": 0,
+  "aggregateScores": null,
+  "note": "The fixed offline set is validated in CI. No reviewed live-model evaluation has been recorded yet, so this file intentionally contains no model score."
+}

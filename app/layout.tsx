@@ -32,9 +32,14 @@ export default function RootLayout({
               <span>Interactive Proof</span>
             </Link>
             <nav aria-label="Primary navigation">
-              <Link className="nav-link" href="/#proof-library">
-                Browse proofs
-              </Link>
+              <div className="nav-links">
+                <Link className="nav-link" href="/#proof-library">
+                  Browse proofs
+                </Link>
+                <Link className="nav-link" href="/methodology">
+                  Evaluation
+                </Link>
+              </div>
             </nav>
           </div>
         </header>

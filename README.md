@@ -69,6 +69,8 @@ The browser sends a proof ID and bounded selection location. The server reconstr
 
 ```bash
 npm run dev
+npm run proof:validate
+npm run eval:validate
 npm test
 npm run typecheck
 npm run lint
@@ -186,5 +188,8 @@ After deployment, test both packages in a private browser session, one paper sel
 - [Technical specification](docs/SPEC.md)
 - [Implementation plan](PLAN.md)
 - [Devpost submission checklist](docs/DEVPOST_SUBMISSION_CHECKLIST.md)
+- [Evaluation methodology](docs/EVALUATION.md)
+
+The public `/methodology` route reads the checked-in evaluation status. Live evaluation is optional, requires an explicit confirmation flag, and is never part of key-free CI.
 
 The original single-file cycle-double-cover reading room remains at `proofs/cycle-double-cover/index.html` as a visual reference, not the application source of truth.

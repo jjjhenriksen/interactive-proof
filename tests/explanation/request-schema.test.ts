@@ -53,4 +53,23 @@ describe("explainRequestSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("rejects conversation history above the combined character budget", () => {
+    const result = explainRequestSchema.safeParse({
+      ...validRequest,
+      history: [
+        { role: "user", text: "a".repeat(4_000) },
+        { role: "assistant", text: "b".repeat(4_000) },
+        { role: "user", text: "c".repeat(4_000) },
+        { role: "assistant", text: "d" },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([expect.objectContaining({ path: ["history"] })]),
+      );
+    }
+  });
 });

@@ -39,6 +39,9 @@ jobs:
       - name: Validate proof packages
         run: npm run proof:validate
 
+      - name: Validate evaluation set
+        run: npm run eval:validate
+
       - name: Run unit tests
         run: npm test
 

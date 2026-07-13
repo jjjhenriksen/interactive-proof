@@ -1,5 +1,7 @@
 import type { ExplanationMode } from "./request-schema";
 
+export const EXPLANATION_PROMPT_VERSION = "2026-07-13.1";
+
 const MODE_INSTRUCTIONS: Record<ExplanationMode, string> = {
   details:
     "Explain what the selected passage is doing, why the immediate step works, and only the prerequisites needed at this point.",
