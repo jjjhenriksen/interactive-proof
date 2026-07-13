@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "id": "odd-sum-square",
+  "title": "Why the First n Odd Numbers Sum to n²",
+  "shortTitle": "Odd Numbers Build Squares",
+  "summary": "A one-page introduction to mathematical induction, geometric growth, and the Lean proof that adding the first n odd numbers produces an n by n square.",
+  "audience": "Learners meeting proof by induction or Lean for the first time.",
+  "paper": {
+    "title": "Why Odd Numbers Build Perfect Squares",
+    "authors": ["Interactive Proof Project"],
+    "pdf": "odd-sum-square-paper.pdf",
+    "pages": "paper.pages.json",
+    "license": {
+      "status": "cleared",
+      "name": "Creative Commons Attribution 4.0 International",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "lean": {
+    "repository": "https://github.com/jjjhenriksen/interactive-proof",
+    "revision": "sha256:f04d3081d4dc1dab49f8f6017cf2e42ad06bfe0eb5a6699f61c1b2382e143b49",
+    "toolchain": "leanprover/lean4:v4.29.1",
+    "sourceDirectory": "lean",
+    "displayMode": "full"
+  },
+  "glossary": [
+    {
+      "id": "odd-number",
+      "term": "odd number",
+      "explanation": "A natural number of the form 2k + 1. The sequence begins 1, 3, 5, 7, and 9.",
+      "sourceIds": ["page-1-block-4", "lean-odd-sum-definition"]
+    },
+    {
+      "id": "induction",
+      "term": "mathematical induction",
+      "explanation": "A proof method with a base case and a successor step: prove the claim at zero, then prove that each established case gives the next one.",
+      "sourceIds": ["page-1-block-6", "lean-odd-sum-theorem"]
+    },
+    {
+      "id": "successor",
+      "term": "successor",
+      "explanation": "The natural number after n, written n + 1. Lean exposes this as the second branch of the inductive proof.",
+      "sourceIds": ["page-1-block-8", "lean-odd-sum-theorem"]
+    }
+  ],
+  "mappings": [
+    {
+      "id": "odd-sum-definition",
+      "label": "Build the sum one odd number at a time",
+      "paper": {
+        "sourceId": "page-1-block-6",
+        "pages": [1],
+        "heading": "Proof by induction",
+        "quote": "The next odd number is 2n + 1."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-odd-sum-definition",
+          "file": "lean/Main.lean",
+          "declaration": "oddSum",
+          "startLine": 3,
+          "endLine": 6
+        }
+      ],
+      "prerequisites": ["Natural numbers", "Odd numbers", "Recursive definitions"],
+      "dependencies": [],
+      "usedBy": ["odd-sum-theorem"],
+      "correspondence": "direct",
+      "correspondenceNote": "The recursive Lean definition states exactly the paper's running-sum step: the sum at n + 1 is the previous sum plus 2n + 1."
+    },
+    {
+      "id": "odd-sum-theorem",
+      "label": "The first n odd numbers sum to n²",
+      "paper": {
+        "sourceId": "page-1-block-4",
+        "pages": [1],
+        "heading": "Theorem",
+        "quote": "For every natural number n, the sum of the first n odd numbers is n²."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-odd-sum-theorem",
+          "file": "lean/Main.lean",
+          "declaration": "oddSum_eq_square",
+          "startLine": 8,
+          "endLine": 13
+        }
+      ],
+      "prerequisites": ["Mathematical induction", "The identity (n + 1)² = n² + 2n + 1"],
+      "dependencies": ["odd-sum-definition"],
+      "usedBy": [],
+      "correspondence": "direct",
+      "correspondenceNote": "The Lean theorem follows the same base-and-successor structure as the paper. Its final simplification is the algebraic square-growth step shown in the displayed equation."
+    },
+    {
+      "id": "square-growth",
+      "label": "A square grows by the next odd number",
+      "paper": {
+        "sourceId": "page-1-block-10",
+        "pages": [1],
+        "heading": "Why the algebra matches the picture",
+        "quote": "The new L-shaped border contains 2n + 1 cells."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-square-arithmetic",
+          "file": "lean/Main.lean",
+          "declaration": "oddSum_eq_square",
+          "startLine": 11,
+          "endLine": 13
+        }
+      ],
+      "prerequisites": ["Area of an n by n square", "Distributivity of multiplication over addition"],
+      "dependencies": ["odd-sum-definition"],
+      "usedBy": ["odd-sum-theorem"],
+      "correspondence": "supporting",
+      "correspondenceNote": "The picture motivates the arithmetic identity. Lean checks the same identity during simplification, but the diagram itself is explanatory rather than a formal object."
+    }
+  ]
+}

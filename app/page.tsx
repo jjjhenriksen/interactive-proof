@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { listProofIds, loadProofPackage } from "../lib/proof-packages/registry.server";
+import { verificationStatus } from "../lib/verification/audit";
+
 const TRUST_LABELS = [
   {
     label: "Paper states",
@@ -15,7 +18,11 @@ const TRUST_LABELS = [
   },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const proofs = (
+    await Promise.all(listProofIds().map((id) => loadProofPackage(id)))
+  ).filter((proof) => proof !== null);
+
   return (
     <main id="main-content">
       <section className="hero" aria-labelledby="hero-title">
@@ -28,10 +35,10 @@ export default function HomePage() {
               explanation grounded in the paper and its formal proof.
             </p>
             <div className="hero__actions">
-              <Link className="button button--primary" href="/proofs/cycle-double-cover">
-                Open the reader shell
+              <a className="button button--primary" href="#proof-library">
+                Choose a proof
                 <span aria-hidden="true">→</span>
-              </Link>
+              </a>
               <a className="button button--secondary" href="#how-it-works">
                 See how it works
               </a>
@@ -62,6 +69,39 @@ export default function HomePage() {
                 </p>
               </aside>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="proof-library" id="proof-library" aria-labelledby="proof-library-title">
+        <div className="page-shell">
+          <div className="proof-library__heading">
+            <div>
+              <p className="eyebrow">The reading room</p>
+              <h2 id="proof-library-title">Choose the proof that meets you where you are.</h2>
+            </div>
+            <p>
+              Each package uses the same reader, evidence model, and source navigation.
+              Only the mathematics changes.
+            </p>
+          </div>
+          <div className="proof-grid">
+            {proofs.map((proof) => {
+              const status = verificationStatus(proof.manifest, proof.verification);
+              return (
+                <article className="proof-card" key={proof.manifest.id}>
+                  <div className="proof-card__meta">
+                    <span>{proof.paperPages.pages.length === 1 ? "1 paper page" : `${proof.paperPages.pages.length} paper pages`}</span>
+                    <span>{status === "verified" ? "Lean verified" : `Lean ${status}`}</span>
+                  </div>
+                  <h3>{proof.manifest.shortTitle}</h3>
+                  <p>{proof.manifest.summary}</p>
+                  <Link href={`/proofs/${proof.manifest.id}`}>
+                    Read this proof <span aria-hidden="true">→</span>
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
