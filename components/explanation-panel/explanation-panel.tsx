@@ -1,0 +1,206 @@
+"use client"
+
+import { type RefObject, useEffect, useRef } from "react"
+
+import { EXPLANATION_ACTIONS } from "../selection-menu/selection-types"
+import { EvidenceChip, SourceChip } from "./evidence-chip"
+import {
+  getLastCompleted,
+  isRequestActive,
+  type ExplanationState,
+  type PublicSource,
+} from "./explanation-state"
+import { FollowUpForm } from "./follow-up-form"
+import styles from "./explanation-panel.module.css"
+
+type ExplanationPanelProps = {
+  state: ExplanationState
+  onClose: () => void
+  onAbort: () => void
+  onRetry: () => void
+  onFollowUp: (question: string) => void
+  onSourceNavigate?: (source: PublicSource) => void
+  returnFocusRef?: RefObject<HTMLElement | null>
+}
+
+function describeSelection(state: Exclude<ExplanationState, { status: "closed" }>) {
+  const { location } = state.selection
+  if (location.source === "paper") return `Paper, page ${location.page}`
+  if (location.source === "lean") {
+    return `${location.file}, ${location.declaration}, lines ${location.startLine}–${location.endLine}`
+  }
+  return `Guide, ${location.section}`
+}
+
+export function ExplanationPanel({
+  state,
+  onClose,
+  onAbort,
+  onRetry,
+  onFollowUp,
+  onSourceNavigate,
+  returnFocusRef,
+}: ExplanationPanelProps) {
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const previousStatus = useRef(state.status)
+
+  useEffect(() => {
+    if (previousStatus.current === "closed" && state.status !== "closed") {
+      headingRef.current?.focus()
+    }
+    previousStatus.current = state.status
+  }, [state.status])
+
+  if (state.status === "closed") return null
+
+  const isBusy = isRequestActive(state)
+  const completed = getLastCompleted(state)
+  const context =
+    state.status === "streaming" || state.status === "complete"
+      ? state.context
+      : completed?.context
+  const answer =
+    state.status === "streaming" || state.status === "complete"
+      ? state.text
+      : completed?.text
+  const mode =
+    state.status === "connecting" ||
+    state.status === "streaming" ||
+    state.status === "complete" ||
+    state.status === "error"
+      ? state.request.mode
+      : undefined
+  const modeLabel = EXPLANATION_ACTIONS.find((action) => action.mode === mode)?.label
+
+  const handleClose = () => {
+    if (isBusy) onAbort()
+    onClose()
+    window.setTimeout(() => returnFocusRef?.current?.focus(), 0)
+  }
+
+  return (
+    <aside
+      className={styles.panel}
+      aria-labelledby="explanation-panel-title"
+      aria-busy={isBusy}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault()
+          handleClose()
+        }
+      }}
+    >
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>{modeLabel ?? "Reading companion"}</p>
+          <h2
+            className={styles.title}
+            id="explanation-panel-title"
+            ref={headingRef}
+            tabIndex={-1}
+          >
+            More about this passage
+          </h2>
+        </div>
+        <button className={styles.closeButton} type="button" onClick={handleClose}>
+          Close panel
+        </button>
+      </header>
+
+      <div className={styles.body}>
+        <section aria-labelledby="selected-passage-heading">
+          <h3 className={styles.sectionLabel} id="selected-passage-heading">
+            Selected passage
+          </h3>
+          <blockquote className={styles.selectionQuote}>
+            {state.selection.selectedText}
+          </blockquote>
+          <p className={styles.location}>{describeSelection(state)}</p>
+        </section>
+
+        {context ? (
+          <section className={styles.evidenceSection} aria-labelledby="grounding-heading">
+            <h3 className={styles.sectionLabel} id="grounding-heading">
+              Grounded in
+            </h3>
+            <div className={styles.chipList}>
+              {context.sources.map((source) => (
+                <SourceChip
+                  key={source.id}
+                  source={source}
+                  onNavigate={onSourceNavigate}
+                />
+              ))}
+            </div>
+            <div className={styles.trustLegend} aria-label="Evidence types in this answer">
+              <EvidenceChip kind="explanation" />
+              {context.sources.some((source) => source.type === "paper") ? (
+                <EvidenceChip kind="paper" />
+              ) : null}
+              {context.sources.some((source) => source.type === "lean") &&
+              context.verification?.build === "passed" ? (
+                <EvidenceChip kind="lean" />
+              ) : null}
+              {context.hasPrerequisiteContext ? <EvidenceChip kind="prerequisite" /> : null}
+            </div>
+            {context.verification ? (
+              <p className={styles.verificationNote}>
+                Lean build: {context.verification.build}
+                {context.verification.revision
+                  ? ` at revision ${context.verification.revision}`
+                  : ""}
+              </p>
+            ) : null}
+          </section>
+        ) : null}
+
+        <section className={styles.answerSection} aria-labelledby="answer-heading">
+          <div className={styles.answerHeadingRow}>
+            <h3 className={styles.sectionLabel} id="answer-heading">
+              Explanation
+            </h3>
+            {isBusy ? (
+              <button className={styles.quietButton} type="button" onClick={onAbort}>
+                Stop
+              </button>
+            ) : null}
+          </div>
+
+          <div className={styles.statusRegion} aria-live="polite" aria-atomic="false">
+            {state.status === "ready" ? (
+              <p className={styles.mutedText}>Choose an explanation action to begin.</p>
+            ) : null}
+            {state.status === "connecting" ? (
+              <div className={styles.loadingState} role="status">
+                <span className={styles.loadingDot} aria-hidden="true" />
+                Gathering the mapped paper and Lean context…
+              </div>
+            ) : null}
+            {answer ? <div className={styles.answerText}>{answer}</div> : null}
+            {state.status === "streaming" ? (
+              <span className={styles.streamCursor} aria-label="Answer is still streaming" />
+            ) : null}
+            {state.status === "error" ? (
+              <div className={styles.errorState} role="alert">
+                <p className={styles.errorTitle}>The explanation could not be completed.</p>
+                <p>{state.error.message}</p>
+                {state.error.requestId ? (
+                  <p className={styles.requestId}>Request {state.error.requestId}</p>
+                ) : null}
+                {state.error.isRetryable ? (
+                  <button className={styles.retryButton} type="button" onClick={onRetry}>
+                    Try again
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        {state.status === "complete" || state.status === "error" ? (
+          <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} />
+        ) : null}
+      </div>
+    </aside>
+  )
+}

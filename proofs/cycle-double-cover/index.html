@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='16' r='7' fill='none' stroke='%23275b45' stroke-width='4'/%3E%3Ccircle cx='22' cy='16' r='4' fill='%23275b45'/%3E%3C/svg%3E">
+  <title>The Cycle Double Cover Proof — Guided Reading Room</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#f7f7f5, #151515);
+      --panel: light-dark(#eeeeeb, #1d1d1d);
+      --surface: light-dark(#ffffff, #222222);
+      --surface-2: light-dark(#f2f2ef, #292929);
+      --text: light-dark(#20201e, #f4f4f1);
+      --muted: light-dark(#686862, #aaa9a3);
+      --border: light-dark(#d9d9d4, #383838);
+      --accent: light-dark(#275b45, #8bcaaa);
+      --accent-soft: light-dark(#dfece5, #20372d);
+      --gold: light-dark(#9a6a1f, #dcb76e);
+      --blue: light-dark(#326a9c, #82b7e7);
+      --orange: light-dark(#a44f26, #ec9c74);
+      --green: light-dark(#377e54, #7bc794);
+      --radius: 10px;
+      --sidebar: 288px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); min-width: 320px; }
+    button, a { font: inherit; }
+    button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
+    a { color: var(--accent); text-underline-offset: 3px; }
+    code, .formula { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .skip-link { position: fixed; left: 12px; top: -60px; z-index: 100; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+    .skip-link:focus { top: 12px; }
+    .app { min-height: 100vh; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar); z-index: 20; display: flex; flex-direction: column; background: var(--panel); border-right: 1px solid var(--border); }
+    .brand { padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
+    .brand-mark { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+    .brand-dot { width: 12px; height: 12px; border: 3px solid var(--accent); border-radius: 50%; box-shadow: 9px 0 0 -4px var(--accent); }
+    .brand p { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .nav-label { padding: 18px 20px 8px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    nav { padding: 0 10px; overflow-y: auto; }
+    .nav-item { width: 100%; min-height: 42px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; margin: 2px 0; padding: 8px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); text-align: left; cursor: pointer; }
+    .nav-item:hover { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
+    .nav-item[aria-current="page"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--border); }
+    .nav-icon { width: 22px; color: var(--muted); font-family: ui-monospace, monospace; font-size: 12px; }
+    .nav-num { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+    .sidebar-footer { margin-top: auto; padding: 14px 20px 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .mobile-bar { display: none; position: sticky; top: 0; z-index: 18; min-height: 54px; padding: 8px 14px; background: color-mix(in srgb, var(--bg) 92%, transparent); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); align-items: center; justify-content: space-between; }
+    .menu-button { min-width: 42px; min-height: 38px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); cursor: pointer; }
+    .main { margin-left: var(--sidebar); min-height: 100vh; }
+    .page { display: none; width: min(100%, 1120px); margin: 0 auto; padding: 48px clamp(24px, 5vw, 72px) 80px; }
+    .page.is-active { display: block; }
+    .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2, h3 { letter-spacing: -.02em; }
+    h1 { max-width: 850px; margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(38px, 6vw, 72px); font-weight: 500; line-height: 1.02; }
+    h2 { margin: 0 0 18px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(30px, 4vw, 46px); font-weight: 500; line-height: 1.1; }
+    h3 { margin: 32px 0 10px; font-size: 20px; }
+    p, li { line-height: 1.68; }
+    .lede { max-width: 760px; margin: 24px 0 0; color: var(--muted); font-family: Georgia, "Times New Roman", serif; font-size: clamp(18px, 2vw, 23px); line-height: 1.5; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 28px; color: var(--muted); font-size: 13px; }
+    .rule { height: 1px; margin: 40px 0; background: var(--border); }
+    .prose { max-width: 760px; }
+    .callout { max-width: 820px; margin: 28px 0; padding: 20px 22px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; }
+    .callout strong { display: block; margin-bottom: 5px; }
+    .callout p { margin: 0; }
+    .plain-grid, .term-grid, .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 26px; }
+    .card { padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .card h3 { margin: 0 0 8px; font-size: 17px; }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .card .term { color: var(--accent); font-family: ui-monospace, monospace; font-size: 13px; }
+    .formula { max-width: 820px; margin: 22px 0; padding: 18px 20px; overflow-x: auto; background: var(--surface-2); border-radius: var(--radius); font-size: 15px; line-height: 1.7; }
+    .translation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; margin: 24px 0; }
+    .translation > div { padding: 20px; border-radius: var(--radius); }
+    .translation .paper-says { background: var(--surface-2); }
+    .translation .means { background: var(--accent-soft); }
+    .translation h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; }
+    .translation p { margin: 0; }
+    .proof-chain { display: grid; gap: 0; margin: 28px 0; }
+    .chain-step { display: grid; grid-template-columns: 42px 1fr; gap: 14px; }
+    .chain-marker { display: flex; flex-direction: column; align-items: center; }
+    .chain-dot { width: 28px; height: 28px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; color: var(--accent); font-size: 12px; font-weight: 700; }
+    .chain-line { width: 1px; min-height: 52px; flex: 1; background: var(--border); }
+    .chain-step:last-child .chain-line { display: none; }
+    .chain-copy { padding: 2px 0 28px; }
+    .chain-copy strong { display: block; margin-bottom: 4px; }
+    .chain-copy p { margin: 0; color: var(--muted); }
+    .lab { max-width: 900px; margin-top: 28px; padding: 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .lab-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 12px; }
+    .lab-head h3 { margin: 0; }
+    .lab-head span { color: var(--muted); font-size: 12px; }
+    .graph { width: 100%; height: auto; display: block; }
+    .edge { stroke: var(--border); stroke-width: 7; stroke-linecap: round; transition: stroke .18s ease, opacity .18s ease, stroke-width .18s ease; }
+    .edge.active { stroke: var(--blue); stroke-width: 10; }
+    .edge.second { stroke: var(--orange); stroke-width: 10; }
+    .edge.third { stroke: var(--green); stroke-width: 10; }
+    .edge.muted { opacity: .18; }
+    .node { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+    .node-label, .edge-label { fill: var(--text); text-anchor: middle; dominant-baseline: central; }
+    .edge-label { paint-order: stroke; stroke: var(--surface); stroke-width: 6; stroke-linejoin: round; }
+    .lab-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+    .chip { min-height: 38px; padding: 8px 13px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; }
+    .chip:hover { background: var(--surface-2); }
+    .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: light-dark(#fff, #111); }
+    .lab-note { min-height: 52px; margin: 16px 0 0; color: var(--muted); text-align: center; }
+    .lean-table { width: 100%; margin-top: 26px; border-collapse: collapse; font-size: 14px; }
+    .lean-table th, .lean-table td { padding: 14px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    .lean-table th { color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    .lean-table code { color: var(--accent); }
+    .status { display: inline-block; padding: 3px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 11px; white-space: nowrap; }
+    .lean-workspace { display: grid; grid-template-columns: 180px minmax(360px, 1fr) 330px; min-height: 650px; margin-top: 24px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .source-switch { display: inline-flex; padding: 3px; margin-top: 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; }
+    .source-switch button { min-height: 36px; padding: 7px 18px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); cursor: pointer; }
+    .source-switch button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px color-mix(in srgb, #000 10%, transparent); }
+    .reader-intro { display: grid; grid-template-columns: minmax(300px, 1.2fr) minmax(220px, .8fr); gap: 24px; align-items: center; max-width: 900px; margin-top: 28px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .reader-intro svg { width: 100%; height: auto; display: block; }
+    .reader-intro-copy h3 { margin: 0 0 10px; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 500; }
+    .reader-intro-copy p { margin: 0; color: var(--muted); font-size: 14px; }
+    .reader-intro-copy dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; margin: 18px 0 0; font-size: 12px; }
+    .reader-intro-copy dt { color: var(--accent); font-family: ui-monospace, monospace; }
+    .reader-intro-copy dd { margin: 0; color: var(--muted); }
+    .intro-edge { fill: none; stroke: var(--border); stroke-width: 7; stroke-linecap: round; }
+    .intro-edge.i1 { stroke: var(--blue); }
+    .intro-edge.i2 { stroke: var(--orange); }
+    .intro-edge.i3 { stroke: var(--green); }
+    .intro-node { fill: var(--surface); stroke: var(--text); stroke-width: 2; }
+    .intro-label { fill: var(--text); text-anchor: middle; dominant-baseline: central; font-size: 13px; font-weight: 700; }
+    .lean-files { background: var(--surface-2); border-right: 1px solid var(--border); }
+    .pane-title { min-height: 40px; display: flex; align-items: center; padding: 0 12px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .file-list, .decl-list { padding: 8px; }
+    .file-button, .decl-button { width: 100%; min-height: 36px; display: flex; align-items: center; gap: 7px; padding: 7px 8px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); text-align: left; cursor: pointer; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .file-button, .decl-button { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-button:hover, .decl-button:hover { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text); }
+    .file-button[aria-pressed="true"], .decl-button[aria-pressed="true"] { background: var(--accent-soft); color: var(--text); }
+    .file-glyph { color: var(--accent); }
+    .lean-editor { min-width: 0; background: light-dark(#fbfbfa, #191919); }
+    .editor-tabs { min-height: 40px; display: flex; align-items: stretch; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .editor-tab { display: flex; align-items: center; gap: 7px; padding: 0 13px; border: 0; border-right: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: ui-monospace, monospace; font-size: 12px; white-space: nowrap; }
+    .code-scroll { overflow: auto; max-height: 610px; }
+    .paper-reader { width: 100%; height: 610px; border: 0; background: var(--surface-2); }
+    .code-view { min-width: 620px; margin: 0; padding: 16px 0 28px; counter-reset: line; color: light-dark(#30302e, #dddcd7); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.65; tab-size: 2; }
+    .code-line { display: block; min-height: 20px; padding: 0 18px 0 58px; position: relative; white-space: pre; cursor: default; }
+    .code-line::before { counter-increment: line; content: counter(line); position: absolute; left: 0; width: 42px; padding-right: 10px; color: var(--muted); text-align: right; }
+    .code-line.is-focus { background: var(--accent-soft); box-shadow: inset 3px 0 var(--accent); }
+    .lean-infoview { min-width: 0; border-left: 1px solid var(--border); background: var(--surface); }
+    .info-body { padding: 18px; overflow-y: auto; max-height: 610px; }
+    .info-kind { margin-bottom: 8px; color: var(--accent); font-family: ui-monospace, monospace; font-size: 11px; }
+    .info-body h3 { margin: 0 0 10px; font-family: ui-monospace, monospace; font-size: 17px; overflow-wrap: anywhere; }
+    .info-summary { margin: 0 0 20px; font-family: Georgia, "Times New Roman", serif; font-size: 17px; line-height: 1.5; }
+    .info-section { padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
+    .info-section strong { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    .info-section p { margin: 0; font-size: 13px; }
+    .info-paper { padding: 10px 12px; background: var(--accent-soft); border-radius: 6px; }
+    .pdf-shell { height: calc(100vh - 96px); min-height: 600px; margin-top: 22px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .pdf-shell object { width: 100%; height: 100%; border: 0; }
+    .source-link { display: block; color: inherit; text-decoration: none; }
+    .source-link:hover h3 { color: var(--accent); }
+    .source-type { color: var(--muted); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    .reference-list { padding-left: 20px; }
+    .reference-list li { margin-bottom: 10px; color: var(--muted); }
+    .caveat { color: var(--muted); font-size: 13px; }
+    .sidebar-backdrop { display: none; }
+    @media (max-width: 820px) {
+      .mobile-bar { display: flex; }
+      .sidebar { transform: translateX(-102%); transition: transform .2s ease-out; box-shadow: 20px 0 50px color-mix(in srgb, #000 24%, transparent); }
+      .sidebar.is-open { transform: translateX(0); }
+      .sidebar-backdrop { position: fixed; inset: 0; z-index: 19; background: color-mix(in srgb, #000 45%, transparent); }
+      .sidebar-backdrop.is-open { display: block; }
+      .main { margin-left: 0; }
+      .page { padding: 32px 20px 64px; }
+      .translation, .plain-grid, .term-grid, .source-grid { grid-template-columns: 1fr; }
+      .reader-intro { grid-template-columns: 1fr; }
+      .lean-workspace { grid-template-columns: 150px minmax(0, 1fr); }
+      .lean-infoview { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--border); }
+      .info-body { max-height: none; }
+      .pdf-shell { height: 70vh; min-height: 460px; }
+    }
+    @media (max-width: 520px) {
+      .lab { padding: 14px; }
+      .lean-table, .lean-table tbody, .lean-table tr, .lean-table td { display: block; }
+      .lean-table thead { display: none; }
+      .lean-table tr { padding: 12px 0; border-bottom: 1px solid var(--border); }
+      .lean-table td { padding: 4px 0; border: 0; }
+      .lean-workspace { display: block; }
+      .lean-files { border-right: 0; border-bottom: 1px solid var(--border); }
+      .file-list { display: flex; overflow-x: auto; }
+      .file-button { width: auto; white-space: nowrap; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .sidebar, .edge { transition: none; } }
+    @media print { .sidebar, .mobile-bar { display: none; } .main { margin: 0; } .page { display: block !important; page-break-before: always; } .page:first-child { page-break-before: auto; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="app">
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <aside class="sidebar" id="sidebar" aria-label="Document navigation">
+      <div class="brand">
+        <div class="brand-mark"><span class="brand-dot" aria-hidden="true"></span> Proof reading room</div>
+        <p>A beginner’s route through the Cycle Double Cover argument and its Lean formalization.</p>
+      </div>
+      <div class="nav-label">Contents</div>
+      <nav id="page-nav">
+        <button class="nav-item" data-page="lean" aria-current="page"><span class="nav-icon">λ</span><span>Paper | Lean reader</span><span class="nav-num">01</span></button>
+        <button class="nav-item" data-page="welcome"><span class="nav-icon">◎</span><span>Overview</span><span class="nav-num">02</span></button>
+        <button class="nav-item" data-page="vocabulary"><span class="nav-icon">Aa</span><span>Vocabulary</span><span class="nav-num">03</span></button>
+        <button class="nav-item" data-page="claim"><span class="nav-icon">◇</span><span>The claim</span><span class="nav-num">04</span></button>
+        <button class="nav-item" data-page="proof"><span class="nav-icon">→</span><span>Proof walkthrough</span><span class="nav-num">05</span></button>
+        <button class="nav-item" data-page="interactive"><span class="nav-icon">✣</span><span>Interactive example</span><span class="nav-num">06</span></button>
+        <button class="nav-item" data-page="hard-part"><span class="nav-icon">∑</span><span>The hard lemma</span><span class="nav-num">07</span></button>
+        <button class="nav-item" data-page="paper"><span class="nav-icon">▤</span><span>Original paper</span><span class="nav-num">08</span></button>
+        <button class="nav-item" data-page="sources"><span class="nav-icon">↗</span><span>Sources & caveats</span><span class="nav-num">09</span></button>
+      </nav>
+      <div class="sidebar-footer">Paper: 3 pages · Formalization: Lean 4<br>Audience: no graph theory assumed</div>
+    </aside>
+
+    <main class="main" id="main-content">
+      <div class="mobile-bar"><strong id="mobile-title">Paper | Lean reader</strong><button class="menu-button" id="menu-button" aria-label="Open navigation" aria-expanded="false">☰</button></div>
+
+      <section class="page" id="page-welcome" data-title="Overview">
+        <p class="eyebrow">Guided reading room</p>
+        <h1>A proof about covering every road twice</h1>
+        <p class="lede">The paper compresses a difficult graph-theory argument into three pages. This site slows it down, supplies the missing vocabulary, and keeps the informal explanation connected to the formal Lean proof.</p>
+        <div class="meta-row"><span>OpenAI · July 2026</span><span>Cycle Double Cover Conjecture</span><span>Beginner route</span></div>
+        <div class="rule"></div>
+        <div class="prose">
+          <h3>The entire idea in ordinary language</h3>
+          <p>Imagine a network of towns joined by roads. We want to draw several closed trips so that every road is used exactly twice in total. The theorem says this can always be done provided no road is a single point of failure.</p>
+          <p>The proof does not search for the trips directly. It first puts a small three-bit “flow label” on every road. It then transforms each label into a pair of labels with a carefully engineered evenness property. Each individual label selects a set of roads that breaks into closed trips. Because each road has a pair, every road gets selected exactly twice.</p>
+        </div>
+        <div class="callout"><strong>What is genuinely difficult?</strong><p>The proof relies on the Jaeger–Kilpatrick eight-flow theorem to guarantee the initial nonzero labels. The paper’s new work is the conversion from those labels to a cycle double cover.</p></div>
+        <div class="plain-grid">
+          <div class="card"><h3>Read linearly</h3><p>Use the numbered sidebar from Vocabulary through The hard lemma.</p></div>
+          <div class="card"><h3>Inspect the evidence</h3><p>Open the original PDF and the Lean proof map whenever a claim feels too compressed.</p></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-vocabulary" data-title="Vocabulary">
+        <p class="eyebrow">Before the paper</p><h2>Six ideas you need</h2>
+        <p class="lede">Nothing here requires advanced mathematics. These are the paper’s core nouns, translated into concrete objects.</p>
+        <div class="term-grid">
+          <div class="card"><div class="term">graph</div><h3>Dots joined by lines</h3><p>Dots are vertices; lines are edges. A graph records connections, not physical distance.</p></div>
+          <div class="card"><div class="term">cycle</div><h3>A closed route</h3><p>A sequence of edges that returns to its starting point without needing a loose end.</p></div>
+          <div class="card"><div class="term">bridge</div><h3>A single point of failure</h3><p>An edge whose removal disconnects the graph. A bridgeless graph has another route around every edge.</p></div>
+          <div class="card"><div class="term">cubic</div><h3>Three edges at every vertex</h3><p>The proof reduces the general problem to graphs where each vertex has degree three.</p></div>
+          <div class="card"><div class="term">flow</div><h3>Labels that conserve at vertices</h3><p>Edge labels obey an in-equals-out rule. Over three-bit vectors, conservation becomes XOR to zero.</p></div>
+          <div class="card"><div class="term">F₂³ = Γ</div><h3>Eight three-bit labels</h3><p>All strings from 000 through 111, added bitwise modulo two—equivalently, by XOR.</p></div>
+        </div>
+        <div class="formula">001 + 010 = 011 &nbsp;&nbsp; and &nbsp;&nbsp; 011 + 011 = 000</div>
+        <div class="callout"><strong>Why “characteristic two” keeps appearing</strong><p>Every value cancels itself. Direction signs therefore disappear, and counting something twice produces zero. The proof exploits that parity repeatedly.</p></div>
+      </section>
+
+      <section class="page" id="page-claim" data-title="The claim">
+        <p class="eyebrow">Theorem 1.1</p><h2>Every finite bridgeless graph has a cycle double cover</h2>
+        <div class="translation">
+          <div class="paper-says"><h3>Formal statement</h3><p>A cycle double cover is a multiset of cycles in which every edge occurs exactly twice.</p></div>
+          <div class="means"><h3>What that means</h3><p>We may reuse a cycle, but after counting across the whole collection, each individual edge must have exactly two appearances.</p></div>
+        </div>
+        <div class="prose">
+          <h3>Why exclude bridges?</h3>
+          <p>A bridge cannot lie on any cycle: once a route crosses it, the only way back is to immediately retrace it, which does not form the required cycle structure. So bridgelessness is not a technical convenience—it is necessary.</p>
+          <h3>Why reduce to cubic graphs?</h3>
+          <p>The paper cites a standard reduction: if a counterexample existed, one could find a loopless cubic counterexample. Three incident edges make the local flow equation rigid enough to exploit: if their nonzero labels are <span class="formula-inline">x, y, z</span>, then <span class="formula-inline">x + y + z = 0</span>, so <span class="formula-inline">z = x + y</span>.</p>
+        </div>
+        <div class="formula">At a cubic vertex: &nbsp; x + y + z = 0 &nbsp; ⇒ &nbsp; z = x + y</div>
+      </section>
+
+      <section class="page" id="page-proof" data-title="Proof walkthrough">
+        <p class="eyebrow">The argument’s spine</p><h2>From graph to flow to pairs to cycles</h2>
+        <p class="lede">The proof is easiest to understand as a sequence of representations. Each step makes the target easier to reach.</p>
+        <div class="proof-chain">
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">1</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Reduce to a loopless cubic graph</strong><p>It is enough to solve the problem when three edges meet at every vertex.</p></div></div>
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">2</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Obtain a nowhere-zero Γ-flow</strong><p>Jaeger–Kilpatrick gives each edge a nonzero three-bit label whose incident labels sum to zero at every vertex.</p></div></div>
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">3</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Construct a two-element set Pₑ for every edge</strong><p>The two endpoints must agree on the same pair, and each label must occur zero or twice around every vertex.</p></div></div>
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">4</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Let each label select its edges</strong><p>For each s in Γ, form Mₛ from the edges whose pair Pₑ contains s.</p></div></div>
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">5</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Decompose the even edge sets into cycles</strong><p>Every vertex has degree zero or two inside Mₛ, so each Mₛ is a union of cycles.</p></div></div>
+          <div class="chain-step"><div class="chain-marker"><div class="chain-dot">6</div><div class="chain-line"></div></div><div class="chain-copy"><strong>Count every edge twice</strong><p>Each Pₑ has exactly two elements, so edge e belongs to exactly two of the sets Mₛ.</p></div></div>
+        </div>
+        <div class="callout"><strong>Lemma 2.1 is the conceptual center</strong><p>Once compatible pairs Pₑ exist, the final cycle double cover is almost automatic. Most of the remaining paper proves that the pairs can always be made globally consistent.</p></div>
+      </section>
+
+      <section class="page" id="page-interactive" data-title="Interactive example">
+        <p class="eyebrow">A manipulable model</p><h2>Watch the mechanism on four vertices</h2>
+        <p class="lede">This small graph is friendlier than the hard cases, but it makes the pair-to-cycle conversion visible.</p>
+        <div class="lab" id="graph-lab">
+          <div class="lab-head"><h3 id="lab-title">The graph</h3><span id="lab-count">1 / 4</span></div>
+          <svg class="graph" viewBox="0 0 720 410" role="img" aria-labelledby="graph-title graph-desc">
+            <title id="graph-title">Four-vertex cubic graph</title><desc id="graph-desc">A complete graph on four vertices whose labels and highlighted edges change with the selected proof stage.</desc>
+            <g id="lab-edges">
+              <line class="edge" data-edge="AB" x1="360" y1="55" x2="140" y2="315"></line><line class="edge" data-edge="AC" x1="360" y1="55" x2="580" y2="315"></line><line class="edge" data-edge="AD" x1="360" y1="55" x2="360" y2="365"></line><line class="edge" data-edge="BC" x1="140" y1="315" x2="580" y2="315"></line><line class="edge" data-edge="BD" x1="140" y1="315" x2="360" y2="365"></line><line class="edge" data-edge="CD" x1="580" y1="315" x2="360" y2="365"></line>
+            </g>
+            <g id="lab-labels"></g>
+            <g><circle class="node" cx="360" cy="55" r="24"></circle><text class="node-label" x="360" y="55">A</text></g><g><circle class="node" cx="140" cy="315" r="24"></circle><text class="node-label" x="140" y="315">B</text></g><g><circle class="node" cx="580" cy="315" r="24"></circle><text class="node-label" x="580" y="315">C</text></g><g><circle class="node" cx="360" cy="365" r="24"></circle><text class="node-label" x="360" y="365">D</text></g>
+          </svg>
+          <div class="lab-controls" id="lab-stage-controls" aria-label="Interactive proof stages"></div>
+          <div class="lab-controls" id="lab-value-controls" aria-label="Select a three-bit value" hidden></div>
+          <p class="lab-note" id="lab-note" aria-live="polite">Every vertex has three incident edges, and no edge is a bridge.</p>
+        </div>
+        <div class="callout"><strong>What this example does not prove</strong><p>This graph is 3-edge-colourable, so its labels are unusually tidy. The paper’s compatibility argument is needed for general cubic graphs, including the difficult non-colourable cases called snarks.</p></div>
+      </section>
+
+      <section class="page" id="page-hard-part" data-title="The hard lemma">
+        <p class="eyebrow">Lemma 2.2</p><h2>Making local choices agree globally</h2>
+        <p class="lede">At each vertex it is easy to invent three good pairs. The problem is that an edge touches two vertices, and its two independently constructed pairs may disagree.</p>
+        <div class="prose">
+          <h3>The local construction</h3>
+          <p>At a vertex, locally name the three flow labels <span class="formula-inline">x, y, z</span>, where <span class="formula-inline">z = x + y</span>. After choosing a shift <span class="formula-inline">t</span>, assign the three edges the pairs:</p>
+        </div>
+        <div class="formula">{t, t+x} &nbsp;&nbsp; {t+x, t+z} &nbsp;&nbsp; {t, t+z}</div>
+        <p class="prose">Look at any value. It appears in either zero or two of these pairs—the exact local parity property we need. But neighboring vertices may choose different shifts.</p>
+        <h3>The compatibility equation</h3>
+        <div class="formula">tᵤ + tᵥ + εₑ f(e) = dₑ &nbsp;&nbsp; for every edge e = uv</div>
+        <div class="translation">
+          <div class="paper-says"><h3>Symbols</h3><p><strong>tᵤ, tᵥ</strong> are vertex shifts; <strong>f(e)</strong> is the edge’s flow label; <strong>εₑ</strong> is a zero-or-one switch; <strong>dₑ</strong> records the initial mismatch.</p></div>
+          <div class="means"><h3>Meaning</h3><p>Can we choose one adjustment at each vertex and one flip on each edge so that every pair agrees at both ends simultaneously?</p></div>
+        </div>
+        <div class="prose">
+          <h3>Why a solution exists</h3>
+          <p>The paper packages all edge equations into one linear map <span class="formula-inline">L</span>. It uses a standard duality principle: a target vector lies in the image of <span class="formula-inline">L</span> exactly when every linear test that vanishes on the image also vanishes on the target.</p>
+          <p>The remaining calculation is local. The possible dual tests around a cubic vertex are constrained by flow conservation. Their contribution becomes the parity of the number of nonzero tests at that vertex. When summed over all vertices, every edge contribution appears twice—once at each endpoint—and therefore cancels in F₂.</p>
+        </div>
+        <div class="formula">Σ over vertices = 2 · Σ over edges = 0 &nbsp;&nbsp; in F₂</div>
+        <div class="callout"><strong>The proof’s recurring rhythm</strong><p>Local parity is converted into global consistency because every edge has exactly two endpoints. “Appears twice, therefore cancels” is both the algebraic engine and the final covering goal.</p></div>
+      </section>
+
+      <section class="page is-active" id="page-lean" data-title="Paper | Lean reader">
+        <p class="eyebrow">Two sources, one human-readable infoview</p><h2>Read the paper or the Lean proof beside its explanation</h2>
+        <p class="lede">Switch between the mathematical paper and its formal source. The right pane explains whichever page or declaration is open.</p>
+        <div class="reader-intro">
+          <svg viewBox="0 0 520 300" role="img" aria-labelledby="reader-graph-title reader-graph-desc">
+            <title id="reader-graph-title">A four-vertex cubic graph</title>
+            <desc id="reader-graph-desc">Four vertices connected by six edges in three color groups, illustrating the small graph used throughout the explanation.</desc>
+            <line class="intro-edge i1" x1="260" y1="38" x2="88" y2="224"></line>
+            <line class="intro-edge i2" x1="260" y1="38" x2="432" y2="224"></line>
+            <line class="intro-edge i3" x1="260" y1="38" x2="260" y2="270"></line>
+            <line class="intro-edge i3" x1="88" y1="224" x2="432" y2="224"></line>
+            <line class="intro-edge i2" x1="88" y1="224" x2="260" y2="270"></line>
+            <line class="intro-edge i1" x1="432" y1="224" x2="260" y2="270"></line>
+            <circle class="intro-node" cx="260" cy="38" r="22"></circle><text class="intro-label" x="260" y="38">A</text>
+            <circle class="intro-node" cx="88" cy="224" r="22"></circle><text class="intro-label" x="88" y="224">B</text>
+            <circle class="intro-node" cx="432" cy="224" r="22"></circle><text class="intro-label" x="432" y="224">C</text>
+            <circle class="intro-node" cx="260" cy="270" r="22"></circle><text class="intro-label" x="260" y="270">D</text>
+          </svg>
+          <div class="reader-intro-copy">
+            <h3>The visual anchor</h3>
+            <p>This tiny graph lets you see the paper’s mechanism before confronting the notation: conserved edge labels become paired labels, and paired labels select cycles.</p>
+            <dl><dt>cubic</dt><dd>three edges meet at every vertex</dd><dt>bridgeless</dt><dd>no edge is a single point of failure</dd><dt>target</dt><dd>every edge belongs to exactly two cycles</dd></dl>
+          </div>
+        </div>
+        <div class="source-switch" role="group" aria-label="Choose source view">
+          <button type="button" id="source-paper" aria-pressed="true">Paper</button>
+          <button type="button" id="source-lean" aria-pressed="false">Lean</button>
+        </div>
+        <div class="lean-workspace" id="lean-workspace">
+          <aside class="lean-files" aria-label="Source explorer">
+            <div class="pane-title" id="explorer-title">Paper pages</div>
+            <div class="file-list" id="lean-file-list"></div>
+            <div class="pane-title" id="decl-title">Sections</div>
+            <div class="decl-list" id="lean-decl-list"></div>
+          </aside>
+          <div class="lean-editor">
+            <div class="editor-tabs"><div class="editor-tab"><span class="file-glyph" id="source-glyph">▤</span><span id="lean-tab-name">cdc_proof.pdf — page 1</span></div></div>
+            <iframe class="paper-reader" id="paper-reader" title="Selected page of the proof paper" src="cdc-proof-paper.pdf#page=1&view=FitH"></iframe>
+            <div class="code-scroll" id="code-scroll" hidden><pre class="code-view" id="lean-code" aria-label="Selected Lean source code"></pre></div>
+          </div>
+          <aside class="lean-infoview" aria-label="Human explanation">
+            <div class="pane-title">Human infoview</div>
+            <div class="info-body" id="lean-info" aria-live="polite"></div>
+          </aside>
+        </div>
+        <p class="caveat">Paper mode contains the complete local PDF. Lean mode presents annotated source excerpts around the declarations most directly connected to the note; the repository under Sources contains every file without omissions.</p>
+      </section>
+
+      <section class="page" id="page-paper" data-title="Original paper">
+        <p class="eyebrow">Primary source</p><h2>The complete three-page paper</h2>
+        <p class="caveat">The PDF is bundled locally with this webpage. If your browser does not render embedded PDFs, use the direct link below.</p>
+        <p><a href="cdc-proof-paper.pdf" target="_blank" rel="noopener">Open the PDF in a separate tab</a></p>
+        <div class="pdf-shell"><object data="cdc-proof-paper.pdf" type="application/pdf"><p>Your browser cannot display the embedded PDF. <a href="cdc-proof-paper.pdf">Open it directly.</a></p></object></div>
+      </section>
+
+      <section class="page" id="page-sources" data-title="Sources & caveats">
+        <p class="eyebrow">Evidence and boundaries</p><h2>Sources, references, and what this site claims</h2>
+        <div class="source-grid">
+          <a class="card source-link" href="cdc-proof-paper.pdf" target="_blank" rel="noopener"><span class="source-type">Primary source · PDF</span><h3>A Proof of the Cycle Double Cover Conjecture</h3><p>The complete submitted note reproduced locally.</p></a>
+          <a class="card source-link" href="https://github.com/openai/cdc-lean" target="_blank" rel="noopener"><span class="source-type">Formal source · GitHub</span><h3>openai/cdc-lean</h3><p>The Lean 4 repository containing the machine-checked development.</p></a>
+        </div>
+        <div class="rule"></div>
+        <div class="prose">
+          <h3>Interpretive status</h3>
+          <p>This site is a pedagogical reconstruction of the argument in the paper and its repository. It distinguishes the deep imported graph-theory input from the paper’s pair-labeling construction, but it is not an independent peer review and does not certify the mathematical novelty or publication status of the result.</p>
+          <h3>Paper references</h3>
+          <ol class="reference-list">
+            <li>Alspach, Goddyn, and Zhang, “Graphs with the circuit cover property” (1994).</li>
+            <li>Itai and Rodeh, “Covering a graph by circuits” (1978).</li>
+            <li>Jaeger, “A survey of the cycle double cover conjecture” (1985).</li>
+            <li>Jaeger, “On nowhere-zero flows in multigraphs” (1976).</li>
+            <li>Kilpatrick, “Tutte’s first colour-cycle conjecture” (1975).</li>
+            <li>Seymour, “Sums of circuits” (1979).</li>
+            <li>Seymour, “Nowhere-zero 6-flows” (1981).</li>
+            <li>Szekeres, “Polyhedral decompositions of cubic graphs” (1973).</li>
+            <li>Tutte, “A contribution to the theory of chromatic polynomials” (1954).</li>
+            <li>Tutte, personal correspondence with H. Fleischner (1987).</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const pages = [...document.querySelectorAll('.page')];
+      const navItems = [...document.querySelectorAll('.nav-item')];
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      const menu = document.getElementById('menu-button');
+      const mobileTitle = document.getElementById('mobile-title');
+
+      function closeSidebar() { sidebar.classList.remove('is-open'); backdrop.classList.remove('is-open'); menu.setAttribute('aria-expanded','false'); }
+      function showPage(id, push = true) {
+        const target = document.getElementById('page-' + id) || document.getElementById('page-welcome');
+        pages.forEach(page => page.classList.toggle('is-active', page === target));
+        navItems.forEach(item => {
+          if (item.dataset.page === target.id.replace('page-','')) item.setAttribute('aria-current', 'page');
+          else item.removeAttribute('aria-current');
+        });
+        mobileTitle.textContent = target.dataset.title;
+        document.title = `${target.dataset.title} — Cycle Double Cover Proof`;
+        if (push) history.replaceState(null, '', '#' + target.id.replace('page-',''));
+        closeSidebar(); window.scrollTo({top:0, behavior:'auto'});
+      }
+      navItems.forEach(item => item.addEventListener('click', () => showPage(item.dataset.page)));
+      menu.addEventListener('click', () => { const open = !sidebar.classList.contains('is-open'); sidebar.classList.toggle('is-open', open); backdrop.classList.toggle('is-open', open); menu.setAttribute('aria-expanded', String(open)); });
+      backdrop.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+      const initial = location.hash.slice(1); if (initial) showPage(initial, false); else showPage('lean', false);
+
+      const lab = document.getElementById('graph-lab');
+      const edges = [...lab.querySelectorAll('[data-edge]')];
+      const labels = document.getElementById('lab-labels');
+      const title = document.getElementById('lab-title');
+      const count = document.getElementById('lab-count');
+      const note = document.getElementById('lab-note');
+      const stageControls = document.getElementById('lab-stage-controls');
+      const valueControls = document.getElementById('lab-value-controls');
+      const pos = {AB:[238,178],AC:[482,178],AD:[382,205],BC:[360,295],BD:[248,350],CD:[472,350]};
+      const flow = {AB:'001',CD:'001',AC:'010',BD:'010',AD:'011',BC:'011'};
+      const pairs = {AB:'{000, 001}',CD:'{000, 001}',AC:'{000, 010}',BD:'{000, 010}',AD:'{001, 010}',BC:'{001, 010}'};
+      const stages = [
+        {title:'The graph', note:'Every vertex has three incident edges, and no edge is a bridge.'},
+        {title:'A conserved flow', note:'At every vertex: 001 XOR 010 XOR 011 = 000.'},
+        {title:'Compatible pairs', note:'Each flow label becomes the difference between the two values in its edge pair.'},
+        {title:'One value selects cycles', note:'Choose a value. Its selected edges have even degree at every vertex and therefore form cycles.'}
+      ];
+      let stage = 0, selected = '000';
+      function makeButton(text, handler, pressed) { const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=text; b.setAttribute('aria-pressed',String(pressed)); b.addEventListener('click',handler); return b; }
+      stages.forEach((s,i)=>stageControls.appendChild(makeButton(String(i+1)+' · '+s.title,()=>{stage=i;renderLab();},i===0)));
+      ['000','001','010'].forEach(v=>valueControls.appendChild(makeButton(v,()=>{selected=v;renderLab();},v===selected)));
+      function addLabel(edge,text){const [x,y]=pos[edge]; const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('class','edge-label');t.textContent=text;labels.appendChild(t);}
+      function mark(names, cls){edges.forEach(e=>{if(names.includes(e.dataset.edge))e.classList.add(cls);});}
+      function renderLab(){
+        edges.forEach(e=>e.setAttribute('class','edge')); labels.replaceChildren();
+        title.textContent=stages[stage].title; count.textContent=`${stage+1} / ${stages.length}`; note.textContent=stages[stage].note;
+        [...stageControls.children].forEach((b,i)=>b.setAttribute('aria-pressed',String(i===stage)));
+        valueControls.hidden=stage!==3;
+        if(stage===1){Object.entries(flow).forEach(([e,v])=>addLabel(e,v));mark(['AB','CD'],'active');mark(['AC','BD'],'second');mark(['AD','BC'],'third');}
+        if(stage===2||stage===3){Object.entries(pairs).forEach(([e,v])=>addLabel(e,v));mark(['AB','CD'],'active');mark(['AC','BD'],'second');mark(['AD','BC'],'third');}
+        if(stage===3){edges.forEach(e=>e.classList.add('muted')); const active=Object.entries(pairs).filter(([,p])=>p.includes(selected)).map(([e])=>e);mark(active,'active'); [...valueControls.children].forEach(b=>b.setAttribute('aria-pressed',String(b.textContent===selected)));note.textContent=`Value ${selected} selects ${active.join(', ')}. Those edges form an even closed route.`;}
+      }
+      renderLab();
+
+      const leanFiles = {
+        'Main.lean': [
+          {
+            name: 'cycleDoubleCover_of_bridgeless', kind: 'theorem · final endpoint', paper: 'Theorem 1.1',
+            summary: 'This is the formal statement that every finite bridgeless graph has a cycle double cover.',
+            strategy: 'Build a cubic expansion, prove that expansion is still bridgeless, obtain a nowhere-zero Γ-flow from Jaeger–Kilpatrick, and pass that flow to the already-proved construction.',
+            trust: 'The final proof is short because each difficult transformation has already been isolated and proved in another file.', focus: [7, 13],
+            code: `/-- Every finite bridgeless graph has a cycle double cover. -/\ntheorem cycleDoubleCover_of_bridgeless\n    {V E : Type u} [Fintype V] [Fintype E]\n    [DecidableEq V] [DecidableEq E]\n    (G : FiniteGraph V E) (hb : G.Bridgeless) :\n    Nonempty G.CycleDoubleCover := by\n  let R : G.RotationSystem := G.rotationSystemOfBridgeless hb\n  let K : CubicGraph G.ExpandedVertex G.ExpandedEdge :=\n    G.cubicExpansion R\n  have hK : K.toFiniteGraph.Bridgeless := by\n    simpa [K] using G.cubicExpansion_bridgeless R hb\n  obtain ⟨gamma⟩ :=\n    K.toFiniteGraph.jaegerKilpatrickEightFlow hK\n  exact cycleDoubleCover_of_gammaFlow G R gamma`
+          },
+          {
+            name: 'cycleDoubleCover_of_gammaFlow', kind: 'theorem · construction interface', paper: 'Section 2, after Lemma 2.2',
+            summary: 'This theorem separates the constructive part of the proof from the deep theorem that guarantees a flow exists.',
+            strategy: 'Given the flow explicitly, construct the indexed even cover on the cubic expansion, project it back to the original graph, and decompose it into ordinary cycles.',
+            trust: 'Nothing here assumes the desired cycle cover. The result is built from the supplied flow.', focus: [6, 10],
+            code: `/-- A nowhere-zero Gamma-flow on a cubic expansion\n    supplies a cycle double cover. -/\ntheorem cycleDoubleCover_of_gammaFlow\n    (G : FiniteGraph V E) (R : G.RotationSystem)\n    (gamma : (G.cubicExpansion R).toFiniteGraph\n      .NowhereZeroFlow Gamma) :\n    Nonempty G.CycleDoubleCover := by\n  let K := G.cubicExpansion R\n  let cubicCover := cubic_even_double_cover K\n    (K.gammaFlowOfNowhereZero gamma)\n  let projected := G.projectEvenDoubleCover R cubicCover\n  exact ⟨projected.toCycleDoubleCover⟩`
+          }
+        ],
+        'CubicLabeling.lean': [
+          {
+            name: 'local_pair_parity', kind: 'theorem · finite local fact', paper: 'Equation (3)',
+            summary: 'At one cubic vertex, the three specially chosen pairs contain every possible label an even number of times.',
+            strategy: 'Because Γ has only eight elements, Lean checks every possible assignment of x, y, t, and s by kernel computation.',
+            trust: 'The hypotheses exclude zero labels and force x and y to differ. The proof term `decide` exhaustively verifies the closed finite statement.', focus: [3, 8],
+            code: `/-- The finite local parity fact used at a cubic vertex. -/\ntheorem local_pair_parity :\n    ∀ (x y t s : Gamma),\n      x ≠ 0 → y ≠ 0 → x ≠ y →\n      pairIndicator t x s +\n      pairIndicator (t + x) y s +\n      pairIndicator t (x + y) s = 0 := by\n  decide`
+          },
+          {
+            name: 'compatibility_solvable', kind: 'theorem · global compatibility', paper: 'Lemma 2.2',
+            summary: 'The independently good pair choices at every vertex can be adjusted so both endpoints assign the same pair to each edge.',
+            strategy: 'Apply finite-dimensional dual separation. Any linear functional that kills the compatibility map is shown to kill the mismatch vector too. The last sum vanishes because each nonzero edge contribution is counted at both endpoints.',
+            trust: 'This is the formal counterpart of the paper’s longest argument; the displayed excerpt shows the final double-counting cancellation.', focus: [8, 15],
+            code: `theorem compatibility_solvable\n    (G : CubicGraph V E) (f : GammaFlow G) :\n    compatibilityRhs G f ∈\n      LinearMap.range (compatibilityMap G f) := by\n  apply mem_range_of_dual_obstructions_vanish\n  intro φ hφ\n  let η : E → Module.Dual F₂ Gamma :=\n    coordinateFunctional φ\n  -- Local constraints on η are derived here.\n  -- The local dual identity turns each vertex term\n  -- into a parity count of nonzero edge functionals.\n  simp_rw [hcontrib, hlocal]\n  rw [← G.sum_edgeEnds_eq_sum_vertexSlots\n    (fun e _ ↦ functionalNonzero (η e))]\n  simp [show (2 : F₂) = 0 by decide]`
+          },
+          {
+            name: 'cubic_labeling', kind: 'definition · constructed witness', paper: 'Equations (2)–(4)',
+            summary: 'After compatibility has been proved solvable, this definition actually chooses the vertex shifts and builds one globally valid base label for every edge.',
+            strategy: 'Choose a solution to the linear system, use it to define each edge’s pair base point, prove the two endpoints give the same pair, then invoke local parity at every vertex.',
+            trust: 'The use of `Classical.choose` extracts a witness from the existence theorem; it does not introduce an unproved assumption.', focus: [3, 9],
+            code: `noncomputable def cubic_labeling\n    (G : CubicGraph V E) (f : GammaFlow G) :\n    CubicLabeling G f := by\n  let x := Classical.choose (compatibility_solvable G f)\n  have hx : compatibilityMap G f x =\n      compatibilityRhs G f := by\n    simpa [x] using Classical.choose_spec\n      (compatibility_solvable G f)\n  let t : V → Gamma := x.1\n  let ε : E → F₂ := x.2\n  let p : E → Gamma := fun e ↦\n    t (G.endAt e 0) +\n      localBase G f (G.endAt e 0) e\n  -- endpoint agreement and vertex parity follow\n  refine ⟨p, ?_⟩\n  intro v s\n  -- reduced to local_pair_parity\n  exact local_pair_parity _ _ _ _ ‹_› ‹_› ‹_›`
+          }
+        ],
+        'EvenCover.lean': [
+          {
+            name: 'cubic_even_double_cover', kind: 'definition · pair labels to edge sets', paper: 'Lemma 2.1',
+            summary: 'The compatible pairs become eight indexed edge sets—one for each three-bit value.',
+            strategy: 'An edge belongs to the set indexed by s exactly when s is one of its two pair labels. Local parity makes every indexed set even; a two-element pair makes every edge belong to exactly two indexed sets.',
+            trust: 'The two-element cardinality of each affine pair is checked exhaustively over Γ.', focus: [5, 13],
+            code: `noncomputable def cubic_even_double_cover\n    (G : CubicGraph V E) (f : GammaFlow G) :\n    IndexedEvenDoubleCover G := by\n  let P := cubic_labeling G f\n  refine\n    { member := fun s e ↦\n        pairIndicator (P.base e) (f.val e) s\n      vertexEven := ?_\n      coveredTwice := ?_ }\n  · intro s v\n    exact P.vertexParity v s\n  · intro e\n    exact pairIndicator_card (P.base e) (f.val e)\n      (f.nowhereZero e)`
+          }
+        ],
+        'CycleDecomposition.lean': [
+          {
+            name: 'decompose_even_edge_set', kind: 'theorem · finite decomposition', paper: 'Proof of Lemma 2.1',
+            summary: 'Any finite set of edges with even degree at every vertex can be split into edge-disjoint cycles.',
+            strategy: 'Use strong induction on the edge set. Remove a smallest nonempty even subset (a cycle), prove the remainder stays even, and recursively decompose both pieces.',
+            trust: 'The result records exact edge multiplicities, which is stronger than merely saying the cycles have the same union.', focus: [4, 12],
+            code: `theorem decompose_even_edge_set\n    (F : Finset E) (hF : G.IsEvenEdgeSet F) :\n    ∃ L : List G.Cycle, ∀ e : E,\n      (L.filter fun C ↦ e ∈ C.edges).length =\n        if e ∈ F then 1 else 0 := by\n  classical\n  revert hF\n  refine Finset.strongInductionOn F ?_\n  intro F ih hF\n  by_cases hne : F.Nonempty\n  · by_cases hmin : ∀ D, D.Nonempty → D ⊆ F →\n        G.IsEvenEdgeSet D → D = F\n    · -- F itself is a minimal even set: one cycle\n      exact ⟨[⟨F, hne, hF, hmin⟩], by simp⟩\n    · -- split off a smaller even set and recurse\n      obtain ⟨D, hDne, hDF, hDeven, hDproper⟩ := hmin\n      -- [inductive bookkeeping continues in full source]\n  · exact ⟨[], by simp_all⟩`
+          },
+          {
+            name: 'toCycleDoubleCover', kind: 'definition · final conversion', paper: 'End of Lemma 2.1',
+            summary: 'Decompose each of the eight even edge sets into cycles and concatenate all those cycles into the final cover.',
+            strategy: 'For each label s, choose a cycle decomposition of its support. Flatten those eight lists. The earlier coveredTwice field supplies the final multiplicity count.',
+            trust: 'Repeated cycles are retained in a list, so multiplicity is not accidentally discarded.', focus: [5, 13],
+            code: `noncomputable def IndexedEvenDoubleCover\n+    .toCycleDoubleCover\n+    (C : G.IndexedEvenDoubleCover) :\n+    G.CycleDoubleCover := by\n+  classical\n+  have hex : ∀ s : Gamma, ∃ L : List G.Cycle,\n+      ∀ e : E, (L.filter fun Z ↦ e ∈ Z.edges).length =\n+        if e ∈ C.support G s then 1 else 0 := by\n+    intro s\n+    exact G.decompose_even_edge_set _\n+      (C.support_even G s)\n+  choose pieces hpieces using hex\n+  refine { cycles := Finset.univ.toList.flatMap pieces,\n+           coveredTwice := ?_ }\n+  intro e\n+  simpa [C.support] using C.coveredTwice e`
+          }
+        ]
+      };
+
+      const paperPages = [
+        {
+          name: 'Page 1', tab: 'cdc_proof.pdf — page 1', sections: [
+            { name: 'Abstract & theorem', kind: 'paper · page 1', paper: 'Abstract and Theorem 1.1', summary: 'The note claims that every finite bridgeless undirected graph has a collection of cycles covering every edge exactly twice.', strategy: 'The introduction gives the entire route in miniature: reduce to cubic graphs, obtain a nowhere-zero flow in Γ = F₂³, then convert each flow label into a carefully compatible two-element set.', trust: 'This page states the result and cites the older flow theorems it depends on; it does not yet establish the new compatibility construction.' },
+            { name: 'Flow setup', kind: 'paper · page 1', paper: 'Section 2, opening paragraphs', summary: 'A flow assigns a label to every edge while conserving the total at each vertex. Nowhere-zero means no edge receives 000.', strategy: 'Because Γ has characteristic two, the three labels x, y, z at a cubic vertex satisfy x + y + z = 0 without needing to track edge directions.', trust: 'The existence of this flow comes from Jaeger and Kilpatrick, equivalently via Tutte’s group-flow theorem.' },
+            { name: 'Lemma 2.1', kind: 'paper · pages 1–2', paper: 'Lemma 2.1', summary: 'If every edge has a two-element label Pₑ and every value appears zero or twice at each vertex, a cycle double cover follows.', strategy: 'For each value s, select the edges whose pair contains s. Every selected vertex has degree zero or two, so the selected edges form cycles. Each edge is selected for its two pair members.', trust: 'This is the conceptual bridge from algebraic labels to actual cycles.' }
+          ]
+        },
+        {
+          name: 'Page 2', tab: 'cdc_proof.pdf — page 2', sections: [
+            { name: 'Local pair construction', kind: 'paper · page 2', paper: 'Equations (2) and (3)', summary: 'At a single cubic vertex, the proof can always assign three pairs with the required even-occurrence property.', strategy: 'Using z = x + y and a freely chosen shift t, the pairs become {t,t+x}, {t+x,t+z}, and {t,t+z}. Each visible value occurs twice.', trust: 'This works locally. The paper explicitly warns that the two ends of one edge may still assign different pairs.' },
+            { name: 'Compatibility system', kind: 'paper · page 2', paper: 'Equation (4) and Lemma 2.2', summary: 'One linear system records whether all local pair choices can be adjusted to agree across every edge at once.', strategy: 'Choose a shift tᵥ at every vertex and a bit εₑ at every edge. Solving tᵤ + tᵥ + εₑf(e) = dₑ removes each endpoint mismatch.', trust: 'Lemma 2.2 is the hard new step. Everything after it is a direct construction.' },
+            { name: 'Dual obstruction', kind: 'paper · page 2', paper: 'Proof of Lemma 2.2, equations (5)–(8)', summary: 'Instead of solving the large system directly, the proof shows that no linear functional can witness an obstruction to a solution.', strategy: 'A dual family η must vanish on the flow label of each edge and sum to zero around each vertex. The paper then classifies what these constraints permit locally.', trust: 'This uses finite-dimensional linear duality: membership in an image can be tested by every functional annihilating that image.' }
+          ]
+        },
+        {
+          name: 'Page 3', tab: 'cdc_proof.pdf — page 3', sections: [
+            { name: 'Local dual identity', kind: 'paper · page 3', paper: 'Equations (8) and (9)', summary: 'The local algebraic contribution at a vertex equals the parity of the nonzero dual labels on its three incident edges.', strategy: 'The proof splits into λ = 0 and λ = 1. In either case, λ precisely matches whether an odd number of the three dual vectors are nonzero.', trust: 'The Lean repository checks the equivalent closed fact over F₂³ exhaustively in `local_dual_identity`.' },
+            { name: 'Global cancellation', kind: 'paper · page 3', paper: 'Final paragraph of Lemma 2.2', summary: 'After summing the local identity over all vertices, every nonzero edge contribution appears exactly twice and vanishes in F₂.', strategy: 'Regroup endpoint terms by vertices, replace them with parity counts, then regroup by edges. Two endpoints per edge produce the factor 2 = 0.', trust: 'This proves the mismatch vector lies in the compatibility map’s image, so the required shifts and flips exist.' },
+            { name: 'Conclusion', kind: 'paper · page 3', paper: 'End of Section 2', summary: 'Compatibility supplies globally defined pairs; Lemma 2.1 converts them to cycles; therefore the graph has a cycle double cover.', strategy: 'The proof closes by composing the flow theorem, the compatible pair construction, and the even-edge-set decomposition.', trust: 'The page completes the argument but does not provide an independent peer review of the claimed theorem.' }
+          ]
+        }
+      ];
+
+      const fileList = document.getElementById('lean-file-list');
+      const declList = document.getElementById('lean-decl-list');
+      const codeView = document.getElementById('lean-code');
+      const infoView = document.getElementById('lean-info');
+      const tabName = document.getElementById('lean-tab-name');
+      const sourcePaper = document.getElementById('source-paper');
+      const sourceLean = document.getElementById('source-lean');
+      const paperReader = document.getElementById('paper-reader');
+      const codeScroll = document.getElementById('code-scroll');
+      const explorerTitle = document.getElementById('explorer-title');
+      const declTitle = document.getElementById('decl-title');
+      const sourceGlyph = document.getElementById('source-glyph');
+      let sourceMode = 'paper', paperPage = 0, paperSection = 0;
+      let openFile = 'Main.lean', openDecl = 0;
+      function renderInfo(decl) {
+        infoView.innerHTML = `<div class="info-kind">${decl.kind}</div><h3>${decl.name}</h3><p class="info-summary">${decl.summary}</p><div class="info-section info-paper"><strong>Source correspondence</strong><p>${decl.paper}</p></div><div class="info-section"><strong>Reasoning in human terms</strong><p>${decl.strategy}</p></div><div class="info-section"><strong>What to trust here</strong><p>${decl.trust}</p></div>`;
+      }
+      function renderSource() {
+        const isPaper = sourceMode === 'paper';
+        sourcePaper.setAttribute('aria-pressed', String(isPaper)); sourceLean.setAttribute('aria-pressed', String(!isPaper));
+        paperReader.hidden = !isPaper; codeScroll.hidden = isPaper;
+        explorerTitle.textContent = isPaper ? 'Paper pages' : 'Lean files'; declTitle.textContent = isPaper ? 'Sections' : 'Declarations'; sourceGlyph.textContent = isPaper ? '▤' : 'λ';
+        if (isPaper) renderPaper(); else renderLean();
+      }
+      function renderPaper() {
+        fileList.replaceChildren();
+        paperPages.forEach((page, i) => { const b=document.createElement('button'); b.type='button'; b.className='file-button'; b.setAttribute('aria-pressed',String(i===paperPage)); b.innerHTML=`<span class="file-glyph">▤</span>${page.name}`; b.addEventListener('click',()=>{paperPage=i;paperSection=0;renderPaper();}); fileList.appendChild(b); });
+        declList.replaceChildren();
+        paperPages[paperPage].sections.forEach((section,i)=>{const b=document.createElement('button');b.type='button';b.className='decl-button';b.textContent=section.name;b.setAttribute('aria-pressed',String(i===paperSection));b.addEventListener('click',()=>{paperSection=i;renderPaper();});declList.appendChild(b);});
+        tabName.textContent=paperPages[paperPage].tab; paperReader.src=`cdc-proof-paper.pdf#page=${paperPage+1}&view=FitH`; renderInfo(paperPages[paperPage].sections[paperSection]);
+      }
+      function renderLean() {
+        fileList.replaceChildren();
+        Object.keys(leanFiles).forEach(file => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'file-button';
+          b.setAttribute('aria-pressed', String(file === openFile)); b.innerHTML = `<span class="file-glyph">λ</span>${file}`;
+          b.addEventListener('click', () => { openFile = file; openDecl = 0; renderLean(); }); fileList.appendChild(b);
+        });
+        declList.replaceChildren();
+        leanFiles[openFile].forEach((decl, i) => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'decl-button'; b.textContent = decl.name;
+          b.setAttribute('aria-pressed', String(i === openDecl)); b.addEventListener('click', () => { openDecl = i; renderLean(); }); declList.appendChild(b);
+        });
+        const decl = leanFiles[openFile][openDecl]; tabName.textContent = openFile;
+        codeView.replaceChildren();
+        decl.code.split('\n').forEach((line, i) => { const span = document.createElement('span'); span.className = 'code-line'; if (i + 1 >= decl.focus[0] && i + 1 <= decl.focus[1]) span.classList.add('is-focus'); span.textContent = line || ' '; codeView.appendChild(span); });
+        renderInfo(decl);
+      }
+      sourcePaper.addEventListener('click',()=>{sourceMode='paper';renderSource();});
+      sourceLean.addEventListener('click',()=>{sourceMode='lean';renderSource();});
+      renderSource();
+    })();
+  </script>
+</body>
+</html>

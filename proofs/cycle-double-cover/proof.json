@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "id": "cycle-double-cover",
+  "title": "A Proof of the Cycle Double Cover Conjecture",
+  "shortTitle": "Cycle Double Cover",
+  "summary": "A guided connection between a three-page graph-theory note and display excerpts from its Lean formalization, centered on the passage from nowhere-zero flows to compatible edge pairs and cycles.",
+  "audience": "Mathematically curious readers; no graph theory or Lean experience is assumed.",
+  "paper": {
+    "title": "A Proof of the Cycle Double Cover Conjecture",
+    "authors": ["OpenAI"],
+    "pdf": "cdc-proof-paper.pdf",
+    "pages": "paper.pages.json",
+    "license": {
+      "status": "review-required"
+    }
+  },
+  "lean": {
+    "repository": "https://github.com/openai/cdc-lean",
+    "revision": "prototype-excerpts",
+    "toolchain": "Lean 4 (version not recorded in legacy prototype)",
+    "sourceDirectory": "lean",
+    "displayMode": "excerpts"
+  },
+  "glossary": [
+    {
+      "id": "cycle",
+      "term": "cycle",
+      "explanation": "A closed route through a graph. In the final cover, every edge must occur in exactly two cycles, counting multiplicity.",
+      "sourceIds": ["page-1-block-4", "lean-cycle-decomposition"]
+    },
+    {
+      "id": "bridgeless",
+      "term": "bridgeless",
+      "explanation": "A graph with no edge whose deletion disconnects the graph. A bridge cannot participate in the required cycle structure.",
+      "sourceIds": ["page-1-block-4", "lean-main-theorem"]
+    },
+    {
+      "id": "cubic",
+      "term": "cubic graph",
+      "explanation": "A graph in which exactly three edges meet at every vertex. The paper reduces the general problem to this case.",
+      "sourceIds": ["page-1-block-5", "lean-main-theorem"]
+    },
+    {
+      "id": "nowhere-zero-flow",
+      "term": "nowhere-zero flow",
+      "explanation": "A conserved edge labeling in which no edge receives the zero label.",
+      "sourceIds": ["page-1-block-5", "lean-gamma-flow"]
+    },
+    {
+      "id": "characteristic-two",
+      "term": "characteristic two",
+      "explanation": "An algebraic setting where every value added to itself is zero. The proof repeatedly uses this as parity cancellation.",
+      "sourceIds": ["page-2-block-4", "lean-compatibility"]
+    }
+  ],
+  "mappings": [
+    {
+      "id": "main-theorem",
+      "label": "Every finite bridgeless graph has a cycle double cover",
+      "paper": {
+        "sourceId": "page-1-block-4",
+        "pages": [1],
+        "heading": "Theorem 1.1",
+        "quote": "Every finite bridgeless undirected graph has a cycle double cover."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-main-theorem",
+          "file": "lean/Main.lean",
+          "declaration": "cycleDoubleCover_of_bridgeless",
+          "startLine": 9,
+          "endLine": 20
+        }
+      ],
+      "prerequisites": ["Finite graphs", "Bridges", "Cycle double covers"],
+      "dependencies": ["flow-to-cover"],
+      "usedBy": [],
+      "correspondence": "direct",
+      "correspondenceNote": "The excerpt states the paper's endpoint directly, while delegating the construction and imported flow theorem to earlier declarations. The recorded excerpt has not yet been independently built in this package."
+    },
+    {
+      "id": "flow-to-cover",
+      "label": "A nowhere-zero Gamma-flow supplies a cycle double cover",
+      "paper": {
+        "sourceId": "page-1-block-5",
+        "pages": [1],
+        "heading": "Section 2, setup",
+        "quote": "We now massage this Γ-flow into a cycle double cover."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-gamma-flow",
+          "file": "lean/Main.lean",
+          "declaration": "cycleDoubleCover_of_gammaFlow",
+          "startLine": 22,
+          "endLine": 30
+        }
+      ],
+      "prerequisites": ["Nowhere-zero flows", "Cubic expansion", "Projection back to the original graph"],
+      "dependencies": ["even-double-cover", "cycle-decomposition"],
+      "usedBy": ["main-theorem"],
+      "correspondence": "supporting",
+      "correspondenceNote": "This interface makes the paper's construction pipeline explicit. It supports the main theorem rather than corresponding to a separately numbered theorem in the paper."
+    },
+    {
+      "id": "local-pair-parity",
+      "label": "Local compatible-pair parity",
+      "paper": {
+        "sourceId": "page-2-block-2",
+        "pages": [2],
+        "heading": "Equations (2) and (3)"
+      },
+      "lean": [
+        {
+          "sourceId": "lean-local-pair-parity",
+          "file": "lean/CubicLabeling.lean",
+          "declaration": "local_pair_parity",
+          "startLine": 3,
+          "endLine": 10
+        }
+      ],
+      "prerequisites": ["The group Γ = F₂³", "Pair indicator functions"],
+      "dependencies": [],
+      "usedBy": ["cubic-labeling"],
+      "correspondence": "direct",
+      "correspondenceNote": "The finite Lean statement captures the local parity calculation used to turn a flow label into compatible pairs at one cubic vertex."
+    },
+    {
+      "id": "global-compatibility",
+      "label": "Global compatibility is solvable",
+      "paper": {
+        "sourceId": "page-2-block-3",
+        "pages": [2, 3],
+        "heading": "Lemma 2.2 and its dual obstruction argument"
+      },
+      "lean": [
+        {
+          "sourceId": "lean-compatibility",
+          "file": "lean/CubicLabeling.lean",
+          "declaration": "compatibility_solvable",
+          "startLine": 12,
+          "endLine": 23
+        }
+      ],
+      "prerequisites": ["Finite-dimensional linear duality", "Linear-map range membership", "Parity cancellation in F₂"],
+      "dependencies": [],
+      "usedBy": ["cubic-labeling"],
+      "correspondence": "partial",
+      "correspondenceNote": "The display excerpt shows the global cancellation spine but omits several local constraint derivations that the prototype says are present in the full repository."
+    },
+    {
+      "id": "cubic-labeling",
+      "label": "Choose one globally compatible base label per edge",
+      "paper": {
+        "sourceId": "page-3-block-2",
+        "pages": [3],
+        "heading": "Conclusion of Lemma 2.2"
+      },
+      "lean": [
+        {
+          "sourceId": "lean-cubic-labeling",
+          "file": "lean/CubicLabeling.lean",
+          "declaration": "cubic_labeling",
+          "startLine": 25,
+          "endLine": 38
+        }
+      ],
+      "prerequisites": ["Witness extraction with Classical.choose"],
+      "dependencies": ["local-pair-parity", "global-compatibility"],
+      "usedBy": ["even-double-cover"],
+      "correspondence": "supporting",
+      "correspondenceNote": "This definition packages the witness whose existence is established by Lemma 2.2 and exposes the parity property needed by the next construction."
+    },
+    {
+      "id": "even-double-cover",
+      "label": "Compatible pairs form eight even edge sets",
+      "paper": {
+        "sourceId": "page-2-block-2",
+        "pages": [2],
+        "heading": "Proof of Lemma 2.1"
+      },
+      "lean": [
+        {
+          "sourceId": "lean-even-double-cover",
+          "file": "lean/EvenCover.lean",
+          "declaration": "cubic_even_double_cover",
+          "startLine": 3,
+          "endLine": 13
+        }
+      ],
+      "prerequisites": ["Even edge sets", "Pair membership indicators"],
+      "dependencies": ["cubic-labeling"],
+      "usedBy": ["flow-to-cover", "cycle-decomposition"],
+      "correspondence": "supporting",
+      "correspondenceNote": "The excerpt formalizes the intermediate indexed cover implicit in the short proof of Lemma 2.1."
+    },
+    {
+      "id": "cycle-decomposition",
+      "label": "Decompose even edge sets into cycles",
+      "paper": {
+        "sourceId": "page-2-block-2",
+        "pages": [2],
+        "heading": "Proof of Lemma 2.1",
+        "quote": "Every vertex has degree zero or two in Mₛ, so Mₛ is a disjoint union of cycles."
+      },
+      "lean": [
+        {
+          "sourceId": "lean-cycle-decomposition",
+          "file": "lean/CycleDecomposition.lean",
+          "declaration": "decompose_even_edge_set",
+          "startLine": 3,
+          "endLine": 18
+        },
+        {
+          "sourceId": "lean-cover-to-cycles",
+          "file": "lean/CycleDecomposition.lean",
+          "declaration": "IndexedEvenDoubleCover.toCycleDoubleCover",
+          "startLine": 20,
+          "endLine": 31
+        }
+      ],
+      "prerequisites": ["Strong induction on finite edge sets", "Cycle multiplicity"],
+      "dependencies": ["even-double-cover"],
+      "usedBy": ["flow-to-cover"],
+      "correspondence": "partial",
+      "correspondenceNote": "The paper gives this decomposition in one sentence. The excerpts expose the stronger multiplicity bookkeeping, but the induction's middle case is intentionally omitted from display."
+    }
+  ]
+}

@@ -1,0 +1,363 @@
+.panel {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(30rem, 100vw);
+  color: var(--foreground);
+  background: var(--surface, var(--background));
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg, -0.75rem 0 2rem color-mix(in srgb, var(--foreground) 10%, transparent));
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.eyebrow,
+.sectionLabel {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.eyebrow {
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.title:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 0.25rem;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.closeButton,
+.quietButton,
+.retryButton,
+.submitButton,
+.sourceChip {
+  min-height: 2.75rem;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.closeButton,
+.quietButton {
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius, 0.5rem);
+}
+
+.closeButton:hover,
+.quietButton:hover {
+  background: var(--surface-subtle);
+}
+
+.selectionQuote {
+  max-height: 9rem;
+  margin: 0.5rem 0 0;
+  padding: 0.75rem 1rem;
+  overflow-y: auto;
+  font-family: var(--font-serif, ui-serif, serif);
+  font-size: 1rem;
+  line-height: 1.5;
+  background: var(--surface-subtle);
+  border-left: 0.1875rem solid var(--primary);
+}
+
+.location,
+.verificationNote,
+.mutedText,
+.requestId {
+  margin: 0.5rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.evidenceSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.chipList,
+.trustLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.trustLegend {
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.evidenceChip,
+.sourceChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: fit-content;
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  background: var(--secondary, var(--surface-subtle));
+  border: 1px solid var(--border);
+  border-radius: 999rem;
+}
+
+button.sourceChip {
+  min-height: 2.75rem;
+}
+
+.sourceChip:hover {
+  background: var(--accent, var(--surface-subtle));
+}
+
+.evidenceMark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: var(--background);
+  border: 1px solid currentColor;
+  border-radius: 999rem;
+}
+
+.answerSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.answerHeadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.statusRegion {
+  min-height: 6rem;
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.loadingDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--primary);
+  border-radius: 999rem;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.answerText {
+  max-width: 68ch;
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.streamCursor {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1rem;
+  margin-left: 0.125rem;
+  vertical-align: text-bottom;
+  background: var(--primary);
+  animation: blink 900ms steps(1) infinite;
+}
+
+.errorState {
+  padding: 1rem;
+  color: var(--destructive, var(--foreground));
+  background: color-mix(in srgb, var(--destructive, var(--foreground)) 8%, var(--background));
+  border: 1px solid color-mix(in srgb, var(--destructive, var(--foreground)) 35%, var(--border));
+  border-radius: var(--radius, 0.5rem);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.errorState p {
+  margin: 0;
+}
+
+.errorTitle {
+  font-weight: 750;
+}
+
+.retryButton,
+.submitButton {
+  padding: 0.5rem 1rem;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 0;
+  border-radius: var(--radius, 0.5rem);
+}
+
+.retryButton {
+  margin-top: 0.75rem;
+}
+
+.followUpForm {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.followUpLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.followUpRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.followUpInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  background: var(--background);
+  border: 1px solid var(--input, var(--border));
+  border-radius: var(--radius, 0.5rem);
+}
+
+.followUpInput::placeholder {
+  color: var(--muted-foreground);
+}
+
+.formError {
+  margin: 0;
+  color: var(--destructive, var(--foreground));
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.closeButton:focus-visible,
+.quietButton:focus-visible,
+.retryButton:focus-visible,
+.submitButton:focus-visible,
+.sourceChip:focus-visible,
+.followUpInput:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.closeButton:active,
+.quietButton:active,
+.retryButton:active,
+.submitButton:active,
+.sourceChip:active {
+  transform: scale(0.98);
+}
+
+.closeButton:disabled,
+.quietButton:disabled,
+.retryButton:disabled,
+.submitButton:disabled,
+.sourceChip:disabled,
+.followUpInput:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .panel {
+    width: 100vw;
+    border-left: 0;
+  }
+
+  .header,
+  .body {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingDot,
+  .streamCursor {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+
+  .closeButton,
+  .quietButton,
+  .retryButton,
+  .submitButton,
+  .sourceChip {
+    transition-duration: 0.01ms;
+  }
+}

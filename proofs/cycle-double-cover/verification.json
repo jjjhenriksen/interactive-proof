@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/openai/cdc-lean",
+  "revision": "prototype-excerpts",
+  "toolchain": "Lean 4 (version not recorded in legacy prototype)",
+  "command": "lake build",
+  "checkedAt": "2026-07-13T12:00:00-07:00",
+  "build": "not-run",
+  "exitCode": null,
+  "sorryCount": null,
+  "axioms": [],
+  "outputDigest": null
+}
