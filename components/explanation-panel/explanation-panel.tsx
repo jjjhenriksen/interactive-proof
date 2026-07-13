@@ -197,7 +197,8 @@ export function ExplanationPanel({
           </div>
         </section>
 
-        {state.status === "complete" || state.status === "error" ? (
+        {state.status === "complete" ||
+        (state.status === "error" && completed) ? (
           <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} />
         ) : null}
       </div>

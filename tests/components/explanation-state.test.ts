@@ -47,6 +47,9 @@ describe("explanationReducer", () => {
     if (state.status === "complete") {
       expect(state.text).toBe("This step checks compatibility.")
       expect(state.context).toEqual(context)
+      expect(state.history).toEqual([
+        { role: "assistant", text: "This step checks compatibility." },
+      ])
     }
   })
 
@@ -106,5 +109,13 @@ describe("explanationReducer", () => {
     const ready: ExplanationState = { status: "ready", selection }
     expect(explanationReducer(ready, { type: "delta", text: "late" })).toBe(ready)
     expect(explanationReducer(ready, { type: "complete" })).toBe(ready)
+  })
+
+  it("returns to ready when an active request is cancelled", () => {
+    const streaming = beginStreaming()
+    expect(explanationReducer(streaming, { type: "cancel" })).toEqual({
+      status: "ready",
+      selection,
+    })
   })
 })

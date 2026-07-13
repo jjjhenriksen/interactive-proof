@@ -23,4 +23,5 @@ export type {
   ExplanationStreamCallbacks,
   ExplanationTransport,
 } from "./explanation-transport"
+export { createFetchExplanationTransport } from "./explanation-transport"
 export { FollowUpForm } from "./follow-up-form"

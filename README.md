@@ -8,20 +8,48 @@ Interactive companions that connect mathematical papers to their Lean formalizat
 - [`docs/SPEC.md`](docs/SPEC.md) — technical contract for proof packages, selection, grounded explanations, verification, and testing.
 - [`PLAN.md`](PLAN.md) — one-week implementation and hackathon delivery sequence.
 
+## Run the application
+
+Use Node 24, install dependencies, and copy the environment template:
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Add an OpenAI API key to `.env.local`, then open
+`http://localhost:3000/proofs/cycle-double-cover`. The key is used only by the
+server-side `/api/explain` route. `OPENAI_MODEL` defaults to the hackathon target,
+`gpt-5.6`, and can be overridden without changing source code.
+
+Without an API key, the reader and selection tools still work, while explanation
+requests show an explicit configuration error.
+
 ## Proof packages
 
 - [`proofs/cycle-double-cover/`](proofs/cycle-double-cover/) — an interactive reconstruction of the cycle double cover argument, including its local paper PDF and a simulated Lean workspace.
 
-Each proof currently lives in its own directory with an `index.html` entry point and any local source material it needs. This first package is the reference artifact from which reusable viewer code and a package schema can be extracted once a second proof is added.
+Each proof lives in its own validated package directory. The generated registry
+loads package metadata, extracted paper pages, curated paper-to-Lean mappings,
+Lean display sources, and recorded verification facts through the same generic
+reader route.
 
 ## Run the application
 
 ```bash
-npm ci
+npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The original standalone prototype remains available at `proofs/cycle-double-cover/index.html` as a visual reference.
+Add an OpenAI API key to `.env.local`, then open
+`http://localhost:3000/proofs/cycle-double-cover`. The key is used only by the
+server-side `/api/explain` route. `OPENAI_MODEL` defaults to the hackathon target,
+`gpt-5.6`, and can be overridden without changing source code.
+
+Without an API key, the reader and selection tools still work, while explanation
+requests show an explicit configuration error.
 
 ## Validate changes
 
@@ -38,3 +66,6 @@ PLAYWRIGHT_SERVER=production npm run test:e2e:smoke
 ```
 
 Run `npm run test:e2e` to exercise all configured desktop and mobile browser projects during local development.
+
+The original single-file reading room remains at
+`proofs/cycle-double-cover/index.html` as a visual reference artifact.
