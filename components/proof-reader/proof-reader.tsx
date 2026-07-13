@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 
 import {
   ExplanationPanel,
@@ -15,7 +16,20 @@ import {
   type SupportedSelection,
   validateSelectedText,
 } from "../selection-menu";
+import type { PaperTextSelection } from "../paper-reader";
 import styles from "./proof-reader.module.css";
+
+const PdfPaperReader = dynamic(
+  () => import("../paper-reader").then((module) => module.PdfPaperReader),
+  {
+    ssr: false,
+    loading: () => (
+      <div className={styles.paperRendererLoading} role="status">
+        Loading paper renderer…
+      </div>
+    ),
+  },
+);
 
 type LeanExcerpt = {
   sourceId: string;
@@ -162,6 +176,22 @@ export function ProofReader({ proof }: ProofReaderProps) {
     runExplanation({ selection: activeSelection, mode, history: [] });
   };
 
+  const handlePaperSelection = (paperSelection: PaperTextSelection) => {
+    if (!page) return;
+    returnFocusRef.current = paperSelection.anchor;
+    setSelection({
+      proofId: proof.id,
+      source: "paper",
+      selectedText: paperSelection.selectedText,
+      location: {
+        source: "paper",
+        page: page.number,
+        blockIds: paperSelection.blockIds,
+      },
+      clientRect: paperSelection.clientRect,
+    });
+  };
+
   const handleFollowUp = (question: string) => {
     if (explanationState.status !== "complete") return;
     const request: ExplanationRequest = {
@@ -248,46 +278,15 @@ export function ProofReader({ proof }: ProofReaderProps) {
           </p>
 
           {sourceMode === "paper" ? (
-            <article className={styles.paperText}>
-              {page?.blocks.map((block) => {
-                const className = `${styles.paperBlock} ${
-                  block.kind === "heading"
-                    ? styles.paperHeading
-                    : block.kind === "equation"
-                      ? styles.paperEquation
-                      : block.kind === "metadata"
-                        ? styles.paperMetadata
-                        : ""
-                }`;
-                const handleSelection = (element: HTMLElement) =>
-                  captureSelection(
-                    "paper",
-                    { source: "paper", page: page.number, blockIds: [block.id] },
-                    element,
-                  );
-                return block.kind === "heading" ? (
-                  <h2
-                    className={className}
-                    data-source-block={block.id}
-                    key={block.id}
-                    tabIndex={0}
-                    onMouseUp={(event) => handleSelection(event.currentTarget)}
-                  >
-                    {block.text}
-                  </h2>
-                ) : (
-                  <p
-                    className={className}
-                    data-source-block={block.id}
-                    key={block.id}
-                    tabIndex={0}
-                    onMouseUp={(event) => handleSelection(event.currentTarget)}
-                  >
-                    {block.text}
-                  </p>
-                );
-              })}
-            </article>
+            page ? (
+              <PdfPaperReader
+                pdfUrl={proof.paperHref}
+                pageNumber={page.number}
+                pageBlocks={page.blocks}
+                title={proof.paperTitle}
+                onSelection={handlePaperSelection}
+              />
+            ) : null
           ) : (
             <section className={styles.leanStack}>
               {mapping?.lean.map((source) => (
