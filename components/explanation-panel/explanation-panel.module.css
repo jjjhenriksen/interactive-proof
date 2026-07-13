@@ -336,7 +336,9 @@ button.sourceChip {
 
 @media (max-width: 47.99rem) {
   .panel {
+    inset: 0;
     width: 100vw;
+    height: 100dvh;
     border-left: 0;
   }
 

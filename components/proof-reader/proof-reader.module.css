@@ -267,8 +267,49 @@
   font-size: 0.8125rem;
 }
 
+.excerptIdentity,
+.excerptTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.excerptTools {
+  justify-content: flex-end;
+}
+
 .leanExcerpt header span {
   color: var(--muted-foreground);
+}
+
+.excerptBadge {
+  padding: 0.2rem 0.45rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: 999rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.excerptTools button {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--primary);
+  background: transparent;
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.excerptTools button:hover {
+  background: var(--surface-subtle);
+}
+
+.excerptTools button:active {
+  transform: scale(0.98);
 }
 
 .leanExcerpt pre {

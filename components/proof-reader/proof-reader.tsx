@@ -197,6 +197,35 @@ export function ProofReader({ proof }: ProofReaderProps) {
     });
   };
 
+  const openLeanExcerptActions = (source: LeanExcerpt, anchor: HTMLElement) => {
+    const selectedText = source.code.trim().slice(0, 1_200);
+    const rect = anchor.getBoundingClientRect();
+    returnFocusRef.current = anchor;
+    setSelection({
+      proofId: proof.id,
+      source: "lean",
+      selectedText,
+      location: {
+        source: "lean",
+        file: source.file,
+        declaration: source.declaration,
+        startLine: source.startLine,
+        endLine: source.endLine,
+      },
+      clientRect: {
+        top: rect.top,
+        left: rect.left,
+        right: rect.right,
+        bottom: rect.bottom,
+      },
+    });
+  };
+
+  const dismissSelection = () => {
+    setSelection(null);
+    window.setTimeout(() => returnFocusRef.current?.focus(), 0);
+  };
+
   const handleFollowUp = (question: string) => {
     if (explanationState.status !== "complete") return;
     const request: ExplanationRequest = {
@@ -325,16 +354,33 @@ export function ProofReader({ proof }: ProofReaderProps) {
           ) : (
             <section className={styles.leanStack}>
               {mapping?.lean.map((source) => (
-                <article key={source.sourceId} className={styles.leanExcerpt}>
+                <article
+                  key={source.sourceId}
+                  className={styles.leanExcerpt}
+                  aria-label={`Curated Lean excerpt: ${source.declaration}`}
+                >
                   <header>
-                    <strong>{source.declaration}</strong>
-                    <span>
-                      {source.file}:{source.startLine}
-                    </span>
+                    <div className={styles.excerptIdentity}>
+                      <strong>{source.declaration}</strong>
+                      <span className={styles.excerptBadge}>Curated excerpt</span>
+                    </div>
+                    <div className={styles.excerptTools}>
+                      <span>
+                        {source.file}:{source.startLine}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(event) =>
+                          openLeanExcerptActions(source, event.currentTarget)
+                        }
+                      >
+                        Explain excerpt
+                      </button>
+                    </div>
                   </header>
                   <pre
                     tabIndex={0}
-                    onMouseUp={(event) =>
+                    onPointerUp={(event) =>
                       captureSelection(
                         "lean",
                         {
@@ -396,7 +442,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
         <SelectionMenu
           selection={selection}
           onAction={handleAction}
-          onDismiss={() => setSelection(null)}
+          onDismiss={dismissSelection}
         />
       ) : null}
     </div>
