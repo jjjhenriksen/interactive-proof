@@ -68,8 +68,13 @@ export default async function ProofPage({ params }: ProofPageProps) {
     verification: {
       build: loaded.verification.build,
       revision: loaded.verification.revision,
+      toolchain: loaded.verification.toolchain,
+      command: loaded.verification.command,
       checkedAt: loaded.verification.checkedAt,
+      exitCode: loaded.verification.exitCode,
       sorryCount: loaded.verification.sorryCount,
+      axioms: loaded.verification.axioms,
+      outputDigest: loaded.verification.outputDigest,
     },
     pages: loaded.paperPages.pages,
     mappings,

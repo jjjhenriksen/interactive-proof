@@ -66,9 +66,14 @@ export type ProofReaderViewModel = {
   leanRevision: string;
   verification: {
     build: "passed" | "failed" | "not-run";
-    revision?: string;
-    checkedAt?: string;
-    sorryCount?: number | null;
+    revision: string;
+    toolchain: string;
+    command: string;
+    checkedAt: string;
+    exitCode: number | null;
+    sorryCount: number | null;
+    axioms: Array<{ declaration: string; axioms: string[] }>;
+    outputDigest: string | null;
   };
   pages: Array<{
     number: number;
@@ -217,6 +222,36 @@ export function ProofReader({ proof }: ProofReaderProps) {
           <span>Paper license: {proof.licenseStatus}</span>
         </div>
       </header>
+
+      <details className={styles.verificationEvidence}>
+        <summary>Verification evidence</summary>
+        <div className={styles.verificationEvidenceBody}>
+          <dl>
+            <div><dt>Build</dt><dd>{proof.verification.build}</dd></div>
+            <div><dt>Revision</dt><dd><code>{proof.verification.revision}</code></dd></div>
+            <div><dt>Toolchain</dt><dd><code>{proof.verification.toolchain}</code></dd></div>
+            <div><dt>Command</dt><dd><code>{proof.verification.command}</code></dd></div>
+            <div><dt>Checked</dt><dd>{proof.verification.checkedAt}</dd></div>
+            <div><dt>Exit code</dt><dd>{proof.verification.exitCode ?? "not run"}</dd></div>
+            <div><dt>Sorry count</dt><dd>{proof.verification.sorryCount ?? "not audited"}</dd></div>
+            <div><dt>Output digest</dt><dd>{proof.verification.outputDigest ? <code>{proof.verification.outputDigest}</code> : "not recorded"}</dd></div>
+          </dl>
+          <div>
+            <h2>Axiom audit</h2>
+            {proof.verification.axioms.length > 0 ? (
+              <ul>
+                {proof.verification.axioms.map((audit) => (
+                  <li key={audit.declaration}>
+                    <code>{audit.declaration}</code>: {audit.axioms.length > 0 ? audit.axioms.join(", ") : "no axioms reported"}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No axiom audit was recorded.</p>
+            )}
+          </div>
+        </div>
+      </details>
 
       <div className={styles.sourceSwitch} role="group" aria-label="Choose source view">
         <button

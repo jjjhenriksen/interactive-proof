@@ -1,71 +1,190 @@
 # Interactive Proof
 
-Interactive companions that connect mathematical papers to their Lean formalizations.
+Interactive Proof is an educational reading companion for mathematical papers and their Lean formalizations. Select a sentence, equation, or Lean declaration and request a focused explanation without leaving the proof. The interface keeps four evidence types distinct: what the paper states, what Lean verifies, prerequisite background, and AI-generated explanation.
 
-## Product documents
+This repository contains a working local MVP. Public deployment and hackathon submission evidence are still pending.
 
-- [`docs/PRD.md`](docs/PRD.md) — product requirements for the contextual “More details” educational experience.
-- [`docs/SPEC.md`](docs/SPEC.md) — technical contract for proof packages, selection, grounded explanations, verification, and testing.
-- [`PLAN.md`](PLAN.md) — one-week implementation and hackathon delivery sequence.
+## Included proof packages
 
-## Run the application
+| Package | Paper | Lean source | Verification | License status |
+|---|---|---|---|---|
+| `odd-sum-square` | Authored one-page introduction to induction | Complete local Lean file | Passed on the recorded toolchain; open the in-reader evidence panel for details | Paper is CC BY 4.0 |
+| `cycle-double-cover` | Three-page source note | Educational display excerpts only | Explicitly `not-run`; the excerpts are not a buildable local Lean project | Redistribution review required |
 
-Use Node 24, install dependencies, and copy the environment template:
+The cycle-double-cover package is the flagship complex example. The odd-number identity is the small second package demonstrating that the application, routes, reader, mappings, and verification UI are not proof-specific.
+
+## Quick start
+
+Requirements:
+
+- Node.js 24
+- npm
+- Chromium only if running browser tests
+- Lean only if regenerating local proof verification
+
+Install and start the app:
 
 ```bash
-npm install
+npm ci
 cp .env.example .env.local
 npm run dev
 ```
 
-Add an OpenAI API key to `.env.local`, then open
-`http://localhost:3000/proofs/cycle-double-cover`. The key is used only by the
-server-side `/api/explain` route. `OPENAI_MODEL` defaults to the hackathon target,
-`gpt-5.6`, and can be overridden without changing source code.
+Open [http://localhost:3000](http://localhost:3000) and choose either proof.
 
-Without an API key, the reader and selection tools still work, while explanation
-requests show an explicit configuration error.
+### Environment
 
-## Proof packages
-
-- [`proofs/cycle-double-cover/`](proofs/cycle-double-cover/) — an interactive reconstruction of the cycle double cover argument, including its local paper PDF and a simulated Lean workspace.
-
-Each proof lives in its own validated package directory. The generated registry
-loads package metadata, extracted paper pages, curated paper-to-Lean mappings,
-Lean display sources, and recorded verification facts through the same generic
-reader route.
-
-## Run the application
-
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
+```dotenv
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-5.6
+EXPLAIN_RATE_LIMIT_PER_HOUR=30
 ```
 
-Add an OpenAI API key to `.env.local`, then open
-`http://localhost:3000/proofs/cycle-double-cover`. The key is used only by the
-server-side `/api/explain` route. `OPENAI_MODEL` defaults to the hackathon target,
-`gpt-5.6`, and can be overridden without changing source code.
+`OPENAI_API_KEY` remains server-side. With a valid key, selection actions call the streamed `/api/explain` route. Without a key, both sample papers, Lean sources, mappings, verification evidence, and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
 
-Without an API key, the reader and selection tools still work, while explanation
-requests show an explicit configuration error.
+## Architecture
 
-## Validate changes
+```text
+app/
+  api/explain/                 validated, rate-limited Responses API stream
+  proofs/[proofId]/            generic proof reader and PDF route
+components/
+  paper-reader/                PDF.js canvas and selectable text layer
+  proof-reader/                shared paper/Lean workspace
+  selection-menu/              contextual actions
+  explanation-panel/           streamed answer and evidence states
+lib/
+  proof-packages/              schemas, safe paths, registry, package loader
+  explanation/                 canonical context construction and model transport
+  verification/                verification schema and status policy
+proofs/<id>/                   repository-owned proof packages
+scripts/                       extraction, registry, validation, and Lean verification
+```
 
-The pull-request workflow uses Node 24 and does not require an OpenAI API key. It validates proof packages, runs unit and static checks, creates a production build, and exercises the core reader journey in Chromium.
+The browser sends a proof ID and bounded selection location. The server reconstructs authoritative context from the registered package, rejects unknown pages/files/declarations, and supplies only validated source IDs to the model. Model prose never creates source chips or verification badges.
+
+## Commands
+
+### Application and tests
 
 ```bash
-npm run proof:validate
+npm run dev
 npm test
 npm run typecheck
 npm run lint
 npm run build
+```
+
+Browser smoke test:
+
+```bash
 npx playwright install chromium
 PLAYWRIGHT_SERVER=production npm run test:e2e:smoke
 ```
 
-Run `npm run test:e2e` to exercise all configured desktop and mobile browser projects during local development.
+Run `npm run test:e2e` for every configured desktop and mobile project.
 
-The original single-file reading room remains at
-`proofs/cycle-double-cover/index.html` as a visual reference artifact.
+### Proof-package checks
+
+```bash
+npm run proof:registry
+npm run proof:validate
+npm run proof:verify
+```
+
+- `proof:registry` validates packages and regenerates the allowlisted registry.
+- `proof:validate` checks schemas, assets, source references, line ranges, and PDF hashes.
+- `proof:verify` runs supported full local Lean packages and atomically rewrites their `verification.json` records.
+
+The verification command does not run excerpt-only packages. It leaves cycle double cover at `not-run`. A local package receives `passed` only when the manifest revision and toolchain match, Lean exits successfully, no `sorry` or `admit` remains, and every declared `#print axioms` audit appears in Lean's output. Failures are written as `failed` with the actual exit code and output digest; they are never converted to `passed` or silently reset to `not-run`.
+
+To verify only one package:
+
+```bash
+npm run proof:verify -- odd-sum-square
+```
+
+## Author a proof package
+
+Create `proofs/<proof-id>/` with:
+
+```text
+proof.json
+paper.pdf
+paper.pages.json
+lean/
+verification.json
+```
+
+Then:
+
+1. Record the paper's authors and license status. Use `review-required` when rights are not established.
+2. Extract or curate page blocks and store the PDF SHA-256 in `paper.pages.json`.
+3. Add Lean files and exact declaration line ranges.
+4. Create paper-to-Lean mappings, prerequisites, dependencies, and glossary entries in `proof.json`.
+5. For a full local Lean package, pin `lean-toolchain`, add explicit `#print axioms <declaration>` audits, and set the manifest revision to `sha256:<combined Lean source digest>`.
+6. Run `npm run proof:verify -- <proof-id>` and inspect the generated evidence.
+7. Run `npm run proof:registry`, `npm run proof:validate`, and the full test/build gate.
+
+Do not label display excerpts as full source. Do not copy a paper, repository, diagram, or substantial excerpt into a public package until its license and attribution are documented.
+
+## Verification evidence
+
+Every proof reader has a **Verification evidence** disclosure containing:
+
+- build result and exact command exit code;
+- source revision and Lean toolchain;
+- command and checked timestamp;
+- `sorry`/`admit` count;
+- declaration-level axiom results;
+- digest of captured Lean output.
+
+A successful Lean build verifies the recorded formal declaration. It does not prove that the declaration is a perfect translation of the paper; correspondence remains a separately curated claim.
+
+## Licensing and attribution
+
+Repository code is available under the [MIT License](LICENSE). That license does not automatically cover bundled papers, Lean repositories, generated artifacts based on outside sources, or third-party dependencies.
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the attribution and rights-status matrix. In particular, the cycle-double-cover PDF and Lean excerpts remain `review-required` for redistribution. Resolve those entries before publishing a public demo or release containing them.
+
+## Codex and GPT-5.6 workflow
+
+Codex was used as a repository collaborator for planning, implementation, test generation, browser/PDF inspection, proof-package validation, and release checks. The working pattern follows OpenAI's guidance: provide the goal, relevant files, constraints, and a concrete definition of done; then review diffs and require observable tests before accepting changes. See the official [Codex documentation](https://developers.openai.com/codex/) and [prompting guidance](https://developers.openai.com/codex/prompting/).
+
+The application uses the OpenAI Responses API through the official JavaScript SDK, with `gpt-5.6` as the hackathon configuration default. The server supplies bounded, deterministic paper/Lean context, streams response text, disables model tools for the MVP, and keeps source/verification UI under application control. Human review is still responsible for mathematical interpretation, paper-to-Lean correspondence, licensing, and release claims.
+
+Before submission, preserve the Codex `/feedback` session ID that covers the core implementation and add it to the [submission checklist](docs/DEVPOST_SUBMISSION_CHECKLIST.md).
+
+## Deployment
+
+No production URL is recorded yet. A deployment must provide:
+
+- Node server routes and streamed responses;
+- `OPENAI_API_KEY` as a server-only secret;
+- anonymous access for judges;
+- PDF.js worker delivery and local PDFs;
+- an appropriate request-rate limit;
+- a public URL entered in the submission checklist.
+
+After deployment, test both packages in a private browser session, one paper selection, one Lean selection, a follow-up, mobile layout, keyboard navigation, verification evidence, and the no-key/error path.
+
+## Troubleshooting
+
+**The reader works but explanations fail.** Check `.env.local`, restart the dev server after changing it, and confirm `OPENAI_API_KEY` is present. A missing key intentionally returns HTTP 503.
+
+**A PDF renders but selection does not align.** Regenerate or curate `paper.pages.json`, confirm its PDF SHA-256, and run `npm run proof:validate`. PDF text extraction and PDF.js may normalize mathematical glyphs differently.
+
+**`proof:verify` skips a package.** Only packages with `lean.displayMode: "full"` and a local `lean-toolchain` are supported. Excerpt packages must remain `not-run`.
+
+**`proof:verify` writes `failed` although Lean exited 0.** Check the manifest source digest and toolchain, remove `sorry`/`admit`, and ensure each intended audit has a `#print axioms` directive whose output can be recorded.
+
+**Playwright cannot launch Chromium.** Run `npx playwright install chromium`, then retry the smoke command.
+
+## Project documents
+
+- [Product requirements](docs/PRD.md)
+- [Technical specification](docs/SPEC.md)
+- [Implementation plan](PLAN.md)
+- [Devpost submission checklist](docs/DEVPOST_SUBMISSION_CHECKLIST.md)
+
+The original single-file cycle-double-cover reading room remains at `proofs/cycle-double-cover/index.html` as a visual reference, not the application source of truth.

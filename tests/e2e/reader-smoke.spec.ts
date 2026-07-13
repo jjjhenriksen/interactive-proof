@@ -109,6 +109,17 @@ test("switches between the paper and Lean source views", async ({ page }) => {
   await expect(page.getByRole("main", { name: "paper source" })).toBeVisible();
 });
 
+test("shows the recorded verification evidence", async ({ page }) => {
+  await page.goto("/proofs/odd-sum-square", { waitUntil: "networkidle" });
+
+  const evidence = page.getByText("Verification evidence", { exact: true });
+  await evidence.click();
+  await expect(page.getByText("leanprover/lean4:v4.29.1", { exact: true })).toBeVisible();
+  await expect(page.getByText("lean lean/Main.lean", { exact: true })).toBeVisible();
+  await expect(page.getByText("oddSum_eq_square", { exact: true })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "propext" })).toBeVisible();
+});
+
 test("opens More details for a paper selection and restores focus on dismissal", async ({
   page,
 }) => {
