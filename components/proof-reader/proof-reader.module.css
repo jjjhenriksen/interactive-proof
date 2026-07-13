@@ -118,9 +118,25 @@
   font-size: 0.875rem;
 }
 
-.paperText {
+.paperText,
+.paperRendererLoading {
   max-width: 70ch;
   margin-inline: auto;
+}
+
+.paperRendererLoading {
+  display: grid;
+  place-items: center;
+  width: min(100%, 56rem);
+  aspect-ratio: 612 / 792;
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  font-size: 0.875rem;
+}
+
+.paperText {
   font-family: var(--font-serif);
   font-size: 1.0625rem;
   line-height: 1.8;
