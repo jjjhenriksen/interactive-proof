@@ -1,6 +1,6 @@
 "use client"
 
-import { type RefObject, useEffect, useRef } from "react"
+import { type RefObject, useEffect, useRef, useState } from "react"
 
 import { EXPLANATION_ACTIONS } from "../selection-menu/selection-types"
 import { EvidenceChip, SourceChip } from "./evidence-chip"
@@ -41,8 +41,27 @@ export function ExplanationPanel({
   onSourceNavigate,
   returnFocusRef,
 }: ExplanationPanelProps) {
+  const panelRef = useRef<HTMLElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const previousStatus = useRef(state.status)
+  const [isModal, setIsModal] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 47.99rem)")
+    const update = () => setIsModal(media.matches)
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
+
+  useEffect(() => {
+    if (!isModal || state.status === "closed") return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isModal, state.status])
 
   useEffect(() => {
     if (previousStatus.current === "closed" && state.status !== "closed") {
@@ -80,13 +99,35 @@ export function ExplanationPanel({
 
   return (
     <aside
+      ref={panelRef}
       className={styles.panel}
+      role={isModal ? "dialog" : "complementary"}
+      aria-modal={isModal ? "true" : undefined}
       aria-labelledby="explanation-panel-title"
       aria-busy={isBusy}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault()
           handleClose()
+          return
+        }
+        if (event.key === "Tab" && isModal) {
+          const focusable = Array.from(
+            panelRef.current?.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+            ) ?? [],
+          ).filter((element) => !element.hidden && element.getClientRects().length > 0)
+          if (focusable.length === 0) return
+          const currentIndex = focusable.indexOf(document.activeElement as HTMLElement)
+          const nextIndex = event.shiftKey
+            ? currentIndex <= 0
+              ? focusable.length - 1
+              : currentIndex - 1
+            : currentIndex < 0 || currentIndex === focusable.length - 1
+              ? 0
+              : currentIndex + 1
+          event.preventDefault()
+          focusable[nextIndex]?.focus()
         }
       }}
     >

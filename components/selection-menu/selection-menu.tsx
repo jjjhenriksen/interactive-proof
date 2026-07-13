@@ -101,6 +101,7 @@ export function SelectionMenu({
             className={styles.action}
             key={action.mode}
             type="button"
+            aria-label={action.label}
             ref={(element) => {
               itemRefs.current[index] = element
             }}
