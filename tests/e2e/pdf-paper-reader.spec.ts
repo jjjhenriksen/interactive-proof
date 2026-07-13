@@ -51,14 +51,27 @@ test("renders a selectable, responsive PDF page", async ({ page }, testInfo) => 
 
   await page.setViewportSize({ width: 360, height: 800 })
   await expect(reader).toHaveAttribute("aria-busy", "false", { timeout: 20_000 })
+  const paperViewport = page.getByTestId("pdf-scroll-viewport")
   const viewportMetrics = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }))
   expect(viewportMetrics.scrollWidth).toBeLessThanOrEqual(viewportMetrics.clientWidth)
-  expect((await canvas.boundingBox())?.width).toBeLessThanOrEqual(360)
+  const paperMetrics = await paperViewport.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }))
+  expect(paperMetrics.clientWidth).toBeLessThanOrEqual(360)
+  expect(paperMetrics.scrollWidth).toBeGreaterThanOrEqual(560)
+  expect((await canvas.boundingBox())?.width).toBeGreaterThanOrEqual(560)
+  await paperViewport.evaluate((element) => {
+    element.scrollLeft = 90
+  })
+  expect(await paperViewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+  await expect(page.getByText(/Swipe or scroll sideways/)).toBeVisible()
 
-  await page.getByRole("main", { name: "paper source" }).screenshot({
+  await page.screenshot({
     path: path.resolve("output/playwright/pdf-reader-mobile-360.png"),
+    fullPage: true,
   })
 })

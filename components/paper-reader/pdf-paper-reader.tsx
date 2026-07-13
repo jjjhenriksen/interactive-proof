@@ -146,6 +146,8 @@ export function PdfPaperReader({
         intrinsicViewport.width,
         intrinsicViewport.height,
         containerWidth,
+        896,
+        window.matchMedia("(max-width: 40rem)").matches ? 560 : 1,
       )
       const viewport = page.getViewport({ scale: fitted.scale })
       const canvas = canvasRef.current
@@ -235,7 +237,6 @@ export function PdfPaperReader({
 
   const pageStyle: PageStyle = {
     width: pageSize.width,
-    maxWidth: "100%",
     "--paper-aspect-ratio": `${pageSize.width} / ${pageSize.height}`,
     ...(renderScale ? { "--total-scale-factor": String(renderScale) } : {}),
   }
@@ -247,7 +248,15 @@ export function PdfPaperReader({
       aria-busy={status !== "ready" && status !== "error"}
       data-testid="pdf-paper-reader"
     >
-      <div className={styles.host} ref={hostRef}>
+      <div
+        className={styles.host}
+        ref={hostRef}
+        role="region"
+        aria-label={`Scrollable PDF page ${pageNumber}`}
+        aria-describedby="paper-scroll-help"
+        tabIndex={0}
+        data-testid="pdf-scroll-viewport"
+      >
         <div className={styles.page} style={pageStyle} data-state={status}>
           <canvas
             className={styles.canvas}
@@ -292,8 +301,13 @@ export function PdfPaperReader({
           ) : null}
         </div>
       </div>
-      <p className={styles.help}>
-        Select text directly on the page for a contextual explanation. Use the page buttons to navigate.
+      <p className={styles.help} id="paper-scroll-help">
+        <span className={styles.desktopHelp}>
+          Select text directly on the page for a contextual explanation. Use the page buttons to navigate.
+        </span>
+        <span className={styles.mobileHelp}>
+          Swipe or scroll sideways to read the full-size page, then select any passage for an explanation.
+        </span>
       </p>
     </section>
   )

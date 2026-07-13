@@ -20,6 +20,12 @@ describe("paper page layout", () => {
     expect(fitted.width).toBe(896)
     expect(fitted.height / fitted.width).toBeCloseTo(792 / 612)
   })
+
+  it("keeps mobile paper text readable inside a narrower scroll viewport", () => {
+    const fitted = fitPageToWidth(612, 792, 304, 896, 560)
+    expect(fitted.width).toBe(560)
+    expect(fitted.height / fitted.width).toBeCloseTo(792 / 612)
+  })
 })
 
 describe("paper selection mapping", () => {

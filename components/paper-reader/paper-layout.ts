@@ -14,10 +14,11 @@ export function fitPageToWidth(
   intrinsicHeight: number,
   availableWidth: number,
   maximumWidth = 896,
+  minimumWidth = 1,
 ): FittedPage {
   const safeIntrinsicWidth = Math.max(1, intrinsicWidth)
   const safeIntrinsicHeight = Math.max(1, intrinsicHeight)
-  const width = Math.max(1, Math.min(availableWidth, maximumWidth))
+  const width = Math.max(minimumWidth, Math.min(availableWidth, maximumWidth))
   const scale = width / safeIntrinsicWidth
 
   return {
