@@ -58,7 +58,11 @@ export type ProofReaderViewModel = {
   };
   pages: Array<{
     number: number;
-    blocks: Array<{ id: string; text: string }>;
+    blocks: Array<{
+      id: string;
+      kind: "heading" | "body" | "equation" | "caption" | "metadata";
+      text: string;
+    }>;
   }>;
   mappings: Mapping[];
 };
@@ -245,22 +249,44 @@ export function ProofReader({ proof }: ProofReaderProps) {
 
           {sourceMode === "paper" ? (
             <article className={styles.paperText}>
-              {page?.blocks.map((block) => (
-                <p
-                  key={block.id}
-                  data-source-block={block.id}
-                  tabIndex={0}
-                  onMouseUp={(event) =>
-                    captureSelection(
-                      "paper",
-                      { source: "paper", page: page.number, blockIds: [block.id] },
-                      event.currentTarget,
-                    )
-                  }
-                >
-                  {block.text}
-                </p>
-              ))}
+              {page?.blocks.map((block) => {
+                const className = `${styles.paperBlock} ${
+                  block.kind === "heading"
+                    ? styles.paperHeading
+                    : block.kind === "equation"
+                      ? styles.paperEquation
+                      : block.kind === "metadata"
+                        ? styles.paperMetadata
+                        : ""
+                }`;
+                const handleSelection = (element: HTMLElement) =>
+                  captureSelection(
+                    "paper",
+                    { source: "paper", page: page.number, blockIds: [block.id] },
+                    element,
+                  );
+                return block.kind === "heading" ? (
+                  <h2
+                    className={className}
+                    data-source-block={block.id}
+                    key={block.id}
+                    tabIndex={0}
+                    onMouseUp={(event) => handleSelection(event.currentTarget)}
+                  >
+                    {block.text}
+                  </h2>
+                ) : (
+                  <p
+                    className={className}
+                    data-source-block={block.id}
+                    key={block.id}
+                    tabIndex={0}
+                    onMouseUp={(event) => handleSelection(event.currentTarget)}
+                  >
+                    {block.text}
+                  </p>
+                );
+              })}
             </article>
           ) : (
             <section className={styles.leanStack}>

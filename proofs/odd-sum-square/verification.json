@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/jjjhenriksen/interactive-proof",
+  "revision": "sha256:f04d3081d4dc1dab49f8f6017cf2e42ad06bfe0eb5a6699f61c1b2382e143b49",
+  "toolchain": "leanprover/lean4:v4.29.1",
+  "command": "lean lean/Main.lean",
+  "checkedAt": "2026-07-13T20:40:00Z",
+  "build": "passed",
+  "exitCode": 0,
+  "sorryCount": 0,
+  "axioms": [
+    {
+      "declaration": "oddSum_eq_square",
+      "axioms": ["propext"]
+    }
+  ],
+  "outputDigest": "d4e454495e0926f8ef9fbbe37afdbee4defa7a28e4e42ace61052103fdaef0b7"
+}

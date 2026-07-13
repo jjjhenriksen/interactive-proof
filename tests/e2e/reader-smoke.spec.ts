@@ -63,7 +63,10 @@ test("opens the proof reader from the homepage", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Stay with the proof when one step stops you." }),
   ).toBeVisible();
-  await page.getByRole("link", { name: /Open the reader shell/ }).click();
+  const cycleDoubleCoverCard = page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Cycle Double Cover" }),
+  });
+  await cycleDoubleCoverCard.getByRole("link", { name: /Read this proof/ }).click();
 
   await expect(page).toHaveURL(new RegExp(`${PROOF_PATH}$`));
   await expect(

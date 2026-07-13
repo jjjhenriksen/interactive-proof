@@ -304,6 +304,87 @@ h2 {
   line-height: 1.65;
 }
 
+.proof-library {
+  padding-block: clamp(4rem, 9vw, 7rem);
+  border-top: 0.0625rem solid var(--border);
+}
+
+.proof-library__heading {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.proof-library__heading h2 {
+  max-width: 42rem;
+  margin-top: 1rem;
+}
+
+.proof-library__heading > p {
+  max-width: 42rem;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.proof-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.proof-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  border: 0.0625rem solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.proof-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.proof-card h3 {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.proof-card p {
+  margin: 0.875rem 0 0;
+  color: var(--muted-foreground);
+  line-height: 1.65;
+}
+
+.proof-card a {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  color: var(--primary);
+  font-size: 0.9375rem;
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--primary), transparent 60%);
+  text-underline-offset: 0.25em;
+}
+
+.proof-card a:hover {
+  color: var(--primary-strong);
+}
+
 .method {
   padding-block: clamp(4rem, 9vw, 7rem);
   border-top: 0.0625rem solid var(--border);
@@ -523,6 +604,15 @@ h2 {
   .method__grid {
     grid-template-columns: minmax(0, 0.9fr) minmax(24rem, 1.1fr);
     gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .proof-library__heading {
+    grid-template-columns: minmax(0, 1.2fr) minmax(20rem, 0.8fr);
+    align-items: end;
+  }
+
+  .proof-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .site-footer__inner,

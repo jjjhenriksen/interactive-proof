@@ -126,19 +126,42 @@
   line-height: 1.8;
 }
 
-.paperText p {
+.paperBlock {
   margin: 0;
   padding: 0.75rem;
   border-radius: calc(var(--radius) - 0.25rem);
 }
 
-.paperText p + p {
+.paperBlock + .paperBlock {
   margin-top: 0.5rem;
 }
 
-.paperText p:hover,
-.paperText p:focus-visible {
+.paperBlock:hover,
+.paperBlock:focus-visible {
   background: var(--surface-subtle);
+}
+
+.paperHeading {
+  color: var(--primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.paperEquation {
+  background: var(--background);
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.paperMetadata {
+  color: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.5;
 }
 
 .leanStack {

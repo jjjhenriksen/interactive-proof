@@ -32,8 +32,8 @@ export default function RootLayout({
               <span>Interactive Proof</span>
             </Link>
             <nav aria-label="Primary navigation">
-              <Link className="nav-link" href="/proofs/cycle-double-cover">
-                Read a proof
+              <Link className="nav-link" href="/#proof-library">
+                Browse proofs
               </Link>
             </nav>
           </div>

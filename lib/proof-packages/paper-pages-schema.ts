@@ -3,6 +3,7 @@ import { z } from "zod";
 export const PaperBlockSchema = z
   .object({
     id: z.string().regex(/^page-[1-9]\d*-block-[1-9]\d*$/),
+    kind: z.enum(["heading", "body", "equation", "caption", "metadata"]).default("body"),
     text: z.string().min(1),
   })
   .strict();
