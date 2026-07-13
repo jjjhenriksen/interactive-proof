@@ -32,7 +32,7 @@ async function waitForExplanationOrError(page: Page): Promise<void> {
     has: page.getByRole("heading", { name: "Explanation" }),
   });
   const statusRegion = answerSection.locator('[aria-live="polite"]');
-  const error = page.getByRole("alert");
+  const error = answerSection.getByRole("alert");
 
   await expect
     .poll(

@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 import {
   ExplanationPanel,
+  createFetchExplanationTransport,
   explanationReducer,
   initialExplanationState,
-  type ConversationTurn,
   type ExplanationRequest,
-  type PublicContext,
 } from "../explanation-panel";
 import {
   SelectionMenu,
@@ -78,30 +77,19 @@ export function ProofReader({ proof }: ProofReaderProps) {
     initialExplanationState,
   );
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
+  const explanationTransport = useMemo(() => createFetchExplanationTransport(), []);
+
+  useEffect(
+    () => () => {
+      requestControllerRef.current?.abort();
+    },
+    [],
+  );
 
   const page = proof.pages.find((candidate) => candidate.number === pageNumber) ?? proof.pages[0];
   const mapping =
     proof.mappings.find((candidate) => candidate.id === mappingId) ?? proof.mappings[0];
-
-  const blockMapping = useMemo(
-    () => new Map(proof.mappings.map((candidate) => [candidate.paper.sourceId, candidate])),
-    [proof.mappings],
-  );
-
-  const mappingForSelection = (activeSelection: SupportedSelection) => {
-    const location = activeSelection.location;
-    if (location.source === "paper") {
-      return blockMapping.get(location.blockIds[0]);
-    }
-    if (location.source === "lean") {
-      return proof.mappings.find((candidate) =>
-        candidate.lean.some(
-          (source) => source.declaration === location.declaration,
-        ),
-      );
-    }
-    return undefined;
-  };
 
   const captureSelection = (
     source: "paper" | "lean",
@@ -142,79 +130,43 @@ export function ProofReader({ proof }: ProofReaderProps) {
     });
   };
 
-  const contextForSelection = (activeSelection: SupportedSelection): PublicContext => {
-    const activeMapping = mappingForSelection(activeSelection);
-
-    const sources: PublicContext["sources"] = [];
-    if (activeMapping) {
-      sources.push({
-        id: activeMapping.paper.sourceId,
-        type: "paper",
-        label: activeMapping.paper.heading ?? `Paper page ${activeMapping.paper.pages[0]}`,
-        page: activeMapping.paper.pages[0],
-      });
-      sources.push(
-        ...activeMapping.lean.map((source) => ({
-          id: source.sourceId,
-          type: "lean" as const,
-          label: source.declaration,
-          file: source.file,
-          declaration: source.declaration,
-          revision: proof.leanRevision,
-        })),
-      );
-    }
-
-    return {
-      sources,
-      verification: proof.verification,
-      hasPrerequisiteContext: Boolean(activeMapping?.prerequisites.length),
-    };
-  };
-
-  const runFixtureExplanation = (
-    request: ExplanationRequest,
-    activeMapping: Mapping | undefined,
-  ) => {
+  const runExplanation = useCallback((request: ExplanationRequest) => {
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
     dispatch({ type: "start", request });
-    const context = contextForSelection(request.selection);
-    window.setTimeout(() => {
-      dispatch({ type: "context", context });
-      const mappingSentence = activeMapping
-        ? `This selection is mapped to “${activeMapping.label}.” The recorded correspondence is ${activeMapping.correspondence}: ${activeMapping.correspondenceNote}`
-        : "This selection does not yet have a curated paper-to-Lean mapping.";
-      const response =
-        `The source-selection and grounding path is working. ${mappingSentence}\n\n` +
-        "This is a deterministic integration preview, not an AI-generated explanation. Connecting the GPT-5.6 streaming endpoint is the next implementation slice.";
-      dispatch({ type: "delta", text: response });
-      dispatch({ type: "complete" });
-    }, 220);
-  };
+    void explanationTransport.run(
+      request,
+      {
+        onContext: (context) => dispatch({ type: "context", context }),
+        onDelta: (text) => dispatch({ type: "delta", text }),
+        onComplete: () => dispatch({ type: "complete" }),
+        onError: (error) => dispatch({ type: "fail", error }),
+      },
+      controller.signal,
+    );
+  }, [explanationTransport]);
+
+  const abortExplanation = useCallback(() => {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
+    dispatch({ type: "cancel" });
+  }, []);
 
   const handleAction = (mode: ExplanationMode, activeSelection: SupportedSelection) => {
     setSelection(null);
-    const activeMapping = mappingForSelection(activeSelection);
-    runFixtureExplanation(
-      { selection: activeSelection, mode, history: [] },
-      activeMapping,
-    );
+    runExplanation({ selection: activeSelection, mode, history: [] });
   };
 
   const handleFollowUp = (question: string) => {
     if (explanationState.status !== "complete") return;
-    const history: ConversationTurn[] = [
-      ...explanationState.history,
-      { role: "assistant" as const, text: explanationState.text },
-      { role: "user" as const, text: question },
-    ].slice(-6);
     const request: ExplanationRequest = {
       selection: explanationState.selection,
       mode: "question",
       question,
-      history,
+      history: explanationState.history.slice(-6),
     };
-    const activeMapping = mappingForSelection(request.selection);
-    runFixtureExplanation(request, activeMapping);
+    runExplanation(request);
   };
 
   return (
@@ -352,9 +304,17 @@ export function ProofReader({ proof }: ProofReaderProps) {
 
         <ExplanationPanel
           state={explanationState}
-          onClose={() => dispatch({ type: "close" })}
-          onAbort={() => dispatch({ type: "close" })}
-          onRetry={() => dispatch({ type: "retry" })}
+          onClose={() => {
+            requestControllerRef.current?.abort();
+            requestControllerRef.current = null;
+            dispatch({ type: "close" });
+          }}
+          onAbort={abortExplanation}
+          onRetry={() => {
+            if (explanationState.status === "error") {
+              runExplanation(explanationState.request);
+            }
+          }}
           onFollowUp={handleFollowUp}
           onSourceNavigate={(source) => {
             if (source.type === "paper") {

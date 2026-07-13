@@ -83,6 +83,7 @@ export type ExplanationAction =
   | { type: "delta"; text: string }
   | { type: "complete"; history?: ConversationTurn[] }
   | { type: "fail"; error: PublicError }
+  | { type: "cancel" }
   | { type: "retry" }
 
 export const initialExplanationState: ExplanationState = { status: "closed" }
@@ -127,13 +128,22 @@ export function explanationReducer(
       return { ...state, text: state.text + action.text }
     case "complete":
       if (state.status !== "streaming") return state
+      const completedHistory =
+        action.history ??
+        [
+          ...state.request.history,
+          ...(state.request.question
+            ? ([{ role: "user", text: state.request.question }] as const)
+            : []),
+          { role: "assistant", text: state.text } as const,
+        ].slice(-6)
       return {
         status: "complete",
         selection: state.selection,
         request: state.request,
         context: state.context,
         text: state.text,
-        history: action.history ?? state.request.history,
+        history: completedHistory,
       }
     case "fail":
       if (state.status !== "connecting" && state.status !== "streaming") return state
@@ -144,6 +154,11 @@ export function explanationReducer(
         previous: state.previous,
         error: action.error,
       }
+    case "cancel":
+      if (state.status !== "connecting" && state.status !== "streaming") return state
+      return state.previous
+        ? { status: "complete", ...state.previous }
+        : { status: "ready", selection: state.selection }
     case "retry":
       if (state.status !== "error" || !state.error.isRetryable) return state
       return {
