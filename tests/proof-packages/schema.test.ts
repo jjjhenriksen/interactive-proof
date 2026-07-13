@@ -26,4 +26,10 @@ describe("proof-package schemas", () => {
   it("rejects a passed build without a zero exit code", () => {
     expect(() => VerificationRecordSchema.parse({ ...verification, build: "passed", exitCode: null })).toThrow();
   });
+
+  it("accepts a policy failure when the Lean command itself exited zero", () => {
+    expect(
+      VerificationRecordSchema.parse({ ...verification, build: "failed", exitCode: 0 }).build,
+    ).toBe("failed");
+  });
 });

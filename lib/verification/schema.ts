@@ -29,8 +29,8 @@ export const VerificationRecordSchema = z
     if (record.build === "passed" && record.exitCode !== 0) {
       context.addIssue({ code: z.ZodIssueCode.custom, path: ["exitCode"], message: "must be 0 when build passed" });
     }
-    if (record.build === "failed" && (record.exitCode === null || record.exitCode === 0)) {
-      context.addIssue({ code: z.ZodIssueCode.custom, path: ["exitCode"], message: "must be nonzero when build failed" });
+    if (record.build === "failed" && record.exitCode === null) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["exitCode"], message: "must record the exact command exit code when verification failed" });
     }
   });
 

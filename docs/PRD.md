@@ -1,6 +1,6 @@
 # Product requirements document: Interactive Proof
 
-**Status:** Draft for implementation
+**Status:** Working MVP; public deployment, live evaluation evidence, and submission inputs remain pending
 
 **Target:** OpenAI Build Week 2026
 

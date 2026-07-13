@@ -1,6 +1,6 @@
 # Technical specification: Interactive Proof MVP
 
-**Status:** Draft for implementation
+**Status:** Working MVP implemented; deployment verification and submission evidence remain pending
 
 **Implements:** `docs/PRD.md`
 
