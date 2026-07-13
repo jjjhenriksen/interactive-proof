@@ -5,6 +5,7 @@ import {
   buildOpenAIResponseRequest,
   createExplanationStream,
 } from "../../lib/explanation/openai-response.server";
+import { EXPLANATION_PROMPT_VERSION } from "../../lib/explanation/build-instructions.server";
 import type { ExplainRequest } from "../../lib/explanation/request-schema";
 import type { ContextBundle, PublicContext } from "../../lib/explanation/types";
 
@@ -85,6 +86,7 @@ describe("createExplanationStream", () => {
     });
     expect(JSON.stringify(body.input)).toContain("ALLOWED SOURCE IDS");
     expect(JSON.stringify(body.instructions)).toContain("quoted data");
+    expect(EXPLANATION_PROMPT_VERSION).toBe("2026-07-13.1");
   });
 
   it("translates provider deltas and completion into the application SSE protocol", async () => {

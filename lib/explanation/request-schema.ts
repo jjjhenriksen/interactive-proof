@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { CONTEXT_BUDGETS } from "./context-budgets";
+
 export const explanationModes = [
   "details",
   "simpler",
@@ -82,6 +84,18 @@ export const explainRequestSchema = z
         code: "custom",
         message: "question is only accepted in question mode",
         path: ["question"],
+      });
+    }
+
+    const historyCharacters = request.history.reduce(
+      (total, turn) => total + turn.text.length,
+      0,
+    );
+    if (historyCharacters > CONTEXT_BUDGETS.conversationCharacters) {
+      context.addIssue({
+        code: "custom",
+        message: `conversation history must not exceed ${CONTEXT_BUDGETS.conversationCharacters} characters`,
+        path: ["history"],
       });
     }
   });

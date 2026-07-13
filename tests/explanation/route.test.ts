@@ -38,6 +38,41 @@ describe("POST /api/explain", () => {
     await expect(response.json()).resolves.toMatchObject({ code: "INVALID_REQUEST" });
   });
 
+  it("rejects an oversized declared body before parsing or model configuration", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/explain", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": "32001",
+          "x-real-ip": "oversized-route-test",
+        },
+        body: "{}",
+      }),
+    );
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toEqual({
+      code: "INVALID_REQUEST",
+      message: "The explanation request is too large.",
+    });
+  });
+
+  it("rejects structurally invalid source metadata before checking model configuration", async () => {
+    const response = await post(
+      JSON.stringify({
+        ...validRequest,
+        source: "lean",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      code: "INVALID_REQUEST",
+      message: "The explanation request is invalid.",
+    });
+  });
+
   it("reports an explicit configuration error when the API key is absent", async () => {
     const response = await post(JSON.stringify(validRequest));
     expect(response.status).toBe(503);
