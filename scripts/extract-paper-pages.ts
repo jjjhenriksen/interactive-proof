@@ -24,9 +24,18 @@ function normalizeBlock(block: string): string {
     .join("\n");
 }
 
-const [, , pdfArgument, outputArgument] = process.argv;
+let [, , pdfArgument, outputArgument] = process.argv;
+if (pdfArgument && !outputArgument && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(pdfArgument)) {
+  const packageDirectory = path.resolve("proofs", pdfArgument);
+  const manifest = JSON.parse(readFileSync(path.join(packageDirectory, "proof.json"), "utf8")) as {
+    paper?: { pdf?: string; pages?: string };
+  };
+  if (!manifest.paper?.pdf || !manifest.paper.pages) fail("proof.json must declare paper.pdf and paper.pages");
+  pdfArgument = path.join(packageDirectory, manifest.paper.pdf);
+  outputArgument = path.join(packageDirectory, manifest.paper.pages);
+}
 if (!pdfArgument || !outputArgument) {
-  fail("Usage: extract-paper-pages.ts <paper.pdf> <paper.pages.json>");
+  fail("Usage: npm run proof:extract -- <proof-id> (or provide explicit input and output paths)");
 }
 
 const pdf = path.resolve(pdfArgument);

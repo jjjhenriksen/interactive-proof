@@ -114,6 +114,18 @@ npm run proof:verify -- odd-sum-square
 
 ## Author a proof package
 
+Start with the command-driven workflow:
+
+```bash
+npm run proof:new -- my-proof "My Proof Title"
+# supply proofs/my-proof/paper.pdf and Lean source
+npm run proof:extract -- my-proof
+npm run proof:check -- my-proof
+npm run proof:preview -- my-proof
+```
+
+The scaffold is atomic, refuses existing destinations and unsafe IDs, begins with `review-required` rights and `not-run` verification, and intentionally fails release readiness until a contributor supplies and reviews the real assets. Generated registries remain untouched until normal package validation succeeds.
+
 Create `proofs/<proof-id>/` with:
 
 ```text
