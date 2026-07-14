@@ -16,6 +16,7 @@ const request: ExplainRequest = {
   selectedText: "Every finite bridgeless undirected graph",
   mode: "details",
   depth: "standard",
+  instructorEntryIds: [],
   history: [],
 };
 

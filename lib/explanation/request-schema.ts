@@ -63,6 +63,7 @@ export const explainRequestSchema = z
     depth: explanationDepthSchema.default("standard"),
     question: z.string().trim().min(1).max(800).optional(),
     history: z.array(conversationTurnSchema).max(6).default([]),
+    instructorEntryIds: z.array(z.string().min(1).max(100)).max(6).default([]),
   })
   .superRefine((request, context) => {
     if (request.source !== request.location.source) {

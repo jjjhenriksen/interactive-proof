@@ -43,6 +43,7 @@ export type ExplanationRequest = {
   question?: string
   history: ConversationTurn[]
   depth?: ExplanationDepth
+  instructorEntryIds?: string[]
 }
 
 export type PublicError = {

@@ -67,6 +67,7 @@ export default async function ProofPage({ params }: ProofPageProps) {
     },
     pages: loaded.paperPages.pages,
     mappings,
+    instructorEntries: loaded.instructorEntries,
   };
 
   return (

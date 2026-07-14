@@ -419,7 +419,8 @@ export const proofRegistry = {
       "lean-cycle-decomposition": "theorem decompose_even_edge_set\n    (F : Finset E) (hF : G.IsEvenEdgeSet F) :\n    ∃ L : List G.Cycle, ∀ e : E,\n      (L.filter fun C ↦ e ∈ C.edges).length = if e ∈ F then 1 else 0 := by\n  classical\n  revert hF\n  refine Finset.strongInductionOn F ?_\n  intro F ih hF\n  by_cases hne : F.Nonempty\n  · by_cases hmin : ∀ D, D.Nonempty → D ⊆ F → G.IsEvenEdgeSet D → D = F\n    · -- F itself is a minimal even set: one cycle.\n      exact ⟨[⟨F, hne, hF, hmin⟩], by simp⟩\n    · -- Split off a smaller even set and recurse.\n      obtain ⟨D, hDne, hDF, hDeven, hDproper⟩ := hmin\n      -- Inductive bookkeeping continues in the full source.\n  · exact ⟨[], by simp_all⟩",
       "lean-cover-to-cycles": "noncomputable def IndexedEvenDoubleCover.toCycleDoubleCover\n    (C : G.IndexedEvenDoubleCover) : G.CycleDoubleCover := by\n  classical\n  have hex : ∀ s : Gamma, ∃ L : List G.Cycle,\n      ∀ e : E, (L.filter fun Z ↦ e ∈ Z.edges).length =\n        if e ∈ C.support G s then 1 else 0 := by\n    intro s\n    exact G.decompose_even_edge_set _ (C.support_even G s)\n  choose pieces hpieces using hex\n  refine { cycles := Finset.univ.toList.flatMap pieces, coveredTwice := ?_ }\n  intro e\n  simpa [C.support] using C.coveredTwice e"
     },
-    "paperAssetUrl": "/proof-assets/cycle-double-cover/b4797f5053d9067329b3dcfcbf913f8bb40d13467453b1300f6d78d08460fc13.pdf"
+    "paperAssetUrl": "/proof-assets/cycle-double-cover/b4797f5053d9067329b3dcfcbf913f8bb40d13467453b1300f6d78d08460fc13.pdf",
+    "instructorEntries": []
   },
   "odd-sum-square": {
     "manifest": {
@@ -478,6 +479,10 @@ export const proofRegistry = {
           ]
         }
       ],
+      "instructor": {
+        "file": "instructor.json",
+        "sha256": "302e27a8de435e465e98899052f1bd45b06b18abea7b5fa04abe16c5d4a42c54"
+      },
       "mappings": [
         {
           "id": "odd-sum-definition",
@@ -679,7 +684,40 @@ export const proofRegistry = {
       "lean-odd-sum-theorem": "/-- The sum of the first `n` odd numbers is `n^2`. -/\ntheorem oddSum_eq_square : forall n : Nat, oddSum n = n * n\n  | 0 => rfl\n  | n + 1 => by\n      rw [oddSum, oddSum_eq_square]\n      simp [Nat.mul_add, Nat.mul_two, Nat.add_assoc, Nat.mul_comm]",
       "lean-square-arithmetic": "  | n + 1 => by\n      rw [oddSum, oddSum_eq_square]\n      simp [Nat.mul_add, Nat.mul_two, Nat.add_assoc, Nat.mul_comm]"
     },
-    "paperAssetUrl": "/proof-assets/odd-sum-square/29623821802d66a3f58b85799972184d74a3c7d4b1793eb790e20b320eb8f50c.pdf"
+    "paperAssetUrl": "/proof-assets/odd-sum-square/29623821802d66a3f58b85799972184d74a3c7d4b1793eb790e20b320eb8f50c.pdf",
+    "instructorEntries": [
+      {
+        "id": "induction-objective",
+        "kind": "objective",
+        "title": "See the successor step as square growth",
+        "body": "Connect the new odd number 2n + 1 with the difference between consecutive squares.",
+        "sourceIds": [
+          "page-1-block-6",
+          "lean-odd-sum-theorem"
+        ],
+        "mappingIds": [
+          "odd-sum-theorem"
+        ],
+        "author": "Interactive Proof Project",
+        "license": "CC BY 4.0",
+        "reviewedAt": "2026-07-14T00:00:00.000Z"
+      },
+      {
+        "id": "induction-hint",
+        "kind": "hint",
+        "title": "Expand only the next square",
+        "body": "Use the induction hypothesis first, then compare n² + 2n + 1 with (n + 1)².",
+        "sourceIds": [
+          "lean-odd-sum-theorem"
+        ],
+        "mappingIds": [
+          "odd-sum-theorem"
+        ],
+        "author": "Interactive Proof Project",
+        "license": "CC BY 4.0",
+        "reviewedAt": "2026-07-14T00:00:00.000Z"
+      }
+    ]
   }
 } satisfies Record<string, RuntimeProofPackage>;
 

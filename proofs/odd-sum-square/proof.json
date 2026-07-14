@@ -43,6 +43,10 @@
       "sourceIds": ["page-1-block-8", "lean-odd-sum-theorem"]
     }
   ],
+  "instructor": {
+    "file": "instructor.json",
+    "sha256": "302e27a8de435e465e98899052f1bd45b06b18abea7b5fa04abe16c5d4a42c54"
+  },
   "mappings": [
     {
       "id": "odd-sum-definition",

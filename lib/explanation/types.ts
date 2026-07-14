@@ -63,6 +63,7 @@ export type ContextBundle = {
   prerequisites: string[];
   dependencies: Array<{ id: string; label: string }>;
   usedBy: Array<{ id: string; label: string }>;
+  instructor?: Array<{ id: string; kind: string; title: string; body: string; author: string; license: string }>;
   verification: VerificationSummary;
   allowedSourceIds: string[];
 };

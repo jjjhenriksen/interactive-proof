@@ -122,6 +122,7 @@ function requestBody(request: ExplanationRequest) {
     question: request.question,
     history: request.history.slice(-6),
     depth: request.depth ?? "standard",
+    instructorEntryIds: request.instructorEntryIds ?? [],
   }
 }
 
