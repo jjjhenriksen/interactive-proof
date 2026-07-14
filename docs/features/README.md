@@ -17,6 +17,7 @@ This folder turns the remaining roadmap into bounded, agent-ready workstreams. E
 | 5 | [Proof-package authoring](05-proof-package-authoring.md) | Repeatable path for adding proofs | Package schema and validators |
 | 6 | [Instructor layers](06-instructor-layers.md) | Curated teaching material distinct from AI output | Package authoring conventions |
 | 7 | [Demonstration mode](07-demonstration-mode.md) | Honest no-key review and resilient demos | Stable explanation/context schema |
+| 8 | [Ephemeral uploads](08-ephemeral-uploads.md) | Temporary reader-provided PDF and optional Lean workspace | Existing paper reader and explanation stream |
 
 Launch readiness is the release blocker. Features 2–4 may run in parallel after their shared URL/state decisions are aligned. Feature 5 should establish conventions before feature 6 extends the package schema. Feature 7 can run independently if it consumes the existing public context contract rather than duplicating it.
 

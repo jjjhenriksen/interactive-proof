@@ -42,6 +42,9 @@ export default async function HomePage() {
               <a className="button button--secondary" href="#how-it-works">
                 See how it works
               </a>
+              <Link className="button button--secondary" href="/upload">
+                Upload your own paper
+              </Link>
             </div>
           </div>
 
