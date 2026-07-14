@@ -32,6 +32,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and choose either proof.
 
+To work with your own material, open [http://localhost:3000/upload](http://localhost:3000/upload). A PDF is required and Lean source is optional. Files are parsed in the browser and remain temporary; only a bounded selection and nearby text are sent when you explicitly request an AI explanation. Uploaded Lean is always labeled unverified.
+
 ### Environment
 
 ```dotenv
@@ -52,7 +54,9 @@ For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining val
 ```text
 app/
   api/explain/                 validated, rate-limited Responses API stream
+  api/explain-upload/          bounded stream for reader-provided context
   proofs/[proofId]/            generic proof reader and PDF route
+  upload/                      temporary PDF and optional Lean workspace
 components/
   paper-reader/                PDF.js canvas and selectable text layer
   proof-reader/                shared paper/Lean workspace
@@ -61,6 +65,7 @@ components/
 lib/
   proof-packages/              schemas, safe paths, registry, package loader
   explanation/                 canonical context construction and model transport
+  uploads/                     client parsers and temporary context boundary
   verification/                verification schema and status policy
 proofs/<id>/                   repository-owned proof packages
 scripts/                       extraction, registry, validation, and Lean verification

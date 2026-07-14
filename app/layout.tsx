@@ -45,6 +45,9 @@ export default function RootLayout({
                 <Link className="nav-link" href="/methodology">
                   Evaluation
                 </Link>
+                <Link className="nav-link" href="/upload">
+                  Upload
+                </Link>
                 <ThemeToggle />
               </div>
             </nav>
