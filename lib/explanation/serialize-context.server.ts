@@ -67,6 +67,14 @@ export async function buildExplanationContext(
     id,
     label: mappingIndex.get(id)?.label ?? id,
   }));
+  const instructor = request.instructorEntryIds.map((id) => {
+    const entry = loaded.instructorEntries.find((item) => item.id === id);
+    if (!entry) return fail("SOURCE_NOT_FOUND", `Instructor entry not found: ${id}`);
+    if (!entry.sourceIds.some((sourceId) => allSourceIds.includes(sourceId)) && !entry.mappingIds.includes(mapping?.id ?? "")) {
+      return fail("SOURCE_NOT_FOUND", `Instructor entry is not attached to this selection: ${id}`);
+    }
+    return { id: entry.id, kind: entry.kind, title: entry.title, body: entry.body, author: entry.author, license: entry.license };
+  });
 
   const context: ContextBundle = {
     proof: {
@@ -94,6 +102,7 @@ export async function buildExplanationContext(
     prerequisites: supportingMaterial.prerequisites,
     dependencies,
     usedBy,
+    instructor,
     verification,
     allowedSourceIds: allSourceIds,
   };
@@ -331,6 +340,7 @@ export function serializeContextForModel(context: ContextBundle): string {
     ["PREREQUISITES", context.prerequisites.map((item) => `- ${item}`).join("\n") || "None supplied."],
     ["DEPENDENCIES", context.dependencies.map((item) => `- ${item.id}: ${item.label}`).join("\n") || "None supplied."],
     ["USED BY", context.usedBy.map((item) => `- ${item.id}: ${item.label}`).join("\n") || "None supplied."],
+    ["INSTRUCTOR MATERIAL (QUOTED DATA)", (context.instructor ?? []).map((item) => `${item.kind}: ${item.title}\n${item.body}\nAuthor: ${item.author}; License: ${item.license}`).join("\n\n") || "None supplied."],
     ["VERIFICATION", JSON.stringify(context.verification)],
     ["ALLOWED SOURCE IDS", context.allowedSourceIds.join("\n")],
   ] as const;

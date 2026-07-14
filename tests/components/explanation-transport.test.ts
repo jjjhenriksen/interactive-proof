@@ -72,6 +72,7 @@ describe("fetch explanation transport", () => {
       selectedText: "A target vector lies in the image of L.",
       mode: "details",
       depth: "standard",
+      instructorEntryIds: [],
       history: [],
     })
     expect(handlers.onContext).toHaveBeenCalledWith(

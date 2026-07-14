@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "id": "induction-objective",
+      "kind": "objective",
+      "title": "See the successor step as square growth",
+      "body": "Connect the new odd number 2n + 1 with the difference between consecutive squares.",
+      "sourceIds": ["page-1-block-6", "lean-odd-sum-theorem"],
+      "mappingIds": ["odd-sum-theorem"],
+      "author": "Interactive Proof Project",
+      "license": "CC BY 4.0",
+      "reviewedAt": "2026-07-14T00:00:00.000Z"
+    },
+    {
+      "id": "induction-hint",
+      "kind": "hint",
+      "title": "Expand only the next square",
+      "body": "Use the induction hypothesis first, then compare n² + 2n + 1 with (n + 1)².",
+      "sourceIds": ["lean-odd-sum-theorem"],
+      "mappingIds": ["odd-sum-theorem"],
+      "author": "Interactive Proof Project",
+      "license": "CC BY 4.0",
+      "reviewedAt": "2026-07-14T00:00:00.000Z"
+    }
+  ]
+}

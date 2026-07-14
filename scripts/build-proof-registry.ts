@@ -31,6 +31,7 @@ async function main() {
         verification: Awaited<ReturnType<typeof loadProofPackageFromDirectory>>["verification"];
         leanExcerpts: Record<string, string>;
         paperAssetUrl: string;
+        instructorEntries: Awaited<ReturnType<typeof loadProofPackageFromDirectory>>["instructorEntries"];
       },
     ]
   > = [];
@@ -70,6 +71,7 @@ async function main() {
           verification: loaded.verification,
           leanExcerpts,
           paperAssetUrl: `/proof-assets/${loaded.manifest.id}/${assetName}`,
+          instructorEntries: loaded.instructorEntries,
         },
       ]);
     } catch (error) {

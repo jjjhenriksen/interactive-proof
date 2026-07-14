@@ -6,12 +6,14 @@ import { PaperPagesSchema, type PaperPages } from "./paper-pages-schema";
 import { resolveExistingPackagePath } from "./locations";
 import { ProofPackageSchema, type ProofPackage } from "./schema";
 import { VerificationRecordSchema, type VerificationRecord } from "../verification/schema";
+import { InstructorFileSchema, type InstructorEntry } from "./instructor-schema";
 
 export type LoadedProofPackage = {
   directory: string;
   manifest: ProofPackage;
   paperPages: PaperPages;
   verification: VerificationRecord;
+  instructorEntries: InstructorEntry[];
 };
 
 export class InvalidProofPackageError extends Error {
@@ -97,10 +99,17 @@ export async function loadProofPackageFromDirectory(packageDirectory: string): P
       throw new InvalidProofPackageError(`Lean sourceDirectory is not a directory: ${manifest.lean.sourceDirectory}`);
     }
 
-    const [pdf, paperPages, verification] = await Promise.all([
+    const [pdf, paperPages, verification, instructorEntries] = await Promise.all([
       readFile(pdfPath),
       readJson(pagesPath).then((value) => PaperPagesSchema.parse(value)),
       readJson(verificationPath).then((value) => VerificationRecordSchema.parse(value)),
+      manifest.instructor
+        ? resolveExistingPackagePath(packageDirectory, manifest.instructor.file).then(async (file) => {
+            const bytes = await readFile(file);
+            if (sha256(bytes) !== manifest.instructor?.sha256) throw new InvalidProofPackageError("Instructor file digest mismatch");
+            return InstructorFileSchema.parse(JSON.parse(bytes.toString("utf8"))).entries;
+          })
+        : Promise.resolve([]),
     ]);
 
     const digest = sha256(pdf);
@@ -111,7 +120,16 @@ export async function loadProofPackageFromDirectory(packageDirectory: string): P
     }
 
     await assertManifestReferences(manifest, paperPages, packageDirectory);
-    return { directory: path.resolve(packageDirectory), manifest, paperPages, verification };
+    const knownSources = new Set([
+      ...paperPages.pages.flatMap((page) => page.blocks.map((block) => block.id)),
+      ...manifest.mappings.flatMap((mapping) => mapping.lean.map((source) => source.sourceId)),
+    ]);
+    const knownMappings = new Set(manifest.mappings.map((mapping) => mapping.id));
+    for (const entry of instructorEntries) {
+      if (entry.sourceIds.some((id) => !knownSources.has(id))) throw new InvalidProofPackageError(`Instructor entry ${entry.id} references an unknown source`);
+      if (entry.mappingIds.some((id) => !knownMappings.has(id))) throw new InvalidProofPackageError(`Instructor entry ${entry.id} references an unknown mapping`);
+    }
+    return { directory: path.resolve(packageDirectory), manifest, paperPages, verification, instructorEntries };
   } catch (error) {
     if (error instanceof InvalidProofPackageError) throw error;
     throw new InvalidProofPackageError(`Invalid proof package at ${packageDirectory}`, error);

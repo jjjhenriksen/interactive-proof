@@ -90,6 +90,7 @@ export type ProofReaderViewModel = {
     }>;
   }>;
   mappings: Mapping[];
+  instructorEntries: Array<{ id: string; kind: "objective" | "hint" | "misconception" | "explanation"; title: string; body: string; sourceIds: string[]; mappingIds: string[]; author: string; license: string; reviewedAt: string }>;
 };
 
 type ProofReaderProps = {
@@ -104,6 +105,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const [locationNotice, setLocationNotice] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
   const [explanationDepth, setExplanationDepth] = useState<ExplanationDepth>("standard");
+  const [selectedInstructorIds, setSelectedInstructorIds] = useState<string[]>([]);
   const [explanationState, dispatch] = useReducer(
     explanationReducer,
     initialExplanationState,
@@ -124,6 +126,10 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const page = proof.pages.find((candidate) => candidate.number === pageNumber) ?? proof.pages[0];
   const mapping =
     proof.mappings.find((candidate) => candidate.id === mappingId) ?? proof.mappings[0];
+  const visibleInstructorEntries = proof.instructorEntries.filter((entry) =>
+    entry.mappingIds.includes(mapping?.id ?? "") ||
+    (sourceMode === "paper" ? entry.sourceIds.includes(mapping?.paper.sourceId ?? "") : mapping?.lean.some((source) => entry.sourceIds.includes(source.sourceId))),
+  );
 
   const applyLocation = useCallback((location: ReaderLocation | null) => {
     if (!location) return;
@@ -266,6 +272,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
       mode,
       depth: mode === "simpler" ? "foundational" : explanationDepth,
       history: [],
+      instructorEntryIds: selectedInstructorIds,
     });
   };
 
@@ -322,6 +329,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
       question,
       history: explanationState.history.slice(-6),
       depth: explanationDepth,
+      instructorEntryIds: selectedInstructorIds,
     };
     runExplanation(request);
   };
@@ -450,6 +458,20 @@ export function ProofReader({ proof }: ProofReaderProps) {
           <p className={styles.selectionHint}>
             Select a phrase to open the contextual explanation actions.
           </p>
+
+          {visibleInstructorEntries.length ? (
+            <section className={styles.instructorGuidance} aria-labelledby="instructor-guidance-heading">
+              <div><p className={styles.sourceLabel}>Curated guidance</p><h2 id="instructor-guidance-heading">Notes from the proof curator</h2></div>
+              {visibleInstructorEntries.map((entry) => (
+                <details key={entry.id} open={entry.kind !== "hint"}>
+                  <summary>{entry.kind}: {entry.title}</summary>
+                  <p>{entry.body}</p>
+                  <p className={styles.instructorAttribution}>By {entry.author} · {entry.license} · reviewed {new Date(entry.reviewedAt).toLocaleDateString()}</p>
+                  <label><input type="checkbox" checked={selectedInstructorIds.includes(entry.id)} onChange={(event) => setSelectedInstructorIds((current) => event.target.checked ? [...new Set([...current, entry.id])] : current.filter((id) => id !== entry.id))} /> Include in the next AI explanation</label>
+                </details>
+              ))}
+            </section>
+          ) : null}
 
           {sourceMode === "paper" ? (
             page ? (
