@@ -153,6 +153,13 @@ export function ExplanationPanel({
         </button>
       </header>
 
+      {completed?.presentation?.kind === "recorded" ? (
+        <div className={styles.recordedNotice} role="note">
+          <strong>Recorded example</strong>
+          <span>No model request is being made. Recorded {new Date(completed.presentation.recordedAt).toLocaleDateString()} with {completed.presentation.model}; reviewed by {completed.presentation.reviewedBy}.</span>
+        </div>
+      ) : null}
+
       <div className={styles.body}>
         <fieldset className={styles.depthControl}>
           <legend>Explanation depth</legend>
@@ -272,13 +279,13 @@ export function ExplanationPanel({
               <section className={styles.suggestions} aria-labelledby="suggestions-heading">
                 <h3 className={styles.sectionLabel} id="suggestions-heading">Keep exploring</h3>
                 {completed.suggestions.map((suggestion) => (
-                  <button key={suggestion.id} type="button" onClick={() => onFollowUp(suggestion.question)} disabled={isBusy}>
+                  <button key={suggestion.id} type="button" onClick={() => onFollowUp(suggestion.question)} disabled={isBusy || completed.presentation?.kind === "recorded"} title={completed.presentation?.kind === "recorded" ? "Start a live explanation to continue" : undefined}>
                     {suggestion.label}
                   </button>
                 ))}
               </section>
             ) : null}
-            <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} />
+            {completed?.presentation?.kind !== "recorded" ? <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} /> : null}
           </>
         ) : null}
       </div>

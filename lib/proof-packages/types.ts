@@ -7,6 +7,7 @@ import type { PaperPages } from "./paper-pages-schema";
 import type { ProofPackage } from "./schema";
 import type { VerificationRecord } from "../verification/schema";
 import type { InstructorEntry } from "./instructor-schema";
+import type { RecordedExplanation } from "../demonstration/schema";
 
 export type RuntimeProofPackage = {
   manifest: ProofPackage;
@@ -15,4 +16,5 @@ export type RuntimeProofPackage = {
   leanExcerpts: Record<string, string>;
   paperAssetUrl: string;
   instructorEntries: InstructorEntry[];
+  recordedExplanations: RecordedExplanation[];
 };

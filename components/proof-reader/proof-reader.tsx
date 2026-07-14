@@ -95,6 +95,12 @@ export type ProofReaderViewModel = {
   }>;
   mappings: Mapping[];
   instructorEntries: Array<{ id: string; kind: "objective" | "hint" | "misconception" | "explanation"; title: string; body: string; sourceIds: string[]; mappingIds: string[]; author: string; license: string; reviewedAt: string }>;
+  recordedExamples: Array<{
+    id: string; label: string; answer: string; model: string; recordedAt: string; reviewedBy: string;
+    selection: SupportedSelection; request: ExplanationRequest;
+    context: import("../explanation-panel").PublicContext;
+    suggestions: import("../explanation-panel").FollowUpSuggestion[];
+  }>;
 };
 
 type ProofReaderProps = {
@@ -431,6 +437,15 @@ export function ProofReader({ proof }: ProofReaderProps) {
       <div className={styles.readerStatus} aria-live="polite">
         {locationNotice || copyStatus}
       </div>
+
+      {proof.recordedExamples.length ? (
+        <section className={styles.recordedExamples} aria-labelledby="recorded-examples-heading">
+          <div><p className={styles.sourceLabel}>No-key demonstration</p><h2 id="recorded-examples-heading">View a reviewed interaction</h2><p>These checked-in examples are visibly recorded and never replace a failed live request.</p></div>
+          <div>{proof.recordedExamples.map((example) => (
+            <button key={example.id} type="button" onClick={() => dispatch({ type: "show-recorded", explanation: { selection: example.selection, request: example.request, context: example.context, text: example.answer, history: [], suggestions: example.suggestions, presentation: { kind: "recorded", model: example.model, recordedAt: example.recordedAt, reviewedBy: example.reviewedBy } } })}>{example.label}</button>
+          ))}</div>
+        </section>
+      ) : null}
 
       <div
         className={`${styles.workspace} ${

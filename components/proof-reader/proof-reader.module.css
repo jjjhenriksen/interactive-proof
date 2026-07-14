@@ -173,6 +173,12 @@
   border-bottom: 0.0625rem solid var(--border);
 }
 
+.recordedExamples { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem clamp(1.25rem, 4vw, 2.5rem); border-bottom: 0.0625rem solid var(--border); background: var(--background); }
+.recordedExamples h2 { margin-top: 0.25rem; font-family: var(--font-sans); font-size: 1.125rem; letter-spacing: 0; }
+.recordedExamples p { margin: 0.25rem 0 0; color: var(--muted-foreground); font-size: 0.875rem; }
+.recordedExamples > div:last-child { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.recordedExamples button { min-height: 2.75rem; padding: 0.5rem 0.75rem; border: 0.0625rem solid var(--border); border-radius: calc(var(--radius) - 0.25rem); background: var(--surface); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+
 .workspace {
   display: grid;
   min-height: 42rem;

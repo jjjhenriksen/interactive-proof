@@ -103,6 +103,7 @@ export const ProofPackageSchema = z
         .strict(),
     ),
     instructor: z.object({ file: PackageRelativePathSchema, sha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict().optional(),
+    recorded: z.object({ file: PackageRelativePathSchema, sha256: z.string().regex(/^[a-f0-9]{64}$/) }).strict().optional(),
     mappings: z.array(ProofMappingSchema),
   })
   .strict()
