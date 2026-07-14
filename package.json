@@ -23,6 +23,7 @@
     "eval:validate": "tsx scripts/validate-evaluations.ts",
     "eval:live": "tsx scripts/run-live-evaluations.ts",
     "proof:registry": "tsx scripts/build-proof-registry.ts",
+    "release:check": "tsx scripts/check-public-release.ts",
     "proof:verify": "tsx scripts/verify-proof-packages.ts",
     "proof:validate": "tsx scripts/validate-proof-packages.ts",
     "proof:extract": "node --experimental-strip-types scripts/extract-paper-pages.ts"
