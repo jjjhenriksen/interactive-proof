@@ -148,8 +148,29 @@
 }
 
 .sourceSwitch a {
-  margin-left: auto;
   color: var(--primary);
+}
+
+.sourceSwitch a:first-of-type {
+  margin-left: auto;
+}
+
+.sourceSwitch button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.readerStatus {
+  min-height: 0;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  font-size: 0.875rem;
+}
+
+.readerStatus:not(:empty) {
+  padding-block: 0.75rem;
+  border-bottom: 0.0625rem solid var(--border);
 }
 
 .workspace {
