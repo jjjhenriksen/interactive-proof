@@ -60,6 +60,7 @@ export type CompletedExplanation = {
   text: string
   history: ConversationTurn[]
   suggestions?: FollowUpSuggestion[]
+  presentation?: { kind: "recorded"; model: string; recordedAt: string; reviewedBy: string }
 }
 
 type ActiveRequestState = {
@@ -92,6 +93,7 @@ export type ExplanationAction =
   | { type: "fail"; error: PublicError }
   | { type: "cancel" }
   | { type: "retry" }
+  | { type: "show-recorded"; explanation: CompletedExplanation }
 
 export const initialExplanationState: ExplanationState = { status: "closed" }
 
@@ -175,6 +177,8 @@ export function explanationReducer(
         request: state.request,
         previous: state.previous,
       }
+    case "show-recorded":
+      return { status: "complete", ...action.explanation }
   }
 }
 

@@ -70,6 +70,28 @@ export default async function ProofPage({ params }: ProofPageProps) {
     pages: loaded.paperPages.pages,
     mappings,
     instructorEntries: loaded.instructorEntries,
+    recordedExamples: loaded.recordedExplanations.map((fixture) => {
+      const sources: ProofReaderViewModel["recordedExamples"][number]["context"]["sources"] = [];
+      for (const sourceId of fixture.sourceIds) {
+        const paperPage = loaded.paperPages.pages.find((page) => page.blocks.some((block) => block.id === sourceId));
+        if (paperPage) {
+          sources.push({ id: sourceId, type: "paper", label: `Paper page ${paperPage.number}`, page: paperPage.number });
+          continue;
+        }
+        const lean = loaded.manifest.mappings.flatMap((mapping) => mapping.lean).find((source) => source.sourceId === sourceId);
+        if (lean) sources.push({ id: sourceId, type: "lean", label: lean.declaration, file: lean.file, declaration: lean.declaration, revision: loaded.manifest.lean.revision });
+      }
+      const selection = { proofId: fixture.proofId, source: fixture.selection.source, selectedText: fixture.selection.selectedText, location: fixture.selection.location, clientRect: { top: 0, left: 0, right: 0, bottom: 0 } } as ProofReaderViewModel["recordedExamples"][number]["selection"];
+      return {
+        id: fixture.id,
+        label: fixture.selection.source === "paper" ? "View paper example" : "View Lean example",
+        answer: fixture.answer, model: fixture.model, recordedAt: fixture.recordedAt, reviewedBy: fixture.reviewedBy,
+        selection,
+        request: { selection, mode: fixture.selection.mode, depth: fixture.selection.depth, history: [] },
+        context: { sources, verification: { build: loaded.verification.build, revision: loaded.verification.revision, checkedAt: loaded.verification.checkedAt, sorryCount: loaded.verification.sorryCount }, hasPrerequisiteContext: true },
+        suggestions: fixture.suggestions,
+      };
+    }),
   };
 
   return (

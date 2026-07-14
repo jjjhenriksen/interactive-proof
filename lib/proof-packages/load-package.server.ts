@@ -7,6 +7,7 @@ import { resolveExistingPackagePath } from "./locations";
 import { ProofPackageSchema, type ProofPackage } from "./schema";
 import { VerificationRecordSchema, type VerificationRecord } from "../verification/schema";
 import { InstructorFileSchema, type InstructorEntry } from "./instructor-schema";
+import { RecordedFileSchema, recordedFingerprint, type RecordedExplanation } from "../demonstration/schema";
 
 export type LoadedProofPackage = {
   directory: string;
@@ -14,6 +15,7 @@ export type LoadedProofPackage = {
   paperPages: PaperPages;
   verification: VerificationRecord;
   instructorEntries: InstructorEntry[];
+  recordedExplanations: RecordedExplanation[];
 };
 
 export class InvalidProofPackageError extends Error {
@@ -99,7 +101,7 @@ export async function loadProofPackageFromDirectory(packageDirectory: string): P
       throw new InvalidProofPackageError(`Lean sourceDirectory is not a directory: ${manifest.lean.sourceDirectory}`);
     }
 
-    const [pdf, paperPages, verification, instructorEntries] = await Promise.all([
+    const [pdf, paperPages, verification, instructorEntries, recordedExplanations] = await Promise.all([
       readFile(pdfPath),
       readJson(pagesPath).then((value) => PaperPagesSchema.parse(value)),
       readJson(verificationPath).then((value) => VerificationRecordSchema.parse(value)),
@@ -108,6 +110,13 @@ export async function loadProofPackageFromDirectory(packageDirectory: string): P
             const bytes = await readFile(file);
             if (sha256(bytes) !== manifest.instructor?.sha256) throw new InvalidProofPackageError("Instructor file digest mismatch");
             return InstructorFileSchema.parse(JSON.parse(bytes.toString("utf8"))).entries;
+          })
+        : Promise.resolve([]),
+      manifest.recorded
+        ? resolveExistingPackagePath(packageDirectory, manifest.recorded.file).then(async (file) => {
+            const bytes = await readFile(file);
+            if (sha256(bytes) !== manifest.recorded?.sha256) throw new InvalidProofPackageError("Recorded fixture file digest mismatch");
+            return RecordedFileSchema.parse(JSON.parse(bytes.toString("utf8"))).fixtures;
           })
         : Promise.resolve([]),
     ]);
@@ -129,7 +138,13 @@ export async function loadProofPackageFromDirectory(packageDirectory: string): P
       if (entry.sourceIds.some((id) => !knownSources.has(id))) throw new InvalidProofPackageError(`Instructor entry ${entry.id} references an unknown source`);
       if (entry.mappingIds.some((id) => !knownMappings.has(id))) throw new InvalidProofPackageError(`Instructor entry ${entry.id} references an unknown mapping`);
     }
-    return { directory: path.resolve(packageDirectory), manifest, paperPages, verification, instructorEntries };
+    for (const fixture of recordedExplanations) {
+      if (fixture.proofId !== manifest.id) throw new InvalidProofPackageError(`Recorded fixture ${fixture.id} has the wrong proof id`);
+      if (fixture.requestFingerprint !== recordedFingerprint(fixture, manifest.lean.revision)) throw new InvalidProofPackageError(`Recorded fixture ${fixture.id} is stale`);
+      if (fixture.sourceIds.some((id) => !knownSources.has(id))) throw new InvalidProofPackageError(`Recorded fixture ${fixture.id} references an unknown source`);
+      if (fixture.suggestions.some((suggestion) => suggestion.sourceIds.some((id) => !fixture.sourceIds.includes(id)))) throw new InvalidProofPackageError(`Recorded fixture ${fixture.id} suggestion escapes its sources`);
+    }
+    return { directory: path.resolve(packageDirectory), manifest, paperPages, verification, instructorEntries, recordedExplanations };
   } catch (error) {
     if (error instanceof InvalidProofPackageError) throw error;
     throw new InvalidProofPackageError(`Invalid proof package at ${packageDirectory}`, error);
