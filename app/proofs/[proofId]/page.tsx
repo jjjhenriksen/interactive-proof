@@ -37,6 +37,8 @@ export default async function ProofPage({ params }: ProofPageProps) {
       label: mapping.label,
       paper: mapping.paper,
       prerequisites: mapping.prerequisites,
+      dependencies: mapping.dependencies,
+      usedBy: mapping.usedBy,
       correspondence: mapping.correspondence,
       correspondenceNote: mapping.correspondenceNote,
       lean: mapping.lean.map((source) => ({

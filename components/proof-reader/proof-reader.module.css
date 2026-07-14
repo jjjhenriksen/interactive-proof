@@ -366,6 +366,8 @@
   color: var(--muted-foreground);
 }
 
+.correspondence button { min-height: 2.75rem; margin-top: 0.75rem; padding: 0.5rem 0.75rem; border: 0.0625rem solid var(--border); border-radius: calc(var(--radius) - 0.25rem); background: var(--surface); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+
 @media (min-width: 64rem) {
   .header {
     grid-template-columns: minmax(0, 1fr) auto;

@@ -24,6 +24,8 @@ import {
   type ReaderLocation,
 } from "../../lib/reader/location";
 import styles from "./proof-reader.module.css";
+import { ProofMap } from "../proof-map/proof-map";
+import { deriveProofMap } from "../../lib/proof-map/derive";
 
 const PdfPaperReader = dynamic(
   () => import("../paper-reader").then((module) => module.PdfPaperReader),
@@ -57,6 +59,8 @@ type Mapping = {
   };
   lean: LeanExcerpt[];
   prerequisites: string[];
+  dependencies: string[];
+  usedBy: string[];
   correspondence: "direct" | "partial" | "supporting";
   correspondenceNote: string;
 };
@@ -98,7 +102,7 @@ type ProofReaderProps = {
 };
 
 export function ProofReader({ proof }: ProofReaderProps) {
-  const [sourceMode, setSourceMode] = useState<"paper" | "lean">("paper");
+  const [sourceMode, setSourceMode] = useState<"paper" | "lean" | "map">("paper");
   const [pageNumber, setPageNumber] = useState(1);
   const [mappingId, setMappingId] = useState(proof.mappings[0]?.id ?? "");
   const [selection, setSelection] = useState<SupportedSelection | null>(null);
@@ -130,6 +134,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
     entry.mappingIds.includes(mapping?.id ?? "") ||
     (sourceMode === "paper" ? entry.sourceIds.includes(mapping?.paper.sourceId ?? "") : mapping?.lean.some((source) => entry.sourceIds.includes(source.sourceId))),
   );
+  const proofMap = useMemo(() => deriveProofMap(proof.mappings), [proof.mappings]);
 
   const applyLocation = useCallback((location: ReaderLocation | null) => {
     if (!location) return;
@@ -137,8 +142,11 @@ export function ProofReader({ proof }: ProofReaderProps) {
       setSourceMode("paper");
       setPageNumber(location.page);
       if (location.mappingId) setMappingId(location.mappingId);
-    } else {
+    } else if (location.source === "lean") {
       setSourceMode("lean");
+      setMappingId(location.mappingId);
+    } else {
+      setSourceMode("map");
       setMappingId(location.mappingId);
     }
   }, []);
@@ -169,7 +177,8 @@ export function ProofReader({ proof }: ProofReaderProps) {
       return;
     }
     if (sourceMode === "paper") writeLocation({ source: "paper", page: pageNumber, ...(mappingId ? { mappingId } : {}) }, "replace");
-    else if (mapping?.lean[0]) writeLocation({ source: "lean", declaration: mapping.lean[0].declaration, mappingId: mapping.id }, "replace");
+    else if (sourceMode === "lean" && mapping?.lean[0]) writeLocation({ source: "lean", declaration: mapping.lean[0].declaration, mappingId: mapping.id }, "replace");
+    else if (sourceMode === "map" && mapping) writeLocation({ source: "mapping", mappingId: mapping.id }, "replace");
   }, [mapping, mappingId, pageNumber, sourceMode, writeLocation]);
 
   const copyLocation = async (location: ReaderLocation, label: string) => {
@@ -394,6 +403,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
         >
           Lean
         </button>
+        <button type="button" aria-pressed={sourceMode === "map"} onClick={() => setSourceMode("map")}>Proof map</button>
         <a href={proof.paperHref} target="_blank" rel="noreferrer">
           Open original PDF
         </a>
@@ -402,7 +412,9 @@ export function ProofReader({ proof }: ProofReaderProps) {
           onClick={() => void copyLocation(
             sourceMode === "paper"
               ? { source: "paper", page: pageNumber, ...(mapping ? { mappingId: mapping.id } : {}) }
-              : { source: "lean", declaration: mapping?.lean[0]?.declaration ?? "", mappingId: mapping?.id ?? "" },
+              : sourceMode === "map"
+                ? { source: "mapping", mappingId: mapping?.id ?? "" }
+                : { source: "lean", declaration: mapping?.lean[0]?.declaration ?? "", mappingId: mapping?.id ?? "" },
             "Source link",
           )}
           disabled={sourceMode === "lean" && !mapping?.lean[0]}
@@ -453,10 +465,10 @@ export function ProofReader({ proof }: ProofReaderProps) {
           <p className={styles.sourceLabel}>
             {sourceMode === "paper"
               ? `${proof.paperTitle} · page ${page?.number}`
-              : mapping?.label}
+              : sourceMode === "map" ? "Structure of the argument" : mapping?.label}
           </p>
           <p className={styles.selectionHint}>
-            Select a phrase to open the contextual explanation actions.
+            {sourceMode === "map" ? "Choose a mapped step to move between the paper and Lean." : "Select a phrase to open the contextual explanation actions."}
           </p>
 
           {visibleInstructorEntries.length ? (
@@ -483,7 +495,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
                 onSelection={handlePaperSelection}
               />
             ) : null
-          ) : (
+          ) : sourceMode === "lean" ? (
             <section className={styles.leanStack}>
               {mapping?.lean.map((source) => (
                 <article
@@ -534,9 +546,18 @@ export function ProofReader({ proof }: ProofReaderProps) {
                 <aside className={styles.correspondence}>
                   <strong>{mapping.correspondence} correspondence</strong>
                   <p>{mapping.correspondenceNote}</p>
+                  <button type="button" onClick={() => setSourceMode("map")}>Where is this used?</button>
                 </aside>
               ) : null}
             </section>
+          ) : (
+            <ProofMap
+              nodes={proofMap.nodes}
+              edges={proofMap.edges}
+              activeId={mapping?.id ?? ""}
+              onOpenPaper={(node) => { setMappingId(node.id); setPageNumber(node.paper.page); setSourceMode("paper"); writeLocation({ source: "paper", page: node.paper.page, mappingId: node.id, blockId: node.paper.sourceId }, "push"); }}
+              onOpenLean={(node) => { const lean = node.lean[0]; if (!lean) return; setMappingId(node.id); setSourceMode("lean"); writeLocation({ source: "lean", declaration: lean.declaration, mappingId: node.id }, "push"); }}
+            />
           )}
         </main>
 
