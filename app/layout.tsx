@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ThemeToggle } from "../components/theme/theme-toggle";
 import "./globals.css";
+
+const themeBootScript = `(() => { try { const saved = localStorage.getItem("interactive-proof-theme"); const preference = saved === "light" || saved === "dark" || saved === "system" ? saved : "system"; const theme = preference === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : preference; document.documentElement.dataset.theme = theme; document.documentElement.style.colorScheme = theme; } catch {} })();`;
 
 export const metadata: Metadata = {
   title: {
@@ -18,7 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body>
         <a className="skip-link" href="#main-content">
           Skip to content
@@ -39,6 +45,7 @@ export default function RootLayout({
                 <Link className="nav-link" href="/methodology">
                   Evaluation
                 </Link>
+                <ThemeToggle />
               </div>
             </nav>
           </div>
