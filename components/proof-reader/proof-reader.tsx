@@ -17,6 +17,11 @@ import {
   validateSelectedText,
 } from "../selection-menu";
 import type { PaperTextSelection } from "../paper-reader";
+import {
+  parseReaderLocation,
+  serializeReaderLocation,
+  type ReaderLocation,
+} from "../../lib/reader/location";
 import styles from "./proof-reader.module.css";
 
 const PdfPaperReader = dynamic(
@@ -95,6 +100,8 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const [pageNumber, setPageNumber] = useState(1);
   const [mappingId, setMappingId] = useState(proof.mappings[0]?.id ?? "");
   const [selection, setSelection] = useState<SupportedSelection | null>(null);
+  const [locationNotice, setLocationNotice] = useState("");
+  const [copyStatus, setCopyStatus] = useState("");
   const [explanationState, dispatch] = useReducer(
     explanationReducer,
     initialExplanationState,
@@ -102,6 +109,71 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const requestControllerRef = useRef<AbortController | null>(null);
   const explanationTransport = useMemo(() => createFetchExplanationTransport(), []);
+  const isLocationReadyRef = useRef(false);
+  const skipNextLocationWriteRef = useRef(false);
+  const locationIndex = useMemo(() => ({
+    pages: proof.pages.map((item) => item.number),
+    mappings: proof.mappings.map((item) => ({
+      id: item.id,
+      paperSourceId: item.paper.sourceId,
+      declarations: item.lean.map((source) => source.declaration),
+    })),
+  }), [proof.mappings, proof.pages]);
+  const page = proof.pages.find((candidate) => candidate.number === pageNumber) ?? proof.pages[0];
+  const mapping =
+    proof.mappings.find((candidate) => candidate.id === mappingId) ?? proof.mappings[0];
+
+  const applyLocation = useCallback((location: ReaderLocation | null) => {
+    if (!location) return;
+    if (location.source === "paper") {
+      setSourceMode("paper");
+      setPageNumber(location.page);
+      if (location.mappingId) setMappingId(location.mappingId);
+    } else {
+      setSourceMode("lean");
+      setMappingId(location.mappingId);
+    }
+  }, []);
+
+  const writeLocation = useCallback((location: ReaderLocation, mode: "push" | "replace") => {
+    const { search, hash } = serializeReaderLocation(location);
+    window.history[mode === "push" ? "pushState" : "replaceState"]({}, "", `${window.location.pathname}${search}${hash}`);
+  }, []);
+
+  useEffect(() => {
+    const restore = () => {
+      const parsed = parseReaderLocation(window.location.search, window.location.hash, locationIndex);
+      skipNextLocationWriteRef.current = true;
+      applyLocation(parsed.location);
+      setLocationNotice(parsed.hadInvalidParameters ? "That saved location is no longer available. The proof opened at its default location." : "");
+      if (parsed.hadInvalidParameters) window.history.replaceState({}, "", window.location.pathname);
+    };
+    restore();
+    isLocationReadyRef.current = true;
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, [applyLocation, locationIndex]);
+
+  useEffect(() => {
+    if (!isLocationReadyRef.current) return;
+    if (skipNextLocationWriteRef.current) {
+      skipNextLocationWriteRef.current = false;
+      return;
+    }
+    if (sourceMode === "paper") writeLocation({ source: "paper", page: pageNumber, ...(mappingId ? { mappingId } : {}) }, "replace");
+    else if (mapping?.lean[0]) writeLocation({ source: "lean", declaration: mapping.lean[0].declaration, mappingId: mapping.id }, "replace");
+  }, [mapping, mappingId, pageNumber, sourceMode, writeLocation]);
+
+  const copyLocation = async (location: ReaderLocation, label: string) => {
+    const { search, hash } = serializeReaderLocation(location);
+    const url = `${window.location.origin}${window.location.pathname}${search}${hash}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyStatus(`${label} copied.`);
+    } catch {
+      setCopyStatus(`Could not copy ${label.toLowerCase()}.`);
+    }
+  };
 
   useEffect(
     () => () => {
@@ -109,10 +181,6 @@ export function ProofReader({ proof }: ProofReaderProps) {
     },
     [],
   );
-
-  const page = proof.pages.find((candidate) => candidate.number === pageNumber) ?? proof.pages[0];
-  const mapping =
-    proof.mappings.find((candidate) => candidate.id === mappingId) ?? proof.mappings[0];
 
   const captureSelection = (
     source: "paper" | "lean",
@@ -300,6 +368,27 @@ export function ProofReader({ proof }: ProofReaderProps) {
         <a href={proof.paperHref} target="_blank" rel="noreferrer">
           Open original PDF
         </a>
+        <button
+          type="button"
+          onClick={() => void copyLocation(
+            sourceMode === "paper"
+              ? { source: "paper", page: pageNumber, ...(mapping ? { mappingId: mapping.id } : {}) }
+              : { source: "lean", declaration: mapping?.lean[0]?.declaration ?? "", mappingId: mapping?.id ?? "" },
+            "Source link",
+          )}
+          disabled={sourceMode === "lean" && !mapping?.lean[0]}
+        >
+          Copy source link
+        </button>
+        {mapping ? (
+          <button type="button" onClick={() => void copyLocation({ source: "mapping", mappingId: mapping.id }, "Mapping link")}>
+            Copy mapping link
+          </button>
+        ) : null}
+      </div>
+
+      <div className={styles.readerStatus} aria-live="polite">
+        {locationNotice || copyStatus}
       </div>
 
       <div
@@ -426,12 +515,16 @@ export function ProofReader({ proof }: ProofReaderProps) {
             if (source.type === "paper") {
               setSourceMode("paper");
               setPageNumber(source.page);
+              writeLocation({ source: "paper", page: source.page }, "push");
             } else if (source.type === "lean") {
               setSourceMode("lean");
               const target = proof.mappings.find((candidate) =>
                 candidate.lean.some((item) => item.declaration === source.declaration),
               );
-              if (target) setMappingId(target.id);
+              if (target) {
+                setMappingId(target.id);
+                writeLocation({ source: "lean", declaration: source.declaration, mappingId: target.id }, "push");
+              }
             }
           }}
           returnFocusRef={returnFocusRef}
