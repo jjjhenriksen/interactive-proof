@@ -9,6 +9,7 @@ import {
   explanationReducer,
   initialExplanationState,
   type ExplanationRequest,
+  type ExplanationDepth,
 } from "../explanation-panel";
 import {
   SelectionMenu,
@@ -102,6 +103,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const [selection, setSelection] = useState<SupportedSelection | null>(null);
   const [locationNotice, setLocationNotice] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
+  const [explanationDepth, setExplanationDepth] = useState<ExplanationDepth>("standard");
   const [explanationState, dispatch] = useReducer(
     explanationReducer,
     initialExplanationState,
@@ -182,6 +184,19 @@ export function ProofReader({ proof }: ProofReaderProps) {
     [],
   );
 
+  useEffect(() => {
+    const stored = window.sessionStorage.getItem("interactive-proof-depth");
+    if (stored === "concise" || stored === "standard" || stored === "foundational") {
+      const timer = window.setTimeout(() => setExplanationDepth(stored), 0);
+      return () => window.clearTimeout(timer);
+    }
+  }, []);
+
+  const changeExplanationDepth = (depth: ExplanationDepth) => {
+    setExplanationDepth(depth);
+    window.sessionStorage.setItem("interactive-proof-depth", depth);
+  };
+
   const captureSelection = (
     source: "paper" | "lean",
     location:
@@ -231,7 +246,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
       {
         onContext: (context) => dispatch({ type: "context", context }),
         onDelta: (text) => dispatch({ type: "delta", text }),
-        onComplete: () => dispatch({ type: "complete" }),
+        onComplete: (suggestions) => dispatch({ type: "complete", suggestions }),
         onError: (error) => dispatch({ type: "fail", error }),
       },
       controller.signal,
@@ -246,7 +261,12 @@ export function ProofReader({ proof }: ProofReaderProps) {
 
   const handleAction = (mode: ExplanationMode, activeSelection: SupportedSelection) => {
     setSelection(null);
-    runExplanation({ selection: activeSelection, mode, history: [] });
+    runExplanation({
+      selection: activeSelection,
+      mode,
+      depth: mode === "simpler" ? "foundational" : explanationDepth,
+      history: [],
+    });
   };
 
   const handlePaperSelection = (paperSelection: PaperTextSelection) => {
@@ -301,6 +321,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
       mode: "question",
       question,
       history: explanationState.history.slice(-6),
+      depth: explanationDepth,
     };
     runExplanation(request);
   };
@@ -511,6 +532,8 @@ export function ProofReader({ proof }: ProofReaderProps) {
             }
           }}
           onFollowUp={handleFollowUp}
+          depth={explanationDepth}
+          onDepthChange={changeExplanationDepth}
           onSourceNavigate={(source) => {
             if (source.type === "paper") {
               setSourceMode("paper");

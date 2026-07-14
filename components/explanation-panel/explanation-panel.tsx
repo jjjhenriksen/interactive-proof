@@ -8,6 +8,7 @@ import {
   getLastCompleted,
   isRequestActive,
   type ExplanationState,
+  type ExplanationDepth,
   type PublicSource,
 } from "./explanation-state"
 import { FollowUpForm } from "./follow-up-form"
@@ -19,6 +20,8 @@ type ExplanationPanelProps = {
   onAbort: () => void
   onRetry: () => void
   onFollowUp: (question: string) => void
+  depth: ExplanationDepth
+  onDepthChange: (depth: ExplanationDepth) => void
   onSourceNavigate?: (source: PublicSource) => void
   returnFocusRef?: RefObject<HTMLElement | null>
 }
@@ -38,6 +41,8 @@ export function ExplanationPanel({
   onAbort,
   onRetry,
   onFollowUp,
+  depth,
+  onDepthChange,
   onSourceNavigate,
   returnFocusRef,
 }: ExplanationPanelProps) {
@@ -149,6 +154,14 @@ export function ExplanationPanel({
       </header>
 
       <div className={styles.body}>
+        <fieldset className={styles.depthControl}>
+          <legend>Explanation depth</legend>
+          {(["concise", "standard", "foundational"] as const).map((option) => (
+            <button key={option} type="button" aria-pressed={depth === option} onClick={() => onDepthChange(option)}>
+              {option === "foundational" ? "Foundational" : option[0].toUpperCase() + option.slice(1)}
+            </button>
+          ))}
+        </fieldset>
         <section aria-labelledby="selected-passage-heading">
           <h3 className={styles.sectionLabel} id="selected-passage-heading">
             Selected passage
@@ -192,6 +205,20 @@ export function ExplanationPanel({
                   : ""}
               </p>
             ) : null}
+          </section>
+        ) : null}
+
+        {context?.curated?.length ? (
+          <section className={styles.curatedSection} aria-labelledby="curated-heading">
+            <h3 className={styles.sectionLabel} id="curated-heading">Curated glossary and prerequisites</h3>
+            <div className={styles.curatedList}>
+              {context.curated.map((item) => (
+                <details key={`${item.kind}-${item.label}`}>
+                  <summary>{item.kind === "glossary" ? "Glossary" : "Prerequisite"}: {item.label}</summary>
+                  <p>{item.explanation}</p>
+                </details>
+              ))}
+            </div>
           </section>
         ) : null}
 
@@ -240,7 +267,19 @@ export function ExplanationPanel({
 
         {state.status === "complete" ||
         (state.status === "error" && completed) ? (
-          <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} />
+          <>
+            {completed?.suggestions?.length ? (
+              <section className={styles.suggestions} aria-labelledby="suggestions-heading">
+                <h3 className={styles.sectionLabel} id="suggestions-heading">Keep exploring</h3>
+                {completed.suggestions.map((suggestion) => (
+                  <button key={suggestion.id} type="button" onClick={() => onFollowUp(suggestion.question)} disabled={isBusy}>
+                    {suggestion.label}
+                  </button>
+                ))}
+              </section>
+            ) : null}
+            <FollowUpForm onSubmit={onFollowUp} isBusy={isBusy} />
+          </>
         ) : null}
       </div>
     </aside>

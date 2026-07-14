@@ -75,7 +75,10 @@ export type PublicContext = {
   };
   sources: PublicSource[];
   verification: VerificationSummary;
+  curated?: Array<{ kind: "glossary" | "prerequisite"; label: string; explanation: string }>;
 };
+
+export type FollowUpSuggestion = { id: string; label: string; question: string; sourceIds: string[] };
 
 export type ExplanationStreamEvent =
   | { type: "context"; context: PublicContext }
@@ -84,6 +87,7 @@ export type ExplanationStreamEvent =
       type: "completed";
       responseId: string;
       usage?: { inputTokens: number; outputTokens: number };
+      suggestions: FollowUpSuggestion[];
     }
   | {
       type: "error";

@@ -11,6 +11,7 @@ export const explanationModes = [
 ] as const;
 
 export const explanationModeSchema = z.enum(explanationModes);
+export const explanationDepthSchema = z.enum(["concise", "standard", "foundational"]);
 
 const paperLocationSchema = z.object({
   source: z.literal("paper"),
@@ -59,6 +60,7 @@ export const explainRequestSchema = z
     location: sourceLocationSchema,
     selectedText: z.string().trim().min(2).max(1_200),
     mode: explanationModeSchema,
+    depth: explanationDepthSchema.default("standard"),
     question: z.string().trim().min(1).max(800).optional(),
     history: z.array(conversationTurnSchema).max(6).default([]),
   })
@@ -101,6 +103,7 @@ export const explainRequestSchema = z
   });
 
 export type ExplanationMode = z.infer<typeof explanationModeSchema>;
+export type ExplanationDepth = z.infer<typeof explanationDepthSchema>;
 export type SourceLocation = z.infer<typeof sourceLocationSchema>;
 export type ConversationTurn = z.infer<typeof conversationTurnSchema>;
 export type ExplainRequest = z.infer<typeof explainRequestSchema>;

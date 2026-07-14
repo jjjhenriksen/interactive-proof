@@ -3,13 +3,14 @@ import type {
   PublicContext,
   PublicError,
   PublicSource,
+  FollowUpSuggestion,
   VerificationSummary,
 } from "./explanation-state"
 
 export type ExplanationStreamCallbacks = {
   onContext: (context: PublicContext) => void
   onDelta: (text: string) => void
-  onComplete: () => void
+  onComplete: (suggestions: FollowUpSuggestion[]) => void
   onError: (error: PublicError) => void
 }
 
@@ -48,7 +49,7 @@ type ServerContext = {
 type StreamEvent =
   | { type: "context"; context: ServerContext }
   | { type: "delta"; text: string }
-  | { type: "completed" }
+  | { type: "completed"; suggestions?: FollowUpSuggestion[] }
   | {
       type: "error"
       code?: string
@@ -83,6 +84,7 @@ function normalizeContext(context: ServerContext): PublicContext {
     sources: Array.isArray(context.sources) ? context.sources : [],
     verification: normalizeVerification(context.verification),
     hasPrerequisiteContext: context.hasPrerequisiteContext,
+    curated: (context as ServerContext & { curated?: PublicContext["curated"] }).curated,
   }
 }
 
@@ -119,6 +121,7 @@ function requestBody(request: ExplanationRequest) {
     mode: request.mode,
     question: request.question,
     history: request.history.slice(-6),
+    depth: request.depth ?? "standard",
   }
 }
 
@@ -234,7 +237,7 @@ export function createFetchExplanationTransport(
               return
             }
             didTerminate = true
-            callbacks.onComplete()
+            callbacks.onComplete(parsed.suggestions ?? [])
           } else if (parsed.type === "error") {
             didTerminate = true
             callbacks.onError({

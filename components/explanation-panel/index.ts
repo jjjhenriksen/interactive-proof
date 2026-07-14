@@ -13,6 +13,8 @@ export type {
   ExplanationAction,
   ExplanationRequest,
   ExplanationState,
+  ExplanationDepth,
+  FollowUpSuggestion,
   PublicContext,
   PublicError,
   PublicSource,
