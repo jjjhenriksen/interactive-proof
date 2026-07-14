@@ -38,9 +38,14 @@ Open [http://localhost:3000](http://localhost:3000) and choose either proof.
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.6
 EXPLAIN_RATE_LIMIT_PER_HOUR=30
+PUBLIC_PROOF_IDS=odd-sum-square
 ```
 
 `OPENAI_API_KEY` remains server-side. With a valid key, selection actions call the streamed `/api/explain` route. Without a key, both sample papers, Lean sources, mappings, verification evidence, and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
+
+For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining values as production environment variables. Do not use a `NEXT_PUBLIC_` prefix. Environment changes take effect only after deploying a newly saved site version.
+
+`PUBLIC_PROOF_IDS` is optional for local development. Production releases must set a non-empty explicit list; unknown and duplicate IDs fail registry generation. Only listed packages are registered or copied into `public/proof-assets`. Until the cycle-double-cover redistribution decision is resolved, the cleared release set is `odd-sum-square`.
 
 ## Architecture
 
@@ -75,6 +80,7 @@ npm test
 npm run typecheck
 npm run lint
 npm run build
+npm run release:check
 ```
 
 Browser smoke test:

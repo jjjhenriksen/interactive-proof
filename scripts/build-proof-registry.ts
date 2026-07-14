@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-import { copyFile, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { loadProofPackageFromDirectory } from "../lib/proof-packages/load-package.server";
 import { resolveExistingPackagePath } from "../lib/proof-packages/locations";
+import { parsePublicProofIds } from "../lib/proof-packages/public-allowlist";
 
 async function main() {
   const root = process.cwd();
@@ -13,6 +14,13 @@ async function main() {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
+  const includedDirectories = parsePublicProofIds(
+    process.env.PUBLIC_PROOF_IDS,
+    directories,
+  );
+  const assetRoot = path.join(root, "public", "proof-assets");
+  await rm(assetRoot, { recursive: true, force: true });
+  await mkdir(assetRoot, { recursive: true });
 
   const entries: Array<
     [
@@ -26,7 +34,7 @@ async function main() {
       },
     ]
   > = [];
-  for (const directory of directories) {
+  for (const directory of includedDirectories) {
     try {
       const packageDirectory = path.join(proofsDirectory, directory);
       const loaded = await loadProofPackageFromDirectory(packageDirectory);
@@ -86,7 +94,8 @@ async function main() {
       "",
     ].join("\n"),
   );
-  console.log(`Validated and registered ${entries.length} proof package(s).`);
+  const mode = process.env.PUBLIC_PROOF_IDS === undefined ? "local registry" : "public allowlist";
+  console.log(`Validated and registered ${entries.length} proof package(s) for ${mode}.`);
 }
 
 void main();
