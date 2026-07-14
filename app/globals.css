@@ -23,6 +23,24 @@
   --radius: 0.75rem;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: oklch(0.16 0.014 62);
+  --surface: oklch(0.205 0.016 62);
+  --surface-subtle: oklch(0.245 0.018 66);
+  --foreground: oklch(0.93 0.012 78);
+  --muted-foreground: oklch(0.72 0.018 74);
+  --border: oklch(0.36 0.021 68);
+  --primary: oklch(0.76 0.105 151);
+  --primary-strong: oklch(0.82 0.1 151);
+  --primary-foreground: oklch(0.15 0.025 155);
+  --accent: oklch(0.3 0.045 151);
+  --destructive: oklch(0.72 0.14 30);
+  --highlight: oklch(0.46 0.09 91);
+  --ring: oklch(0.78 0.12 151);
+  --shadow-lg: 0 1rem 2.5rem color-mix(in oklch, black, transparent 55%);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -135,6 +153,52 @@ a {
   display: flex;
   align-items: center;
   gap: clamp(0.75rem, 3vw, 1.5rem);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  padding: 0.1875rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: var(--surface-subtle);
+}
+
+.theme-toggle button {
+  min-height: 2.25rem;
+  padding: 0.375rem 0.625rem;
+  border: 0;
+  border-radius: calc(var(--radius) - 0.4375rem);
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.theme-toggle button:hover {
+  color: var(--foreground);
+}
+
+.theme-toggle button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+@media (max-width: 42rem) {
+  .site-header__inner {
+    align-items: flex-start;
+    padding-block: 0.75rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .nav-link {
+    display: none;
+  }
 }
 
 .hero {
