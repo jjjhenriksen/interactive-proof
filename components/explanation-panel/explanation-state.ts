@@ -26,7 +26,11 @@ export type PublicContext = {
   sources: PublicSource[]
   verification?: VerificationSummary
   hasPrerequisiteContext?: boolean
+  curated?: Array<{ kind: "glossary" | "prerequisite"; label: string; explanation: string }>
 }
+
+export type ExplanationDepth = "concise" | "standard" | "foundational"
+export type FollowUpSuggestion = { id: string; label: string; question: string; sourceIds: string[] }
 
 export type ConversationTurn = {
   role: "user" | "assistant"
@@ -38,6 +42,7 @@ export type ExplanationRequest = {
   mode: ExplanationMode
   question?: string
   history: ConversationTurn[]
+  depth?: ExplanationDepth
 }
 
 export type PublicError = {
@@ -53,6 +58,7 @@ export type CompletedExplanation = {
   context: PublicContext
   text: string
   history: ConversationTurn[]
+  suggestions?: FollowUpSuggestion[]
 }
 
 type ActiveRequestState = {
@@ -81,7 +87,7 @@ export type ExplanationAction =
   | { type: "start"; request: ExplanationRequest }
   | { type: "context"; context: PublicContext }
   | { type: "delta"; text: string }
-  | { type: "complete"; history?: ConversationTurn[] }
+  | { type: "complete"; history?: ConversationTurn[]; suggestions?: FollowUpSuggestion[] }
   | { type: "fail"; error: PublicError }
   | { type: "cancel" }
   | { type: "retry" }
@@ -144,6 +150,7 @@ export function explanationReducer(
         context: state.context,
         text: state.text,
         history: completedHistory,
+        suggestions: action.suggestions ?? [],
       }
     case "fail":
       if (state.status !== "connecting" && state.status !== "streaming") return state

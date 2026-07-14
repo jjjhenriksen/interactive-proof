@@ -71,6 +71,7 @@ describe("fetch explanation transport", () => {
       location: { source: "paper", page: 2, blockIds: ["p2-b4"] },
       selectedText: "A target vector lies in the image of L.",
       mode: "details",
+      depth: "standard",
       history: [],
     })
     expect(handlers.onContext).toHaveBeenCalledWith(

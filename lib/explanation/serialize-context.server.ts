@@ -108,6 +108,10 @@ export async function buildExplanationContext(
       },
       sources: publicSources,
       verification,
+      curated: [
+        ...supportingMaterial.glossary.map((item) => ({ kind: "glossary" as const, label: item.term, explanation: item.explanation })),
+        ...supportingMaterial.prerequisites.map((item) => ({ kind: "prerequisite" as const, label: item, explanation: "Background used by this mapped proof step." })),
+      ],
     },
   };
 }

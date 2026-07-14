@@ -18,4 +18,13 @@ describe("buildExplanationInstructions", () => {
       expect(instructions).toContain("does not by itself prove");
     }
   });
+
+  it("distinguishes concise and foundational depth", () => {
+    expect(buildExplanationInstructions("details", "concise")).toContain(
+      "at most three short paragraphs",
+    );
+    expect(buildExplanationInstructions("details", "foundational")).toContain(
+      "make implicit intermediate steps explicit",
+    );
+  });
 });

@@ -15,6 +15,7 @@ const request: ExplainRequest = {
   location: { source: "paper", page: 1, blockIds: ["page-1-block-4"] },
   selectedText: "Every finite bridgeless undirected graph",
   mode: "details",
+  depth: "standard",
   history: [],
 };
 

@@ -61,7 +61,7 @@ export function buildOpenAIResponseRequest(
 ): ResponseCreateParamsStreaming {
   return {
     model,
-    instructions: buildExplanationInstructions(request.mode),
+    instructions: buildExplanationInstructions(request.mode, request.depth),
     input: buildInput(request, context),
     max_output_tokens: 1_600,
     store: false,
@@ -91,6 +91,22 @@ export function createExplanationStream({
   signal,
   createProviderStream,
 }: ExplanationStreamOptions): ReadableStream<Uint8Array> {
+  const suggestions = [
+    {
+      id: "local-reason",
+      label: "Why this step works",
+      question: "Can you make the key reason this local step works explicit?",
+      sourceIds: context.allowedSourceIds.slice(0, 2),
+    },
+    {
+      id: context.usedBy.length > 0 ? "next-use" : "proof-role",
+      label: context.usedBy.length > 0 ? "Where it is used next" : "Its role in the proof",
+      question: context.usedBy.length > 0
+        ? "How is this step used by the next mapped part of the proof?"
+        : "What role does this step play in the surrounding argument?",
+      sourceIds: context.allowedSourceIds.slice(0, 2),
+    },
+  ];
   return new ReadableStream<Uint8Array>({
     async start(controller) {
       controller.enqueue(encodeEvent({ type: "context", context: publicContext }));
@@ -126,6 +142,7 @@ export function createExplanationStream({
                       outputTokens: usage.output_tokens,
                     }
                   : undefined,
+                suggestions,
               }),
             );
           }
