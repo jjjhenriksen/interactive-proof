@@ -17,6 +17,15 @@ export type RateLimitResult = {
   retryAfterSeconds: number;
 };
 
+/**
+ * Cloudflare overwrites this header on direct visitor requests. Do not fall
+ * back to client-controlled forwarding headers; deployments without the
+ * trusted edge header share one conservative anonymous bucket.
+ */
+export function trustedRateLimitIdentity(request: Request): string {
+  return request.headers.get("cf-connecting-ip")?.trim() || "shared-anonymous";
+}
+
 // This store is intentionally process-local. It protects a single server instance
 // from bursts, but it is not a substitute for a shared limiter in a multi-instance
 // deployment.

@@ -75,6 +75,7 @@ export function PdfPaperReader({
   const [renderScale, setRenderScale] = useState<number>()
   const [status, setStatus] = useState<ReaderStatus>("loading-document")
   const [errorMessage, setErrorMessage] = useState("")
+  const [selectionError, setSelectionError] = useState("")
   const [retryKey, setRetryKey] = useState(0)
 
   useEffect(() => {
@@ -215,9 +216,15 @@ export function PdfPaperReader({
     const rect = browserSelection.getRangeAt(0).getBoundingClientRect()
     if (!rect.width && !rect.height) return
 
+    const blockIds = resolvePageBlockIds(validated.selectedText, pageBlocks)
+    if (blockIds.length === 0) {
+      setSelectionError("That passage could not be matched to the indexed paper text. Try a smaller selection.")
+      return
+    }
+    setSelectionError("")
     onSelection({
       selectedText: validated.selectedText,
-      blockIds: resolvePageBlockIds(validated.selectedText, pageBlocks),
+      blockIds,
       clientRect: {
         top: rect.top,
         left: rect.left,
@@ -301,6 +308,7 @@ export function PdfPaperReader({
           ) : null}
         </div>
       </div>
+      {selectionError ? <p className={styles.selectionError} role="status">{selectionError}</p> : null}
       <p className={styles.help} id="paper-scroll-help">
         <span className={styles.desktopHelp}>
           Select text directly on the page for a contextual explanation. Use the page buttons to navigate.

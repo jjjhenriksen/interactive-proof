@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   checkRateLimit,
   resetRateLimitBuckets,
+  trustedRateLimitIdentity,
 } from "../../lib/explanation/rate-limit.server";
 
 describe("checkRateLimit", () => {
@@ -69,5 +70,21 @@ describe("checkRateLimit", () => {
     expect(() => checkRateLimit("client", { windowMs: 0, now: 0 })).toThrow(
       RangeError,
     );
+  });
+});
+
+describe("trustedRateLimitIdentity", () => {
+  it("uses the Cloudflare-owned visitor header", () => {
+    const request = new Request("https://example.test", {
+      headers: { "cf-connecting-ip": "203.0.113.8" },
+    });
+    expect(trustedRateLimitIdentity(request)).toBe("203.0.113.8");
+  });
+
+  it("ignores client-controlled forwarding headers", () => {
+    const request = new Request("https://example.test", {
+      headers: { "x-forwarded-for": "198.51.100.99", "x-real-ip": "198.51.100.100" },
+    });
+    expect(trustedRateLimitIdentity(request)).toBe("shared-anonymous");
   });
 });

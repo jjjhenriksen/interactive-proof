@@ -55,6 +55,22 @@ describe("buildExplanationContext", () => {
     ).rejects.toMatchObject({ code: "SOURCE_NOT_FOUND" });
   });
 
+  it("does not attach a page-level mapping to an unmapped paper block", async () => {
+    const request = explainRequestSchema.parse({
+      proofId: "odd-sum-square",
+      source: "paper",
+      location: { source: "paper", page: 1, blockIds: ["page-1-block-2"] },
+      selectedText: "Why Odd Numbers Build Perfect Squares",
+      mode: "details",
+      history: [],
+    });
+    const { context } = await buildExplanationContext(request);
+
+    expect(context.mappedSources).toEqual([]);
+    expect(context.prerequisites).toEqual([]);
+    expect(context.allowedSourceIds).toEqual(["page-1-block-2"]);
+  });
+
   it("validates a Lean declaration and line range before reading it", async () => {
     const request = explainRequestSchema.parse({
       proofId: "cycle-double-cover",
