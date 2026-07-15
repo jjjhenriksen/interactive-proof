@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { buildExplanationContext, ExplanationContextError } from "../../../lib/explanation/build-context.server";
 import { createExplanationStream } from "../../../lib/explanation/openai-response.server";
-import { checkRateLimit } from "../../../lib/explanation/rate-limit.server";
+import { checkRateLimit, trustedRateLimitIdentity } from "../../../lib/explanation/rate-limit.server";
 import { explainRequestSchema } from "../../../lib/explanation/request-schema";
 
 export const runtime = "edge";
@@ -16,14 +16,6 @@ function publicError(
   headers?: HeadersInit,
 ) {
   return NextResponse.json({ code, message }, { status, headers });
-}
-
-function requestKey(request: Request): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "local-demo"
-  );
 }
 
 export async function POST(request: Request) {
@@ -62,7 +54,7 @@ export async function POST(request: Request) {
   }
 
   const configuredLimit = Number(process.env.EXPLAIN_RATE_LIMIT_PER_HOUR ?? 30);
-  const rateLimit = checkRateLimit(requestKey(request), {
+  const rateLimit = checkRateLimit(trustedRateLimitIdentity(request), {
     limit: Number.isInteger(configuredLimit) && configuredLimit > 0 ? configuredLimit : 30,
     windowMs: 60 * 60 * 1_000,
   });

@@ -165,6 +165,14 @@
   text-align: center;
 }
 
+.selectionError {
+  margin: 0;
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 650;
+  text-align: center;
+}
+
 .mobileHelp {
   display: none;
 }

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { createExplanationStream } from "../lib/explanation/openai-response.server";
 import { buildExplanationContext } from "../lib/explanation/serialize-context.server";
@@ -18,15 +19,15 @@ type SanitizedRun = {
 };
 
 async function main() {
-  const args = new Set(process.argv.slice(2));
+  const rawArgs = process.argv.slice(2);
+  const args = new Set(rawArgs);
   if (!args.has("--confirm-live")) {
     throw new Error("Live evaluation is opt-in. Re-run with --confirm-live after reviewing cost and data handling.");
   }
+  const requestedCase = parseRequestedCase(rawArgs);
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is required for an explicit live evaluation");
 
-  const caseArgumentIndex = process.argv.indexOf("--case");
-  const requestedCase = caseArgumentIndex >= 0 ? process.argv[caseArgumentIndex + 1] : undefined;
   const { evaluationSet } = await loadEvaluationArtifacts();
   await validateEvaluationSet(evaluationSet);
   const cases = evaluationSet.cases.filter(
@@ -81,6 +82,17 @@ async function main() {
   console.log(`\nWrote sanitized metadata only to ${outputPath}. Responses and source text were not stored.`);
 }
 
+export function parseRequestedCase(args: string[]): string | undefined {
+  const indexes = args.flatMap((value, index) => value === "--case" ? [index] : []);
+  if (indexes.length === 0) return undefined;
+  if (indexes.length > 1) throw new Error("--case may be provided only once");
+  const value = args[indexes[0] + 1];
+  if (!value || value.startsWith("--")) {
+    throw new Error("--case requires a live-eligible evaluation case id");
+  }
+  return value;
+}
+
 async function readStream(stream: ReadableStream<Uint8Array>): Promise<string> {
   const reader = stream.getReader();
   const decoder = new TextDecoder();
@@ -106,7 +118,9 @@ function isUsage(value: unknown): value is { inputTokens: number; outputTokens: 
   return typeof usage.inputTokens === "number" && typeof usage.outputTokens === "number";
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  void main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

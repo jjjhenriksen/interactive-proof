@@ -37,49 +37,44 @@ async function main() {
     ]
   > = [];
   for (const directory of includedDirectories) {
-    try {
-      const packageDirectory = path.join(proofsDirectory, directory);
-      const loaded = await loadProofPackageFromDirectory(packageDirectory);
-      const leanExcerpts: Record<string, string> = {};
-      for (const source of loaded.manifest.mappings.flatMap((mapping) => mapping.lean)) {
-        if (leanExcerpts[source.sourceId]) continue;
-        const file = await resolveExistingPackagePath(packageDirectory, source.file);
-        const lines = (await readFile(file, "utf8")).split(/\r?\n/);
-        leanExcerpts[source.sourceId] = lines
-          .slice(source.startLine - 1, source.endLine)
-          .join("\n");
-      }
-
-      const pdfPath = await resolveExistingPackagePath(
-        packageDirectory,
-        loaded.manifest.paper.pdf,
-      );
-      const assetDirectory = path.join(
-        root,
-        "public",
-        "proof-assets",
-        loaded.manifest.id,
-      );
-      const assetName = `${loaded.paperPages.pdfSha256}.pdf`;
-      await mkdir(assetDirectory, { recursive: true });
-      await copyFile(pdfPath, path.join(assetDirectory, assetName));
-
-      entries.push([
-        loaded.manifest.id,
-        {
-          manifest: loaded.manifest,
-          paperPages: loaded.paperPages,
-          verification: loaded.verification,
-          leanExcerpts,
-          paperAssetUrl: `/proof-assets/${loaded.manifest.id}/${assetName}`,
-          instructorEntries: loaded.instructorEntries,
-          recordedExplanations: loaded.recordedExplanations,
-        },
-      ]);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") continue;
-      throw error;
+    const packageDirectory = path.join(proofsDirectory, directory);
+    const loaded = await loadProofPackageFromDirectory(packageDirectory);
+    const leanExcerpts: Record<string, string> = {};
+    for (const source of loaded.manifest.mappings.flatMap((mapping) => mapping.lean)) {
+      if (leanExcerpts[source.sourceId]) continue;
+      const file = await resolveExistingPackagePath(packageDirectory, source.file);
+      const lines = (await readFile(file, "utf8")).split(/\r?\n/);
+      leanExcerpts[source.sourceId] = lines
+        .slice(source.startLine - 1, source.endLine)
+        .join("\n");
     }
+
+    const pdfPath = await resolveExistingPackagePath(
+      packageDirectory,
+      loaded.manifest.paper.pdf,
+    );
+    const assetDirectory = path.join(
+      root,
+      "public",
+      "proof-assets",
+      loaded.manifest.id,
+    );
+    const assetName = `${loaded.paperPages.pdfSha256}.pdf`;
+    await mkdir(assetDirectory, { recursive: true });
+    await copyFile(pdfPath, path.join(assetDirectory, assetName));
+
+    entries.push([
+      loaded.manifest.id,
+      {
+        manifest: loaded.manifest,
+        paperPages: loaded.paperPages,
+        verification: loaded.verification,
+        leanExcerpts,
+        paperAssetUrl: `/proof-assets/${loaded.manifest.id}/${assetName}`,
+        instructorEntries: loaded.instructorEntries,
+        recordedExplanations: loaded.recordedExplanations,
+      },
+    ]);
   }
 
   const ids = entries.map(([id]) => id);

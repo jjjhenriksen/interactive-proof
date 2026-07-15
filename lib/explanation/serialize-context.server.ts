@@ -154,9 +154,7 @@ async function resolvePaperSelection(
   const canonicalText = blocks.map(({ text }) => text).join("\n\n");
   assertSelectionMatches(request.selectedText, canonicalText);
   const sourceId = blocks[0].id;
-  const mapping =
-    loaded.manifest.mappings.find((item) => item.paper.sourceId === sourceId) ??
-    loaded.manifest.mappings.find((item) => item.paper.pages.includes(page.number));
+  const mapping = loaded.manifest.mappings.find((item) => item.paper.sourceId === sourceId);
   const label = `Paper page ${page.number}${mapping?.paper.heading ? ` · ${mapping.paper.heading}` : ""}`;
   return {
     kind: "paper",

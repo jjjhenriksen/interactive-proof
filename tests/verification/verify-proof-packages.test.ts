@@ -4,6 +4,7 @@ import {
   countSorryTokens,
   declaredAxiomAudits,
   parseAxiomOutput,
+  runCommand,
 } from "../../scripts/verify-proof-packages";
 
 describe("proof verification helpers", () => {
@@ -29,5 +30,32 @@ describe("proof verification helpers", () => {
       { declaration: "one", axioms: ["propext", "Classical.choice"] },
       { declaration: "two", axioms: [] },
     ]);
+  });
+
+  it("terminates a verification command that exceeds its deadline", async () => {
+    const result = await runCommand(
+      process.execPath,
+      ["-e", "setInterval(() => {}, 1000)"],
+      process.cwd(),
+      25,
+    );
+
+    expect(result.exitCode).toBe(124);
+    expect(result.output).toContain("Verification command exceeded 25 ms");
+  });
+
+  it.runIf(process.platform !== "win32")("terminates descendants that inherit command output", async () => {
+    const result = await runCommand(
+      process.execPath,
+      [
+        "-e",
+        "require('node:child_process').spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: ['ignore', 'inherit', 'inherit'] }); setInterval(() => {}, 1000)",
+      ],
+      process.cwd(),
+      25,
+    );
+
+    expect(result.exitCode).toBe(124);
+    expect(result.output).toContain("Verification command exceeded 25 ms");
   });
 });
