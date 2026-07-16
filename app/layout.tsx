@@ -45,6 +45,9 @@ export default function RootLayout({
                 <Link className="nav-link" href="/methodology">
                   Evaluation
                 </Link>
+                <Link className="nav-link" href="/docs">
+                  Docs
+                </Link>
                 <Link className="nav-link" href="/upload">
                   Upload
                 </Link>
@@ -56,8 +59,15 @@ export default function RootLayout({
         {children}
         <footer className="site-footer">
           <div className="site-footer__inner">
-            <p>Machine-checked sources, human-scale explanations.</p>
-            <p>Built for OpenAI Build Week.</p>
+            <div>
+              <p>Machine-checked sources, human-scale explanations.</p>
+              <p>Built for OpenAI Build Week.</p>
+            </div>
+            <nav className="site-footer__links" aria-label="Footer navigation">
+              <Link href="/docs">Documentation</Link>
+              <Link href="/methodology">Evaluation</Link>
+              <Link href="/upload">Upload</Link>
+            </nav>
           </div>
         </footer>
       </body>
