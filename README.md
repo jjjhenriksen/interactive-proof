@@ -2,7 +2,7 @@
 
 Interactive Proof is an educational reading companion for mathematical papers and their Lean formalizations. Select a sentence, equation, or Lean declaration and request a focused explanation without leaving the proof. The interface keeps four evidence types distinct: what the paper states, what Lean verifies, prerequisite background, and AI-generated explanation.
 
-This repository contains a working local MVP. Public deployment and hackathon submission evidence are still pending.
+This repository contains a tested release candidate. Public deployment, one reviewed live model run, and final hackathon submission evidence are still pending.
 
 ## Included proof packages
 
@@ -31,6 +31,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and choose either proof.
+
+The in-app setup and reader guide is available at [http://localhost:3000/docs](http://localhost:3000/docs). Repository setup and deployment details are also collected in [docs/SETUP.md](docs/SETUP.md).
 
 To work with your own material, open [http://localhost:3000/upload](http://localhost:3000/upload). A PDF is required and Lean source is optional. Files are parsed in the browser and remain temporary; only a bounded selection and nearby text are sent when you explicitly request an AI explanation. Uploaded Lean is always labeled unverified.
 
@@ -207,6 +209,7 @@ After deployment, test both packages in a private browser session, one paper sel
 
 ## Project documents
 
+- [Setup and operator guide](docs/SETUP.md)
 - [Product requirements](docs/PRD.md)
 - [Technical specification](docs/SPEC.md)
 - [Implementation plan](PLAN.md)

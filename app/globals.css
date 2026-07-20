@@ -522,6 +522,24 @@ h2 {
   margin: 0;
 }
 
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.site-footer__links a {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  color: var(--foreground);
+  font-weight: 650;
+}
+
+.site-footer__links a:hover {
+  color: var(--primary);
+}
+
 .proof-page {
   min-height: calc(100vh - 8rem);
   padding-block: 2rem 4rem;
