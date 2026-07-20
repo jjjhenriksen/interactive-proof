@@ -21,6 +21,7 @@ The rehearsal is intentionally recorded without a live model request. Record the
 | Package | Paper | Lean source | Verification | License status |
 |---|---|---|---|---|
 | `odd-sum-square` | Authored one-page introduction to induction | Complete local Lean file | Passed on the recorded toolchain; open the in-reader evidence panel for details | Paper is CC BY 4.0 |
+
 The sample package demonstrates the generic reader, paper-to-Lean mappings, recorded verification evidence, and the same controls used by uploaded workspaces.
 
 ## Quick start
