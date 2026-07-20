@@ -26,6 +26,7 @@ import styles from "./proof-reader.module.css";
 import { PdfPaperReader } from "../paper-reader";
 import { ProofMap } from "../proof-map/proof-map";
 import { deriveProofMap } from "../../lib/proof-map/derive";
+import { formatDate } from "../../lib/format-date";
 
 type LeanExcerpt = {
   sourceId: string;
@@ -481,7 +482,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
                 <details key={entry.id} open={entry.kind !== "hint"}>
                   <summary>{entry.kind}: {entry.title}</summary>
                   <p>{entry.body}</p>
-                  <p className={styles.instructorAttribution}>By {entry.author} · {entry.license} · reviewed {new Date(entry.reviewedAt).toLocaleDateString()}</p>
+                  <p className={styles.instructorAttribution}>By {entry.author} · {entry.license} · reviewed {formatDate(entry.reviewedAt)}</p>
                   <label><input type="checkbox" checked={selectedInstructorIds.includes(entry.id)} onChange={(event) => setSelectedInstructorIds((current) => event.target.checked ? [...new Set([...current, entry.id])] : current.filter((id) => id !== entry.id))} /> Include in the next AI explanation</label>
                 </details>
               ))}

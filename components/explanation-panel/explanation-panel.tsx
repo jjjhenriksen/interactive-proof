@@ -14,6 +14,7 @@ import {
 } from "./explanation-state"
 import { FollowUpForm } from "./follow-up-form"
 import styles from "./explanation-panel.module.css"
+import { formatDate } from "../../lib/format-date"
 
 type ExplanationPanelProps = {
   state: ExplanationState
@@ -157,7 +158,7 @@ export function ExplanationPanel({
       {completed?.presentation?.kind === "recorded" ? (
         <div className={styles.recordedNotice} role="note">
           <strong>Recorded example</strong>
-          <span>No model request is being made. Recorded {new Date(completed.presentation.recordedAt).toLocaleDateString()} with {completed.presentation.model}; reviewed by {completed.presentation.reviewedBy}.</span>
+          <span>No model request is being made. Recorded {formatDate(completed.presentation.recordedAt)} with {completed.presentation.model}; reviewed by {completed.presentation.reviewedBy}.</span>
         </div>
       ) : null}
 
