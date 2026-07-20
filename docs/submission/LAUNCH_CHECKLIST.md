@@ -6,32 +6,32 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 ## Current status — July 19, 2026
 
-**Release candidate:** `main` at `1e07168` (`Add public setup documentation (#20)`).
+**Release candidate:** `main` at `eba5f53` (`docs: polish public release README`).
 
 ### Completed in the repository
 
-- The release history is being rewritten into conventional commits, preserving the generic reader, upload workspace, and public setup flow without bundling unreviewed source material.
+- The reachable release history is two conventional commits, preserving the generic reader, upload workspace, and public setup flow without bundling unreviewed source material.
 - The sample package validates locally with recorded passing Lean evidence.
 - The public allowlist is `PUBLIC_PROOF_IDS=odd-sum-square`.
-- Proof and evaluation validation, 31 unit-test files with 120 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
+- Proof and evaluation validation, 31 unit-test files with 119 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
 - `npm audit --omit=dev` reports zero production vulnerabilities after the reviewed dependency override.
 - The public media package contains inspected desktop/mobile captures, a generated thumbnail, and a silent key-free rehearsal video. The final video still requires one deployed live-stream capture and narration.
 - The MIT code license, third-party rights matrix, no-key demonstration path, evaluation methodology, Devpost copy, demo script, upload security boundary, and public setup documentation are checked in.
 
 ### Still blocking public launch
 
-- Add `OPENAI_API_KEY` as a server-only production secret, deploy the site, and verify one real billed GPT-5.6 streamed response.
+- Verify one real billed GPT-5.6 streamed response using the deployed server-side secret.
 - Add provider-backed/shared production rate limiting before treating the current process-local limiter as the only abuse control.
 - Record `[HOSTED_URL]`, complete signed-out deployment QA, and record the final release commit.
-- Decide how judges access the currently private GitHub repository.
+- Decide whether to make the GitHub repository public for judges.
 - Complete the demo video, Devpost owner fields, and final submission rehearsal.
 
 ## Release blockers
 
 - [x] Remove unreviewed bundled paper and Lean excerpts. User-provided files now enter through the temporary upload workspace instead.
-- [x] Merge the release documentation, accessibility acceptance, evaluation/security, deployment, and submission branches selected for release. **Evidence:** PRs #10–#20 are merged into `main`.
-- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 120 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for `1e07168`.
-- [ ] Deploy with `OPENAI_MODEL=gpt-5.6` and a server-only `OPENAI_API_KEY`.
+- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains only `8e41bed` and `eba5f53`.
+- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 119 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
+- [x] Deploy `OPENAI_MODEL=gpt-5.6` with a server-only `OPENAI_API_KEY`. **Evidence:** configured by the project owner in the hosting environment; no secret is committed here.
 - [ ] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence.
 
 ## Signed-out public launch
@@ -138,7 +138,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 2. Public YouTube demo URL: `[YOUTUBE_URL]`
 3. Codex `/feedback` session ID covering the majority of core implementation: `[CODEX_FEEDBACK_SESSION_ID]`
 4. OpenAI API key added as a server-only deployment secret; never commit it or expose it with a `NEXT_PUBLIC_` prefix.
-5. GitHub judge-access decision for the currently private repository.
+5. GitHub judge-access decision: public repository or explicit judge accounts.
 6. Required Devpost identity choices: Submitter Type and eligible Country of Residence.
 
 The repository can be made public once the rewritten history is pushed, the hosted URL and live GPT-5.6 request are recorded, and the final demo is captured.
