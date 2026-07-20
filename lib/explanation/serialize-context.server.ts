@@ -24,6 +24,16 @@ export class ExplanationContextError extends Error {
   }
 }
 
+const PREREQUISITE_EXPLANATIONS: Record<string, string> = {
+  "area of an n by n square": "An n by n square has n rows of n cells, so its area is n².",
+  "distributivity of multiplication over addition": "Multiplication distributes over addition: a(b + c) = ab + ac. It expands the successor square into the terms used by the proof.",
+  "mathematical induction": "Prove a base case, then show that truth at n implies truth at n + 1.",
+  "the identity (n + 1)² = n² + 2n + 1": "Expanding the successor square gives the previous square plus exactly the next odd number, 2n + 1.",
+  "natural numbers": "The counting numbers starting at 0; Lean builds them from zero and successors.",
+  "odd numbers": "Numbers of the form 2k + 1. After n, the next odd number is 2n + 1.",
+  "recursive definitions": "Define a value at zero and specify how it changes at the successor step.",
+}
+
 export async function buildExplanationContext(
   request: ExplainRequest,
 ): Promise<{ context: ContextBundle; publicContext: PublicContext }> {
@@ -119,10 +129,18 @@ export async function buildExplanationContext(
       verification,
       curated: [
         ...supportingMaterial.glossary.map((item) => ({ kind: "glossary" as const, label: item.term, explanation: item.explanation })),
-        ...supportingMaterial.prerequisites.map((item) => ({ kind: "prerequisite" as const, label: item, explanation: "Background used by this mapped proof step." })),
+        ...supportingMaterial.prerequisites.map((item) => ({
+          kind: "prerequisite" as const,
+          label: item,
+          explanation: prerequisiteExplanation(item),
+        })),
       ],
     },
   };
+}
+
+function prerequisiteExplanation(label: string): string {
+  return PREREQUISITE_EXPLANATIONS[label.trim().toLowerCase()] ?? "Background needed to follow this proof step.";
 }
 
 type ResolvedSelection = {

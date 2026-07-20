@@ -33,11 +33,15 @@
   },
   "dependencies": {
     "fflate": "^0.8.3",
+    "katex": "^0.16.22",
     "next": "16.2.10",
     "openai": "^6.46.0",
     "pdfjs-dist": "6.1.200",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
