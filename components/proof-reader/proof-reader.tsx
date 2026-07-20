@@ -331,10 +331,10 @@ export function ProofReader({ proof }: ProofReaderProps) {
     });
   };
 
-  const dismissSelection = () => {
+  const dismissSelection = useCallback(() => {
     setSelection(null);
     window.setTimeout(() => returnFocusRef.current?.focus(), 0);
-  };
+  }, []);
 
   const handleFollowUp = (question: string) => {
     if (explanationState.status !== "complete") return;

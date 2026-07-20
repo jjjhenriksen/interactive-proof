@@ -2,6 +2,12 @@
 
 Target finished length: **2:35–2:50**. Record at 1080p or higher with the browser at 100% zoom, a readable pointer, and no API keys, local paths, notifications, or private tabs visible. Capture one clean continuous journey where practical; use cuts only to remove waiting or navigate between proofs. Do not speed up the model stream so much that it looks prerecorded.
 
+## Current public-release constraint
+
+The current public allowlist is `PUBLIC_PROOF_IDS=odd-sum-square`. The cycle-double-cover paper and Lean excerpts remain `review-required` for redistribution, so do not record or publish them in the final public video until that rights review is resolved. The public-safe recording uses **Odd Numbers Build Squares** for the paper, Lean, live explanation, and verification shots. The cycle-double-cover flow can remain a private rehearsal only.
+
+The key-free rehearsal and static captures are in [`docs/submission/media/`](media/README.md). They are preparation assets, not evidence of a deployed live GPT-5.6 stream.
+
 ## Voiceover script
 
 **0:00–0:12 — Opening**
@@ -10,7 +16,7 @@ Target finished length: **2:35–2:50**. Record at 1080p or higher with the brow
 
 **0:12–0:34 — Select the paper heading**
 
-“Here is the cycle double cover package. The paper is rendered with a selectable text layer, so I can highlight the theorem where I am actually reading instead of moving the question into a separate chat.”
+“Here is the odd-numbers package. The paper is rendered with a selectable text layer, so I can highlight the induction step where I am actually reading instead of moving the question into a separate chat.”
 
 **0:34–0:58 — More details and streaming**
 
@@ -44,13 +50,13 @@ Target finished length: **2:35–2:50**. Record at 1080p or higher with the brow
 
 | Time | Picture | Required visible evidence | Capture note |
 |---|---|---|---|
-| 0:00–0:12 | Proof library, then open Cycle Double Cover | Project name and both proof cards | Start from `[HOSTED_URL]` in a signed-out window. |
-| 0:12–0:34 | Paper view | Rendered PDF and selected theorem heading/text | Use a short supported selection with clear highlight. |
+| 0:00–0:12 | Proof library, then open Odd Numbers Build Squares | Project name and the cleared public proof card | Start from `[HOSTED_URL]` in a signed-out window. |
+| 0:12–0:34 | Paper view | Rendered PDF and selected induction passage | Use a short supported selection with clear highlight. |
 | 0:34–0:58 | Context menu, click **More details**, panel opens | Selection menu, immediate source context, visibly streaming answer | Rehearse on the deployed model; do not substitute a fixture in the submission video. |
 | 0:58–1:16 | Explanation panel | Paper, Lean, prerequisite, and generated-explanation distinctions; source-chip navigation | Click one chip and visibly land at its source before returning. |
 | 1:16–1:40 | Lean tab | Explicit excerpt label, selected Lean text, **Connect to Lean**, mapped source context | Keep the declaration name readable. Never call this package build-verified. |
 | 1:40–1:56 | Follow-up input | Original selected excerpt/location and completed follow-up | Ask one short question whose answer fits on screen. |
-| 1:56–2:18 | Return to library, open Odd Numbers Build Squares | Second package through the same UI; paper and Lean tabs | Use a clean cut if package navigation consumes time. |
+| 1:56–2:18 | Return to library, revisit Odd Numbers Build Squares | The same package through the same UI; paper and Lean tabs | Use a clean cut if package navigation consumes time. |
 | 2:18–2:36 | Odd-sum verification disclosure | `passed`, Lean toolchain, command, revision, zero `sorry`, axiom audit/output digest | Scroll slowly enough for the evidence to be legible. |
 | 2:36–2:48 | Return to calm reader view | Source, explanation, and evidence visible together | End on the product, not a slide of logos. |
 
@@ -64,7 +70,7 @@ Target finished length: **2:35–2:50**. Record at 1080p or higher with the brow
 - [ ] A Lean selection and one follow-up are shown.
 - [ ] The second proof is opened from the same proof library.
 - [ ] Verification evidence is legible and belongs to odd-sum-square.
-- [ ] Cycle-double-cover is described as excerpt-only and `not-run`, if shown.
+- [ ] If a private rehearsal shows cycle-double-cover, it is described as excerpt-only and `not-run`; it is omitted from the public video unless rights are cleared.
 - [ ] No invented score, learner metric, award, private URL, API key, or session ID appears.
 - [ ] Captions have been reviewed for mathematical notation and the name “Lean.”
 - [ ] The final YouTube video is public and works while signed out: `[YOUTUBE_URL]`.

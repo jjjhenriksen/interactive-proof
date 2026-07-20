@@ -4,17 +4,18 @@ Nothing in this checklist is complete merely because it exists in source control
 
 Live Devpost fields and dates were checked through the Devpost Hackathons connector on July 13, 2026. Submissions were open, and the configured deadline was July 22, 2026 at 00:00 UTC, equivalent to July 21 at 5:00 PM Pacific Time. Recheck immediately before submitting.
 
-## Current status — July 16, 2026
+## Current status — July 19, 2026
 
-**Release candidate:** `main` at `759d08a` (`Fix repository-wide autoreview findings (#19)`).
+**Release candidate:** `main` at `1e07168` (`Add public setup documentation (#20)`).
 
 ### Completed in the repository
 
-- PRs #10–#19 are merged, including release gates, deep links, themes, guided learning, authoring tools, proof map, instructor guidance, recorded demonstrations, ephemeral uploads, and repository-wide review fixes.
+- PRs #10–#20 are merged, including release gates, deep links, themes, guided learning, authoring tools, proof map, instructor guidance, recorded demonstrations, ephemeral uploads, repository-wide review fixes, and public setup documentation.
 - Both proof packages validate locally; `odd-sum-square` has recorded passing Lean evidence and `cycle-double-cover` remains explicitly `not-run`.
 - The production allowlist is `PUBLIC_PROOF_IDS=odd-sum-square`, so unresolved cycle-double-cover material is excluded unless the owner deliberately changes that setting.
-- Proof and evaluation validation, 31 unit-test files with 120 tests, typecheck, lint, Next.js build, Sites build, and the full 33-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
+- Proof and evaluation validation, 31 unit-test files with 120 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
 - `npm audit --omit=dev` reports zero production vulnerabilities after the reviewed dependency override.
+- The public media package contains inspected desktop/mobile captures, a generated thumbnail, and a silent key-free rehearsal video. The final video still requires one deployed live-stream capture and narration.
 - The MIT code license, third-party rights matrix, no-key demonstration path, evaluation methodology, Devpost copy, demo script, upload security boundary, and public setup documentation are checked in.
 
 ### Still blocking public launch
@@ -28,8 +29,8 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 ## Release blockers
 
 - [x] Resolve the cycle-double-cover paper and Lean excerpt redistribution status, or remove/replace that material in the public build. **Current mitigation:** excluded by `PUBLIC_PROOF_IDS=odd-sum-square`; do not add it back without clearance.
-- [x] Merge the release documentation, accessibility acceptance, evaluation/security, deployment, and submission branches selected for release. **Evidence:** PRs #10–#19 are merged into `main`.
-- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 120 tests, typecheck, lint, both production builds, 33 applicable browser tests, and the production audit passed for `759d08a`.
+- [x] Merge the release documentation, accessibility acceptance, evaluation/security, deployment, and submission branches selected for release. **Evidence:** PRs #10–#20 are merged into `main`.
+- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 120 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for `1e07168`.
 - [ ] Deploy with `OPENAI_MODEL=gpt-5.6` and a server-only `OPENAI_API_KEY`.
 - [ ] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence.
 
@@ -87,7 +88,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 - [x] Third-party notices record the status of bundled paper and Lean assets. **Evidence:** `THIRD_PARTY_NOTICES.md`; cycle-double-cover remains `review-required` and excluded from the configured public build.
 - [x] The README setup succeeds from a clean dependency install on Node 24.
 - [x] `.env.example` contains names only, never a real secret.
-- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `759d08a`.
+- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `1e07168`.
 - [x] The repository contains sample proof data and lets reviewers inspect the reader without spending API credits.
 - [ ] The release tag or commit SHA used for judging is recorded: ____________________.
 
@@ -140,5 +141,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 4. OpenAI API key added as a server-only deployment secret; never commit it or expose it with a `NEXT_PUBLIC_` prefix.
 5. GitHub judge-access decision for the currently private repository.
 6. Required Devpost identity choices: Submitter Type and eligible Country of Residence.
+
+The repository is not yet safe to make public while the cycle-double-cover PDF and Lean excerpts remain in-tree with `review-required` rights. Keep the repository private until those assets are cleared or removed from the public release history.
 
 The cycle-double-cover rights decision is no longer a blocker for the configured public build because the package is omitted from `PUBLIC_PROOF_IDS`. It becomes required again if that package is added to the deployed release.

@@ -34,6 +34,11 @@ export function SelectionMenu({
   autoFocus = true,
 }: SelectionMenuProps) {
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const onDismissRef = useRef(onDismiss)
+
+  useEffect(() => {
+    onDismissRef.current = onDismiss
+  }, [onDismiss])
   const position = useMemo<MenuPosition>(
     () => ({
       "--selection-center-x": `${(selection.clientRect.left + selection.clientRect.right) / 2}px`,
@@ -56,6 +61,21 @@ export function SelectionMenu({
     document.addEventListener("pointerdown", handleOutsidePointer)
     return () => document.removeEventListener("pointerdown", handleOutsidePointer)
   }, [onDismiss])
+
+  useEffect(() => {
+    const handleDocumentKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      event.preventDefault()
+      onDismissRef.current()
+    }
+
+    document.addEventListener("keydown", handleDocumentKeyDown, true)
+    window.addEventListener("keydown", handleDocumentKeyDown, true)
+    return () => {
+      document.removeEventListener("keydown", handleDocumentKeyDown, true)
+      window.removeEventListener("keydown", handleDocumentKeyDown, true)
+    }
+  }, [])
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const currentIndex = itemRefs.current.findIndex(

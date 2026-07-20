@@ -1,6 +1,6 @@
 # Devpost submission checklist
 
-**Status:** Template; deployment and submission inputs remain incomplete.
+**Status:** Media package prepared; deployment and submission inputs remain incomplete.
 
 Use this as the final evidence gate. Check an item only after verifying the linked artifact or public behavior.
 
@@ -20,7 +20,7 @@ Use this as the final evidence gate. Check an item only after verifying the link
 
 - [ ] Private-window visitor can open the home page without an account.
 - [ ] Both proof cards open through `/proofs/[proofId]`.
-- [ ] Cycle-double-cover paper selection opens the contextual action menu.
+- [ ] The cleared public proof paper selection opens the contextual action menu.
 - [ ] Odd-sum paper selection opens the same interaction without proof-specific UI.
 - [ ] A Lean declaration selection can request **Connect to Lean**.
 - [ ] A GPT-5.6 response streams into the explanation panel.
@@ -55,13 +55,15 @@ PLAYWRIGHT_SERVER=production npm run test:e2e:smoke
 
 - [ ] Root MIT license reviewed and accepted by the project owner.
 - [ ] Odd-sum paper retains CC BY 4.0 attribution in the PDF and manifest.
-- [ ] Cycle-double-cover paper redistribution rights resolved, or local PDF removed from the public deployment.
+- [ ] Cycle-double-cover paper redistribution rights resolved, or local PDF removed from the public deployment and public video.
 - [ ] `openai/cdc-lean` repository identity, pinned revision, license, and excerpt rights resolved, or excerpts removed/replaced.
 - [ ] Third-party dependency notices reviewed for the deployment form.
 - [ ] No API key, `.env.local`, hidden prompt, or unrelated filesystem path appears in the client bundle or network payload.
 - [ ] Rate limit is configured for the public demo.
 
 ## Three-minute video outline
+
+Use the public-safe asset and narration guidance in [`docs/submission/DEMO.md`](submission/DEMO.md). The committed media folder contains a silent key-free rehearsal, not the final live-stream evidence.
 
 - [ ] 0:00-0:25 - The problem: one compressed step can stop a capable reader.
 - [ ] 0:25-1:05 - Select paper text and use **More details**.
