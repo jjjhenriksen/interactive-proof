@@ -6,7 +6,7 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 ## Current status — July 19, 2026
 
-**Release candidate:** `main` at `029393d` (`fix: remove proof reader hydration mismatch`).
+**Deployed release:** `029393d` (`fix: remove proof reader hydration mismatch`). Documentation status is recorded on `main` at `f0d399a`.
 
 ### Completed in the repository
 
