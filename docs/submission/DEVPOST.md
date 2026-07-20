@@ -53,6 +53,44 @@ That local interaction matters for two groups at once. A mathematics learner can
 
 The trust design is part of the teaching. A machine-checked declaration, a curator's paper-to-code mapping, and a generated analogy are different kinds of evidence. Interactive Proof lets a learner see those boundaries while continuing to read.
 
+### Inspiration
+
+Interactive Proof is personal. I first discovered programming through Scratch, then found the elegance of mathematics and code through school mathematics and competitive programming clubs. Formal verification introduced a new language and a new kind of reading: research papers full of unfamiliar concepts, category-theoretic vocabulary, and proof steps that assumed I already knew how to ask the right question.
+
+I was fortunate to have mentors, research projects, and a community that helped me keep learning. Many people do not. Not everyone discovers mathematics through a classroom; some arrive through research, open source, clubs, independent study, or simple curiosity. They often have no syllabus, office hours, or mentor beside them when a paper becomes opaque.
+
+I built Interactive Proof for those learners. It provides the kind of source-aware guidance that helped me enter formal verification without replacing mathematical reasoning, teachers, or the original proof.
+
+### What it does
+
+Interactive Proof is an AI-powered educational companion for mathematical papers and formal proofs. Learners can upload a paper PDF and, when appropriate, a Lean proof, then select a sentence, equation, or declaration for a focused explanation grounded in the supplied source.
+
+- PDF upload for mathematical papers.
+- Optional Lean upload for formal-verification workflows.
+- Grounded explanations connected directly to source material.
+- Interactive proof exploration with paper-to-Lean navigation.
+- Context-aware follow-ups that preserve the learner's place.
+
+The product is designed first for nontraditional learners, while also serving classrooms, educators, and researchers who want difficult proofs to become more transparent and approachable.
+
+### How I built it
+
+I built Interactive Proof as a solo full-stack AI application. The browser parses temporary uploads and sends only a bounded selection and nearby context. The server validates that selection against authoritative source material, reconstructs the relevant paper, Lean, glossary, prerequisite, and verification context, and streams an explanation through the OpenAI Responses API.
+
+Every technical choice supports the same educational philosophy. I was not trying to build an AI that solves mathematics. I wanted to build one that encourages curiosity, supports independent learning, and helps someone continue reading when they reach the page that would normally make them stop.
+
+### Challenges
+
+The hardest design problem was balancing accessibility with mathematical rigor. Explanations need to simplify a proof step without quietly changing what it claims. Supporting papers and Lean introduced a second challenge: the formats represent mathematics differently, but learners need to move between them without losing context. The central philosophical challenge was resisting the easy path of building another system that simply answers questions. Every feature had to answer: does this help someone become a more confident learner?
+
+### What I learned
+
+People rarely learn difficult subjects completely alone. What mattered in my own journey was not only learning Lean or reading research papers, but having mentors and communities that made it safe to ask a small question. Building Interactive Proof taught me that educational AI earns trust through grounded explanations, transparent interfaces, and visible connections to the original source—not through the model alone.
+
+### What's next
+
+I want to deepen support for proof assistants, strengthen connections between papers and formalizations, and add richer visualizations that build intuition alongside rigor. Most importantly, Interactive Proof should keep serving the people who inspired it: learners who find mathematics through a research lab, an open-source project, a club, or a single paper that sparks their curiosity.
+
 ### What is implemented
 
 - A generic Next.js proof-package reader with one cleared sample package and a temporary upload workspace.

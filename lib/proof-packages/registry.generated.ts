@@ -65,7 +65,7 @@ export const proofRegistry = {
       },
       "recorded": {
         "file": "recorded-explanations.json",
-        "sha256": "a09e1e9a140e229e80bacd6fce3bc9e1d3f9b9c4a0e61ab32ed5c8411a4d1b46"
+        "sha256": "f19f7be2584e32731a2e99bcd3bc5c880f98542aba25f7cdb8f3ef2007692f14"
       },
       "mappings": [
         {
@@ -329,7 +329,7 @@ export const proofRegistry = {
           "page-1-block-4",
           "lean-odd-sum-theorem"
         ],
-        "answer": "The statement says that the running total of the first n odd numbers is exactly the area of an n by n square. The induction proof works because moving from n to n + 1 adds the next odd number, 2n + 1, which is also the amount by which the square grows.\n\nLean verifies the recursive sum and the equality oddSum n = n * n at the recorded revision. That machine check supports the formal identity; the paper-to-Lean correspondence remains a curated mapping.",
+        "answer": "### What the passage is doing\n\nThe paper compares two consecutive square sizes. Starting with an \\(n \\times n\\) square, enlarge it to an \\((n+1) \\times (n+1)\\) square by adding:\n\n- a column containing \\(n\\) cells, and\n- a row containing \\(n+1\\) cells.\n\nThe corner cell belongs to the new row, so together the two pieces contain\n\n\\[\nn + (n+1) = 2n + 1\n\\]\n\ncells. That L-shaped border is exactly the next odd number. Algebraically, the same change in area is\n\n\\[\n(n+1)^2 - n^2 = 2n + 1.\n\\]\n\n### Why it matters\n\nThis is the successor step of the induction: the n-th square already exists, and the next odd number supplies precisely the cells needed to grow it into the next square. Lean verifies the corresponding recursive definition and theorem; the paper-to-Lean connection remains a curated mapping.",
         "suggestions": [
           {
             "id": "paper-successor",

@@ -255,7 +255,89 @@ button.sourceChip {
   max-width: 68ch;
   font-size: 1rem;
   line-height: 1.65;
-  white-space: pre-wrap;
+}
+
+.answerText > :first-child {
+  margin-top: 0;
+}
+
+.answerText > :last-child {
+  margin-bottom: 0;
+}
+
+.answerText :global(p) {
+  margin: 0 0 1rem;
+}
+
+.answerText :global(h1),
+.answerText :global(h2),
+.answerText :global(h3) {
+  margin: 1.5rem 0 0.625rem;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.answerText :global(ul),
+.answerText :global(ol) {
+  margin: 0 0 1rem;
+  padding-left: 1.35rem;
+}
+
+.answerText :global(li + li) {
+  margin-top: 0.4rem;
+}
+
+.answerText :global(blockquote) {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 0.1875rem solid var(--primary);
+  background: var(--surface-subtle);
+  color: var(--muted-foreground);
+}
+
+.answerText :global(pre) {
+  margin: 1rem 0;
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: var(--surface-subtle);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.answerText :global(code) {
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+  background: var(--surface-subtle);
+  font-size: 0.9em;
+}
+
+.answerText :global(pre code) {
+  padding: 0;
+  background: transparent;
+}
+
+.answerText :global(a) {
+  color: var(--primary-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.answerText :global(.katex-display) {
+  max-width: 100%;
+  margin: 1rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+  text-align: left;
+}
+
+.answerText :global(.katex) {
+  font-size: 1.05em;
 }
 
 .streamCursor {

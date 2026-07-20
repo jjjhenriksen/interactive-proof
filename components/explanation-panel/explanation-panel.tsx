@@ -4,6 +4,7 @@ import { type RefObject, useEffect, useRef, useState } from "react"
 
 import { EXPLANATION_ACTIONS } from "../selection-menu/selection-types"
 import { EvidenceChip, SourceChip } from "./evidence-chip"
+import { MarkdownContent } from "./markdown-content"
 import {
   getLastCompleted,
   isRequestActive,
@@ -206,10 +207,9 @@ export function ExplanationPanel({
             </div>
             {context.verification ? (
               <p className={styles.verificationNote}>
-                Lean build: {context.verification.build}
-                {context.verification.revision
-                  ? ` at revision ${context.verification.revision}`
-                  : ""}
+                {context.verification.build === "passed"
+                  ? "Lean build passed"
+                  : `Lean build ${context.verification.build}`}
               </p>
             ) : null}
           </section>
@@ -251,7 +251,11 @@ export function ExplanationPanel({
                 Gathering the mapped paper and Lean context…
               </div>
             ) : null}
-            {answer ? <div className={styles.answerText}>{answer}</div> : null}
+            {answer ? (
+              <div className={styles.answerText}>
+                <MarkdownContent>{answer}</MarkdownContent>
+              </div>
+            ) : null}
             {state.status === "streaming" ? (
               <span className={styles.streamCursor} aria-label="Answer is still streaming" />
             ) : null}
