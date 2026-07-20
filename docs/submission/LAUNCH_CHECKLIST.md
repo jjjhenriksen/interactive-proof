@@ -6,14 +6,14 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 ## Current status — July 19, 2026
 
-**Release candidate:** `main` at `eba5f53` (`docs: polish public release README`).
+**Release candidate:** `main` at `4bd2963` (`feat: render grounded explanations as rich math (#22)`).
 
 ### Completed in the repository
 
-- The reachable release history is two conventional commits, preserving the generic reader, upload workspace, and public setup flow without bundling unreviewed source material.
+- The reachable release history uses conventional commits, preserving the generic reader, upload workspace, and public setup flow without bundling unreviewed source material.
 - The sample package validates locally with recorded passing Lean evidence.
 - The public allowlist is `PUBLIC_PROOF_IDS=odd-sum-square`.
-- Proof and evaluation validation, 31 unit-test files with 119 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
+- Proof and evaluation validation, 32 unit-test files with 121 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
 - `npm audit --omit=dev` reports zero production vulnerabilities after the reviewed dependency override.
 - The public media package contains inspected desktop/mobile captures, a generated thumbnail, and a silent key-free rehearsal video. The final video still requires one deployed live-stream capture and narration.
 - The MIT code license, third-party rights matrix, no-key demonstration path, evaluation methodology, Devpost copy, demo script, upload security boundary, and public setup documentation are checked in.
@@ -22,23 +22,23 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 - Verify one real billed GPT-5.6 streamed response using the deployed server-side secret.
 - Add provider-backed/shared production rate limiting before treating the current process-local limiter as the only abuse control.
-- Record `[HOSTED_URL]`, complete signed-out deployment QA, and record the final release commit.
+- Record the hosted URL, complete signed-out deployment QA, and record the final release commit. **Hosted URL:** https://interactive-proof.jjjhenriksen.chatgpt.site/
 - Decide whether to make the GitHub repository public for judges.
 - Complete the demo video, Devpost owner fields, and final submission rehearsal.
 
 ## Release blockers
 
 - [x] Remove unreviewed bundled paper and Lean excerpts. User-provided files now enter through the temporary upload workspace instead.
-- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains only `8e41bed` and `eba5f53`.
-- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 119 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
-- [x] Deploy `OPENAI_MODEL=gpt-5.6` with a server-only `OPENAI_API_KEY`. **Evidence:** configured by the project owner in the hosting environment; no secret is committed here.
+- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains the cleaned conventional-commit history through `4bd2963`.
+- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 121 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
+- [x] Deploy the GPT-5.6 configuration with a server-only `OPENAI_API_KEY`. **Evidence:** configured by the project owner in the hosting environment; no secret is committed here.
 - [ ] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence.
 
 ## Signed-out public launch
 
 Test in a fresh private window with extensions disabled and no existing app session.
 
-- [ ] `[HOSTED_URL]` loads without authentication, invitation, VPN, or browser warning.
+- [ ] `https://interactive-proof.jjjhenriksen.chatgpt.site/` loads without authentication, invitation, VPN, or browser warning.
 - [ ] The browser network panel exposes no API key, hidden system prompt, filesystem path, or private repository credential.
 - [ ] The sample proof and upload workspace open without a 404.
 - [ ] The paper PDF and selectable text layer load from a cold cache.
@@ -87,7 +87,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 - [x] Third-party notices record the status of the bundled sample paper and Lean source. **Evidence:** `THIRD_PARTY_NOTICES.md`.
 - [x] The README setup succeeds from a clean dependency install on Node 24.
 - [x] `.env.example` contains names only, never a real secret.
-- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `1e07168`.
+- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `4bd2963`.
 - [x] The repository contains sample proof data and lets reviewers inspect the reader without spending API credits.
 - [ ] The release tag or commit SHA used for judging is recorded: ____________________.
 
@@ -111,7 +111,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 - [ ] Built-with list includes Codex, GPT-5.6, Responses API, and the actual shipped stack.
 - [ ] Codex narrative describes repository work and human decision boundaries accurately.
 - [ ] GPT-5.6 narrative matches the deployed model configuration and observed network path.
-- [ ] Hosted project URL entered and opened signed out: `[HOSTED_URL]`.
+- [ ] Hosted project URL entered and opened signed out: `https://interactive-proof.jjjhenriksen.chatgpt.site/`.
 - [ ] Field 27948, repository URL: https://github.com/jjjhenriksen/interactive-proof
 - [ ] Demo URL entered and played from Devpost preview: `[YOUTUBE_URL]`.
 - [ ] Field 27949, optional hosted judge instructions, uses the tested instructions in `docs/submission/DEVPOST.md`.
@@ -134,7 +134,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 
 ## Inputs still required from the project owner
 
-1. Hosted project URL: `[HOSTED_URL]`
+1. Hosted project URL: `https://interactive-proof.jjjhenriksen.chatgpt.site/`
 2. Public YouTube demo URL: `[YOUTUBE_URL]`
 3. Codex `/feedback` session ID covering the majority of core implementation: `[CODEX_FEEDBACK_SESSION_ID]`
 4. OpenAI API key added as a server-only deployment secret; never commit it or expose it with a `NEXT_PUBLIC_` prefix.

@@ -4,6 +4,26 @@ Interactive Proof is an educational reading companion for mathematical papers an
 
 This repository contains a tested release candidate. The public demo uses a cleared sample proof and an upload-first workspace for papers and optional Lean source.
 
+<p align="center">
+  <img src="docs/submission/media/interactive-proof-thumbnail.png" alt="Interactive Proof — Paper, Lean, Explanation" width="1200" />
+</p>
+
+Interactive Proof keeps the source in view while it explains: a reader can move from a paper passage to its mapped Lean declaration, inspect the verification evidence, and ask a focused question without losing their place.
+
+## See the reading experience
+
+<p align="center">
+  <img src="docs/submission/media/reading-room-desktop.png" alt="Interactive Proof reading room with proof library and evidence model" width="900" />
+</p>
+
+<p align="center">
+  <img src="docs/submission/media/odd-sum-square-desktop.png" alt="Odd Numbers Build Squares proof reader" width="900" />
+</p>
+
+<p align="center">
+  <img src="docs/submission/media/odd-sum-square-mobile.png" alt="Interactive Proof on a mobile viewport" width="320" />
+</p>
+
 ## Demo assets
 
 The reviewed media package lives in [`docs/submission/media/`](docs/submission/media/README.md):
@@ -195,7 +215,9 @@ Before submission, preserve the Codex `/feedback` session ID that covers the cor
 
 ## Deployment
 
-No production URL is recorded yet. A deployment must provide:
+The public demo is available at [interactive-proof.jjjhenriksen.chatgpt.site](https://interactive-proof.jjjhenriksen.chatgpt.site/). It is accessible without an account and keeps the OpenAI key server-side. The sample reader and recorded examples remain usable even when a local environment has no key configured.
+
+A deployment must provide:
 
 - Node server routes and streamed responses;
 - `OPENAI_API_KEY` as a server-only secret;

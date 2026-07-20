@@ -50,7 +50,7 @@ The key-free rehearsal and static captures are in [`docs/submission/media/`](med
 
 | Time | Picture | Required visible evidence | Capture note |
 |---|---|---|---|
-| 0:00–0:12 | Proof library, then open Odd Numbers Build Squares | Project name and the cleared public proof card | Start from `[HOSTED_URL]` in a signed-out window. |
+| 0:00–0:12 | Proof library, then open Odd Numbers Build Squares | Project name and the cleared public proof card | Start from `https://interactive-proof.jjjhenriksen.chatgpt.site/` in a signed-out window. |
 | 0:12–0:34 | Paper view | Rendered PDF and selected induction passage | Use a short supported selection with clear highlight. |
 | 0:34–0:58 | Context menu, click **More details**, panel opens | Selection menu, immediate source context, visibly streaming answer | Rehearse on the deployed model; do not substitute a fixture in the submission video. |
 | 0:58–1:16 | Explanation panel | Paper, Lean, prerequisite, and generated-explanation distinctions; source-chip navigation | Click one chip and visibly land at its source before returning. |

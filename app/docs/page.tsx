@@ -121,7 +121,8 @@ npm run dev`}</code>
                 Add <code>OPENAI_API_KEY</code> using the host&apos;s secret manager. Add
                 <code>OPENAI_MODEL</code>, <code>EXPLAIN_RATE_LIMIT_PER_HOUR</code>, and
                 an explicit <code>PUBLIC_PROOF_IDS</code> allowlist as environment
-                variables, then deploy a new version.
+                variables, then deploy a new version. The public demo currently uses
+                the GPT-5.6 deployment configuration.
               </p>
             </section>
 

@@ -4,6 +4,8 @@ This guide separates the key-free reading experience from live OpenAI requests. 
 
 The same guidance is published in the application at `/docs`.
 
+The current public demo is [interactive-proof.jjjhenriksen.chatgpt.site](https://interactive-proof.jjjhenriksen.chatgpt.site/). Use the local setup below when you want to run the reader against your own environment.
+
 ## Local setup
 
 Requirements:

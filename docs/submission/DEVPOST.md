@@ -158,7 +158,7 @@ GPT-5.6 generates the explanatory prose; it does not generate source chips, veri
 
 ### Hosted path
 
-1. Open `[HOSTED_URL]` in a signed-out browser window. No account should be required.
+1. Open <https://interactive-proof.jjjhenriksen.chatgpt.site/> in a signed-out browser window. No account should be required.
 2. Choose **Odd Numbers Build Squares** or open the upload workspace.
 3. In the paper view, select text in the theorem or a mapped passage and choose **More details**.
 4. Confirm that source chips appear and explanation text streams into the panel.
@@ -189,7 +189,7 @@ Repository: https://github.com/jjjhenriksen/interactive-proof
 
 ## Submission links
 
-- Hosted project: `[HOSTED_URL]`
+- Hosted project: https://interactive-proof.jjjhenriksen.chatgpt.site/
 - Source repository: https://github.com/jjjhenriksen/interactive-proof
 - Public YouTube demo video: `[YOUTUBE_URL]`
 - Codex `/feedback` session: `[CODEX_FEEDBACK_SESSION_ID]`
