@@ -24,7 +24,7 @@ Interactive Proof is a reading companion for machine-checked mathematics. Select
 
 A mathematical paper can be understandable until one compressed sentence brings the whole reading session to a stop. A Lean formalization can verify the same result and still be difficult to learn from: the declaration names, library abstractions, and proof tactics do not automatically explain the mathematics. Opening a generic chat loses the reader's exact location and makes it difficult to tell source fact from interpretation.
 
-Interactive Proof keeps that moment inside the document. A reader selects the sentence, equation, or Lean excerpt that is causing trouble and chooses **More details**, **Simpler**, **Connect to Lean**, **Where is this used?**, or **Ask in side chat**. A panel opens beside the source, shows the original excerpt and location, and streams an explanation focused on that local step.
+Interactive Proof keeps that moment inside the document. A reader selects the sentence, equation, or Lean excerpt that is causing trouble and chooses **More details**, **Explain more simply**, **Connect to Lean**, **Where is this used?**, or **Ask in side chat**. A panel opens beside the source, shows the original excerpt and location, and streams an explanation focused on that local step.
 
 ### How it works
 
