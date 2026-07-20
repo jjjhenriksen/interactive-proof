@@ -6,7 +6,7 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 ## Current status — July 19, 2026
 
-**Release candidate:** `main` at `4bd2963` (`feat: render grounded explanations as rich math (#22)`).
+**Release candidate:** `main` at `029393d` (`fix: remove proof reader hydration mismatch`).
 
 ### Completed in the repository
 
@@ -16,33 +16,32 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 - Proof and evaluation validation, 32 unit-test files with 121 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
 - `npm audit --omit=dev` reports zero production vulnerabilities after the reviewed dependency override.
 - The public media package contains inspected desktop/mobile captures, a generated thumbnail, and a silent key-free rehearsal video. The final video still requires one deployed live-stream capture and narration.
+- The public demo is deployed at <https://interactive-proof.jjjhenriksen.chatgpt.site/>. Signed-out browser QA reached the proof reader, loaded the PDF, streamed a live explanation, rendered Markdown/LaTeX, and observed no browser console errors after the hydration fix.
 - The MIT code license, third-party rights matrix, no-key demonstration path, evaluation methodology, Devpost copy, demo script, upload security boundary, and public setup documentation are checked in.
 
 ### Still blocking public launch
 
-- Verify one real billed GPT-5.6 streamed response using the deployed server-side secret.
 - Add provider-backed/shared production rate limiting before treating the current process-local limiter as the only abuse control.
-- Record the hosted URL, complete signed-out deployment QA, and record the final release commit. **Hosted URL:** https://interactive-proof.jjjhenriksen.chatgpt.site/
 - Decide whether to make the GitHub repository public for judges.
 - Complete the demo video, Devpost owner fields, and final submission rehearsal.
 
 ## Release blockers
 
 - [x] Remove unreviewed bundled paper and Lean excerpts. User-provided files now enter through the temporary upload workspace instead.
-- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains the cleaned conventional-commit history through `4bd2963`.
+- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains the cleaned conventional-commit history through `029393d`.
 - [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 121 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
 - [x] Deploy the GPT-5.6 configuration with a server-only `OPENAI_API_KEY`. **Evidence:** configured by the project owner in the hosting environment; no secret is committed here.
-- [ ] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence.
+- [x] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence. **Evidence:** signed-out browser request to `/api/explain` returned `200` and streamed grounded paper/Lean context on July 19, 2026.
 
 ## Signed-out public launch
 
 Test in a fresh private window with extensions disabled and no existing app session.
 
-- [ ] `https://interactive-proof.jjjhenriksen.chatgpt.site/` loads without authentication, invitation, VPN, or browser warning.
-- [ ] The browser network panel exposes no API key, hidden system prompt, filesystem path, or private repository credential.
-- [ ] The sample proof and upload workspace open without a 404.
-- [ ] The paper PDF and selectable text layer load from a cold cache.
-- [ ] A supported paper selection opens the action menu and **More details** streams a response.
+- [x] `https://interactive-proof.jjjhenriksen.chatgpt.site/` loads without authentication, invitation, VPN, or browser warning.
+- [x] The browser network panel exposes no API key, hidden system prompt, filesystem path, or private repository credential. **Evidence:** observed requests remained same-origin; the live explanation used `/api/explain`.
+- [x] The sample proof and upload workspace open without a 404.
+- [x] The paper PDF and selectable text layer load from a cold cache.
+- [x] A supported paper selection opens the action menu and **More details** streams a response.
 - [ ] Source chips navigate to their named paper page or Lean declaration.
 - [ ] A Lean selection opens the same explanation journey.
 - [ ] Two follow-ups retain the original selection; history remains bounded.
@@ -63,7 +62,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 | R2 Selectable paper | PDF.js text selection records page-aware bounded context; oversize/blank selection rejected | [x] |
 | R3 Selectable Lean source | Declaration-aware selection; excerpt-only source explicitly labeled | [x] |
 | R4 Contextual action menu | Five actions, keyboard navigation, Escape, viewport positioning, mobile sheet | [x] |
-| R5 Grounded explanation | Server reconstructs package context; deployed GPT-5.6 response streams; source IDs constrained | [ ] |
+| R5 Grounded explanation | Server reconstructs package context; deployed GPT-5.6 response streams; source IDs constrained | [x] |
 | R6 Trust distinctions | Paper, Lean, prerequisite, and explanation labels; insufficient-evidence behavior | [x] |
 | R7 Contextual follow-up | Two follow-ups, bounded history, preserved content, retry | [x] |
 | R8 Lean verification record | Odd-sum record includes revision, toolchain, command, timestamp, result, `sorry`, axioms, digest | [x] |
@@ -87,7 +86,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 - [x] Third-party notices record the status of the bundled sample paper and Lean source. **Evidence:** `THIRD_PARTY_NOTICES.md`.
 - [x] The README setup succeeds from a clean dependency install on Node 24.
 - [x] `.env.example` contains names only, never a real secret.
-- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `4bd2963`.
+- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `029393d`.
 - [x] The repository contains sample proof data and lets reviewers inspect the reader without spending API credits.
 - [ ] The release tag or commit SHA used for judging is recorded: ____________________.
 
