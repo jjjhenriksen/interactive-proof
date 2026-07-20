@@ -6,14 +6,14 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 
 ## Current status — July 19, 2026
 
-**Deployed release:** `029393d` (`fix: remove proof reader hydration mismatch`). Documentation status is recorded on `main` at `f0d399a`.
+**Deployed release:** `7ab7365` (`fix: stabilize persisted dates across hydration`). Documentation status is recorded on `main`.
 
 ### Completed in the repository
 
 - The reachable release history uses conventional commits, preserving the generic reader, upload workspace, and public setup flow without bundling unreviewed source material.
 - The sample package validates locally with recorded passing Lean evidence.
 - The public allowlist is `PUBLIC_PROOF_IDS=odd-sum-square`.
-- Proof and evaluation validation, 32 unit-test files with 121 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
+- Proof and evaluation validation, 33 unit-test files with 122 tests, typecheck, lint, Next.js build, Sites build, and the full 35-test applicable browser suite pass. Five browser cases are intentionally skipped by project configuration.
 - `npm audit --omit=dev` reports zero production vulnerabilities after the reviewed dependency override.
 - The public media package contains inspected desktop/mobile captures, a generated thumbnail, and a silent key-free rehearsal video. The final video still requires one deployed live-stream capture and narration.
 - The public demo is deployed at <https://interactive-proof.jjjhenriksen.chatgpt.site/>. Signed-out browser QA reached the proof reader, loaded the PDF, streamed a live explanation, rendered Markdown/LaTeX, and observed no browser console errors after the hydration fix.
@@ -28,8 +28,8 @@ Live Devpost fields and dates were checked through the Devpost Hackathons connec
 ## Release blockers
 
 - [x] Remove unreviewed bundled paper and Lean excerpts. User-provided files now enter through the temporary upload workspace instead.
-- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains the cleaned conventional-commit history through `029393d`.
-- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 121 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
+- [x] Replace the feature-branch history with a clean conventional-commit release history. **Evidence:** `main` contains the cleaned conventional-commit history through `7ab7365`.
+- [x] Run the repository's complete offline validation gate against the release commit. **Evidence:** proof/evaluation validation, 122 tests, typecheck, lint, both production builds, 35 applicable browser tests, and the production audit passed for the cleaned tree.
 - [x] Deploy the GPT-5.6 configuration with a server-only `OPENAI_API_KEY`. **Evidence:** configured by the project owner in the hosting environment; no secret is committed here.
 - [x] Confirm a live, billed GPT-5.6 response on the deployed application; deterministic test fixtures are not sufficient evidence. **Evidence:** signed-out browser request to `/api/explain` returned `200` and streamed grounded paper/Lean context on July 19, 2026.
 
@@ -86,7 +86,7 @@ Test in a fresh private window with extensions disabled and no existing app sess
 - [x] Third-party notices record the status of the bundled sample paper and Lean source. **Evidence:** `THIRD_PARTY_NOTICES.md`.
 - [x] The README setup succeeds from a clean dependency install on Node 24.
 - [x] `.env.example` contains names only, never a real secret.
-- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `029393d`.
+- [x] `npm ci`, proof validation, unit tests, type checking, lint, production builds, and Playwright release flows pass for `7ab7365`.
 - [x] The repository contains sample proof data and lets reviewers inspect the reader without spending API credits.
 - [ ] The release tag or commit SHA used for judging is recorded: ____________________.
 
