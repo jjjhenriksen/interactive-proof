@@ -9,7 +9,7 @@ test("publishes setup guidance before API-key configuration", async ({ page }) =
 
   await page.goto("/docs");
 
-  await expect(page.getByRole("heading", { level: 1, name: "From paper to grounded explanation." })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "From paper to a clear explanation." })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Documentation sections" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Documentation", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Enable live AI explanations." })).toBeVisible();

@@ -36,7 +36,7 @@ export default function MethodologyPage() {
           <p className="eyebrow">Evaluation and security</p>
           <h1>Show the method before claiming the score.</h1>
           <p className="methodology-hero__lede">
-            Interactive Proof uses a fixed, checked-in set to test grounded explanations,
+            Interactive Proof uses a fixed, checked-in set to test source-based explanations,
             citation discipline, requested depth, and resistance to instructions embedded
             in source material.
           </p>

@@ -3,7 +3,7 @@
 import { type RefObject, useEffect, useRef, useState } from "react"
 
 import { EXPLANATION_ACTIONS } from "../selection-menu/selection-types"
-import { EvidenceChip, SourceChip } from "./evidence-chip"
+import { SourceChip } from "./evidence-chip"
 import { MarkdownContent } from "./markdown-content"
 import {
   getLastCompleted,
@@ -164,16 +164,16 @@ export function ExplanationPanel({
 
       <div className={styles.body}>
         <fieldset className={styles.depthControl}>
-          <legend>Explanation depth</legend>
+          <legend>How should we explain it?</legend>
           {(["concise", "standard", "foundational"] as const).map((option) => (
             <button key={option} type="button" aria-pressed={depth === option} onClick={() => onDepthChange(option)}>
-              {option === "foundational" ? "Foundational" : option[0].toUpperCase() + option.slice(1)}
+              {option === "concise" ? "Quick" : option === "standard" ? "Step by step" : "Start from basics"}
             </button>
           ))}
         </fieldset>
         <section aria-labelledby="selected-passage-heading">
           <h3 className={styles.sectionLabel} id="selected-passage-heading">
-            Selected passage
+            You&apos;re looking at
           </h3>
           <blockquote className={styles.selectionQuote}>
             {state.selection.selectedText}
@@ -181,59 +181,10 @@ export function ExplanationPanel({
           <p className={styles.location}>{describeSelection(state)}</p>
         </section>
 
-        {context ? (
-          <section className={styles.evidenceSection} aria-labelledby="grounding-heading">
-            <h3 className={styles.sectionLabel} id="grounding-heading">
-              Grounded in
-            </h3>
-            <div className={styles.chipList}>
-              {context.sources.map((source) => (
-                <SourceChip
-                  key={source.id}
-                  source={source}
-                  onNavigate={onSourceNavigate}
-                />
-              ))}
-            </div>
-            <div className={styles.trustLegend} aria-label="Evidence types in this answer">
-              <EvidenceChip kind="explanation" />
-              {context.sources.some((source) => source.type === "paper") ? (
-                <EvidenceChip kind="paper" />
-              ) : null}
-              {context.sources.some((source) => source.type === "lean") &&
-              context.verification?.build === "passed" ? (
-                <EvidenceChip kind="lean" />
-              ) : null}
-              {context.hasPrerequisiteContext ? <EvidenceChip kind="prerequisite" /> : null}
-            </div>
-            {context.verification ? (
-              <p className={styles.verificationNote}>
-                {context.verification.build === "passed"
-                  ? "Lean build passed"
-                  : `Lean build ${context.verification.build}`}
-              </p>
-            ) : null}
-          </section>
-        ) : null}
-
-        {context?.curated?.length ? (
-          <section className={styles.curatedSection} aria-labelledby="curated-heading">
-            <h3 className={styles.sectionLabel} id="curated-heading">Curated glossary and prerequisites</h3>
-            <div className={styles.curatedList}>
-              {context.curated.map((item) => (
-                <details key={`${item.kind}-${item.label}`}>
-                  <summary>{item.kind === "glossary" ? "Glossary" : "Prerequisite"}: {item.label}</summary>
-                  <p>{item.explanation}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
         <section className={styles.answerSection} aria-labelledby="answer-heading">
           <div className={styles.answerHeadingRow}>
             <h3 className={styles.sectionLabel} id="answer-heading">
-              Explanation
+              In plain English
             </h3>
             {isBusy ? (
               <button className={styles.quietButton} type="button" onClick={onAbort}>
@@ -276,6 +227,39 @@ export function ExplanationPanel({
             ) : null}
           </div>
         </section>
+
+        {context?.curated?.length ? (
+          <section className={styles.curatedSection} aria-labelledby="curated-heading">
+            <h3 className={styles.sectionLabel} id="curated-heading">Helpful background</h3>
+            <div className={styles.curatedList}>
+              {context.curated.map((item) => (
+                <details key={`${item.kind}-${item.label}`}>
+                  <summary>{item.label}</summary>
+                  <p>{item.explanation}</p>
+                </details>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {context ? (
+          <details className={styles.sourceDetails}>
+            <summary>Sources and formal proof</summary>
+            <p className={styles.sourceDescription}>
+              Open the passage and formal declaration used to shape this explanation.
+            </p>
+            <div className={styles.chipList}>
+              {context.sources.map((source) => (
+                <SourceChip key={source.id} source={source} onNavigate={onSourceNavigate} />
+              ))}
+            </div>
+            {context.verification ? (
+              <p className={styles.verificationNote}>
+                Formal proof check: {context.verification.build === "passed" ? "passed" : context.verification.build}.
+              </p>
+            ) : null}
+          </details>
+        ) : null}
 
         {state.status === "complete" ||
         (state.status === "error" && completed) ? (

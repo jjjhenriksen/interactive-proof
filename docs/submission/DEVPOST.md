@@ -16,7 +16,7 @@ Education
 
 ## Short description
 
-Interactive Proof is a reading companion for machine-checked mathematics. Select a sentence or Lean declaration to get a streamed, local explanation grounded in the paper, mapped formal source, prerequisites, and recorded verification evidence.
+Interactive Proof is a reading companion for machine-checked mathematics. Select a sentence or Lean declaration to get a streamed explanation in plain language, with the paper, mapped formal source, and proof details available when you want to check them.
 
 ## Long description
 
@@ -30,18 +30,11 @@ Interactive Proof keeps that moment inside the document. A reader selects the se
 
 Each proof is a repository-owned package containing a paper, selectable page text, curated Lean source, a glossary, paper-to-Lean mappings, and a verification record. The browser sends only a bounded selection and location. The server validates that location, reloads the authoritative package, and constructs the context supplied to GPT-5.6. The model does not browse the repository or choose arbitrary files.
 
-The interface keeps four ideas visibly separate:
-
-- **Paper states** identifies claims grounded in the paper.
-- **Lean verifies** is shown only when the package has a matching recorded build.
-- **Prerequisite** introduces background needed for the selected step.
-- **Generated explanation** labels the model's interpretation.
-
-Source chips and verification badges come from validated application data, not from model-authored prose. A chip can return the reader to a paper page or mapped Lean declaration. Follow-up questions retain the original selection and use bounded recent history; if a follow-up fails, the prior answer remains on screen and can be retried.
+The explanation starts in plain language and keeps the selected passage in view. A compact **Sources and formal proof** disclosure links back to the paper and Lean declaration used for the response. Verification remains a separate trust signal: a recorded Lean build checks the supplied declaration, not the entire informal-paper correspondence. Follow-up questions retain the original selection and use bounded recent history; if a follow-up fails, the prior answer remains on screen and can be retried.
 
 ### One sample, one upload workspace
 
-The sample package connects an authored paper to a complete local Lean file with recorded verification evidence. The upload workspace extends the same reading flow to user-provided papers and optional Lean source while clearly labeling uploaded Lean as unverified.
+The sample package connects an authored paper to a complete local Lean file with recorded proof details. The upload workspace extends the same reading flow to user-provided papers and optional Lean source while clearly labeling uploaded Lean as unverified.
 
 The **Why the First n Odd Numbers Sum to n²** sample uses the same route, reader, schemas, mappings, and explanation flow. Its one-page paper was authored for this project under CC BY 4.0, and its complete local Lean file has a recorded passing Lean 4 build with zero `sorry` declarations. The upload workspace applies the same interaction to user-provided files without treating them as verified repository packages.
 
@@ -63,11 +56,11 @@ I built Interactive Proof for those learners. It provides the kind of source-awa
 
 ### What it does
 
-Interactive Proof is an AI-powered educational companion for mathematical papers and formal proofs. Learners can upload a paper PDF and, when appropriate, a Lean proof, then select a sentence, equation, or declaration for a focused explanation grounded in the supplied source.
+Interactive Proof is an AI-powered educational companion for mathematical papers and formal proofs. Learners can upload a paper PDF and, when appropriate, a Lean proof, then select a sentence, equation, or declaration for a focused explanation based on the supplied source.
 
 - PDF upload for mathematical papers.
 - Optional Lean upload for formal-verification workflows.
-- Grounded explanations connected directly to source material.
+- Plain-language explanations connected directly to source material.
 - Interactive proof exploration with paper-to-Lean navigation.
 - Context-aware follow-ups that preserve the learner's place.
 
@@ -85,7 +78,7 @@ The hardest design problem was balancing accessibility with mathematical rigor. 
 
 ### What I learned
 
-People rarely learn difficult subjects completely alone. What mattered in my own journey was not only learning Lean or reading research papers, but having mentors and communities that made it safe to ask a small question. Building Interactive Proof taught me that educational AI earns trust through grounded explanations, transparent interfaces, and visible connections to the original source—not through the model alone.
+People rarely learn difficult subjects completely alone. What mattered in my own journey was not only learning Lean or reading research papers, but having mentors and communities that made it safe to ask a small question. Building Interactive Proof taught me that educational AI earns trust through plain-language explanations, transparent interfaces, and visible connections to the original source—not through the model alone.
 
 ### What's next
 
@@ -99,7 +92,7 @@ I want to deepen support for proof assistants, strengthen connections between pa
 - A contextual selection menu for paper and code.
 - Server-side deterministic context construction and request validation.
 - GPT-5.6 through the OpenAI Responses API with server-sent streaming.
-- Source chips, evidence labels, bounded follow-ups, retry, and cancellation states.
+- Source links, proof details, bounded follow-ups, retry, and cancellation states.
 - Recorded Lean verification metadata and package validation.
 - Unit, integration, browser, keyboard, responsive, and reduced-motion coverage.
 
@@ -161,12 +154,12 @@ GPT-5.6 generates the explanatory prose; it does not generate source chips, veri
 1. Open <https://interactive-proof.jjjhenriksen.chatgpt.site/> in a signed-out browser window. No account should be required.
 2. Choose **Odd Numbers Build Squares** or open the upload workspace.
 3. In the paper view, select text in the theorem or a mapped passage and choose **More details**.
-4. Confirm that source chips appear and explanation text streams into the panel.
+4. Confirm that the plain-language explanation streams into the panel, then open **Sources and formal proof** to inspect its links.
 5. Open a paper or Lean source chip and confirm that it returns to the named source location.
 6. Switch to **Lean**, select an excerpt, and choose **Connect to Lean**.
 7. Ask a follow-up about the same selection; confirm that the selection context remains visible.
 8. Return to the proof library and open **Odd Numbers Build Squares**.
-9. Open **Verification evidence** and inspect the recorded toolchain, command, revision, build result, `sorry` count, and axiom audit.
+9. Open **Proof details** and inspect the recorded toolchain, command, revision, build result, `sorry` count, and axiom audit.
 
 For a user-provided paper, consent to the temporary workspace before opening files and keep the upload contents private unless the user owns the publication rights.
 

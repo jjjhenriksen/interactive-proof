@@ -4,10 +4,10 @@ import styles from "./explanation-panel.module.css"
 export type EvidenceKind = "paper" | "lean" | "explanation" | "prerequisite"
 
 const EVIDENCE_LABELS: Record<EvidenceKind, string> = {
-  paper: "Paper states",
-  lean: "Lean verifies",
-  explanation: "Generated explanation",
-  prerequisite: "Prerequisite",
+  paper: "From the paper",
+  lean: "From the formal proof",
+  explanation: "In plain English",
+  prerequisite: "Helpful background",
 }
 
 const EVIDENCE_MARKS: Record<EvidenceKind, string> = {

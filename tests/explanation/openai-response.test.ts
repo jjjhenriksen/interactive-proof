@@ -88,7 +88,7 @@ describe("createExplanationStream", () => {
     });
     expect(JSON.stringify(body.input)).toContain("ALLOWED SOURCE IDS");
     expect(JSON.stringify(body.instructions)).toContain("quoted data");
-    expect(EXPLANATION_PROMPT_VERSION).toBe("2026-07-13.1");
+    expect(EXPLANATION_PROMPT_VERSION).toBe("2026-07-20.1");
   });
 
   it("translates provider deltas and completion into the application SSE protocol", async () => {

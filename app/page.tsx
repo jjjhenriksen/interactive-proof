@@ -5,16 +5,16 @@ import { verificationStatus } from "../lib/verification/audit";
 
 const TRUST_LABELS = [
   {
-    label: "Paper states",
-    description: "The claim as written in the source paper.",
+    label: "From the paper",
+    description: "The idea and wording from the original paper.",
   },
   {
-    label: "Lean verifies",
-    description: "The corresponding machine-checked declaration.",
+    label: "From the formal proof",
+    description: "The matching Lean declaration, when one is available.",
   },
   {
-    label: "AI explains",
-    description: "A contextual interpretation, clearly identified as generated.",
+    label: "A helpful explanation",
+    description: "A plain-language guide that connects the two without replacing either one.",
   },
 ] as const;
 
@@ -32,7 +32,7 @@ export default async function HomePage() {
             <h1 id="hero-title">Stay with the proof when one step stops you.</h1>
             <p className="hero__lede">
               Highlight a sentence, equation, or Lean declaration to get a focused
-              explanation grounded in the paper and its formal proof.
+              explanation in plain language, with the formal proof close by when you need it.
             </p>
             <div className="hero__actions">
               <a className="button button--primary" href="#proof-library">
@@ -64,7 +64,7 @@ export default async function HomePage() {
                 <span>Connect to Lean</span>
               </div>
               <aside className="explanation-preview">
-                <p className="explanation-preview__label">AI explains</p>
+                <p className="explanation-preview__label">In plain English</p>
                 <p>
                   This changes the problem from finding cycles directly to solving a
                   structured linear equation. The next lemma establishes exactly when
@@ -84,8 +84,8 @@ export default async function HomePage() {
               <h2 id="proof-library-title">Choose the proof that meets you where you are.</h2>
             </div>
             <p>
-              Each package uses the same reader, evidence model, and source navigation.
-              Only the mathematics changes.
+              Each package uses the same reader and source navigation. Only the
+              mathematics changes.
             </p>
           </div>
           <div className="proof-grid">
@@ -95,7 +95,7 @@ export default async function HomePage() {
                 <article className="proof-card" key={proof.manifest.id}>
                   <div className="proof-card__meta">
                     <span>{proof.paperPages.pages.length === 1 ? "1 paper page" : `${proof.paperPages.pages.length} paper pages`}</span>
-                    <span>{status === "verified" ? "Lean verified" : `Lean ${status}`}</span>
+                    <span>{status === "verified" ? "Formal proof checked" : `Formal proof ${status}`}</span>
                   </div>
                   <h3>{proof.manifest.shortTitle}</h3>
                   <p>{proof.manifest.summary}</p>
@@ -112,8 +112,8 @@ export default async function HomePage() {
       <section className="method" id="how-it-works" aria-labelledby="method-title">
         <div className="page-shell method__grid">
           <div>
-            <p className="eyebrow">Grounded by design</p>
-            <h2 id="method-title">One answer, with its kinds of evidence kept distinct.</h2>
+            <p className="eyebrow">How it helps</p>
+            <h2 id="method-title">See the idea first. Follow it into the formal proof when you are ready.</h2>
           </div>
           <div className="trust-list">
             {TRUST_LABELS.map((item, index) => (

@@ -6,14 +6,14 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "Documentation",
   description:
-    "Set up Interactive Proof, understand its evidence model, and bring your own paper and optional Lean source.",
+    "Set up Interactive Proof, understand its source details, and bring your own paper and optional Lean source.",
 };
 
 const CONTENTS = [
   { href: "#first-read", label: "Start reading" },
   { href: "#your-material", label: "Use your material" },
   { href: "#api-key", label: "Enable AI explanations" },
-  { href: "#evidence", label: "Read the evidence" },
+  { href: "#evidence", label: "Understand source details" },
   { href: "#local-development", label: "Run locally" },
 ] as const;
 
@@ -23,7 +23,7 @@ export default function DocumentationPage() {
       <div className={`page-shell ${styles.shell}`}>
         <header className={styles.hero}>
           <p className="eyebrow">Documentation</p>
-          <h1>From paper to grounded explanation.</h1>
+          <h1>From paper to a clear explanation.</h1>
           <p className={styles.lede}>
             Interactive Proof is useful before an API key is configured. Begin with a
             recorded example, inspect the paper-to-Lean correspondence, or open a
@@ -65,14 +65,14 @@ export default function DocumentationPage() {
               <h2 id="first-read-title">Start with a proof already in the reading room.</h2>
               <p>
                 Choose a sample proof, switch between the paper and Lean views, and
-                inspect its proof map and verification evidence. Recorded examples show
+                inspect its proof map and proof details. Recorded examples show
                 the complete explanation interface without making a model request.
               </p>
               <ol className={styles.steps}>
                 <li>Select a sentence, equation, or Lean declaration.</li>
                 <li>Choose an action such as More details or Connect to Lean.</li>
-                <li>Follow source chips back to the exact paper or Lean location.</li>
-                <li>Check the verification disclosure before treating a formal claim as checked.</li>
+                <li>Open the source disclosure to return to the exact paper or Lean location.</li>
+                <li>Open the proof details when you want to confirm how the formal result was checked.</li>
               </ol>
             </section>
 
@@ -128,29 +128,28 @@ npm run dev`}</code>
 
             <section id="evidence" aria-labelledby="evidence-title">
               <p className={styles.sectionNumber}>04</p>
-              <h2 id="evidence-title">Know what each label promises.</h2>
+              <h2 id="evidence-title">Know what each source detail means.</h2>
               <dl className={styles.evidenceList}>
                 <div>
-                  <dt>Paper states</dt>
-                  <dd>The claim appears in the supplied paper source.</dd>
+                  <dt>From the paper</dt>
+                  <dd>This is the passage or claim selected from the paper.</dd>
                 </div>
                 <div>
-                  <dt>Lean verifies</dt>
-                  <dd>A recorded toolchain checked the named formal declaration.</dd>
+                  <dt>From the formal proof</dt>
+                  <dd>This points to the Lean declaration used for the formal check.</dd>
                 </div>
                 <div>
-                  <dt>Curated correspondence</dt>
-                  <dd>A human-authored mapping connects paper and Lean locations.</dd>
+                  <dt>Helpful background</dt>
+                  <dd>A short definition or reminder that makes this step easier to follow.</dd>
                 </div>
                 <div>
-                  <dt>AI explains</dt>
-                  <dd>Generated interpretation grounded in the bounded supplied context.</dd>
+                  <dt>In plain English</dt>
+                  <dd>A focused explanation of the selected passage, with notation added only as needed.</dd>
                 </div>
               </dl>
               <p>
-                A successful Lean build does not by itself prove that the formal theorem
-                perfectly translates the paper. Interactive Proof keeps those claims
-                separate so readers can inspect both.
+                The explanation starts with the idea. The source details stay available
+                when you want to check the exact paper passage or formal declaration.
               </p>
               <Link className={styles.textLink} href="/methodology">
                 Read the evaluation and security methodology <span aria-hidden="true">→</span>
@@ -175,7 +174,7 @@ npm run build`}</code>
               </pre>
               <p>
                 Node.js 24 is required. Chromium is needed only for browser tests, and
-                Lean is needed only when regenerating verification evidence for a full
+                Lean is needed only when regenerating the proof check for a full
                 local proof package.
               </p>
             </section>

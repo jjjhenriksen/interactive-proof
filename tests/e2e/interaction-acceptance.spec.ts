@@ -125,7 +125,7 @@ test.describe("grounded explanation acceptance", () => {
   }) => {
     const requests = await mockExplanations(page)
     await openLean(page)
-    await expect(page.getByText("Curated excerpt", { exact: true }).first()).toBeVisible()
+    await expect(page.getByText("Formal proof", { exact: true }).first()).toBeVisible()
 
     await selectLeanText(page)
     const toolbar = page.getByRole("toolbar", { name: "Explain selected passage" })
@@ -134,7 +134,9 @@ test.describe("grounded explanation acceptance", () => {
     const panel = page.getByRole("complementary", { name: "More about this passage" })
     await expect(panel).toBeVisible()
     await expect(panel.getByText("This Lean excerpt formalizes the selected mathematical claim.")).toBeVisible()
-    await expect(panel.getByText("Lean verifies")).toBeVisible()
+    await expect(panel.getByText("In plain English", { exact: true })).toBeVisible()
+    await panel.getByText("Sources and formal proof", { exact: true }).click()
+    await expect(panel.getByText("Formal proof check: passed.", { exact: true })).toBeVisible()
 
     await panel
       .getByRole("button", { name: "Open source: Theorem · Paper p. 1" })

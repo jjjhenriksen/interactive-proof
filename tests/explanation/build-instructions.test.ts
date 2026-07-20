@@ -26,5 +26,11 @@ describe("buildExplanationInstructions", () => {
     expect(buildExplanationInstructions("details", "foundational")).toContain(
       "make implicit intermediate steps explicit",
     );
+    expect(buildExplanationInstructions("details", "foundational")).toContain(
+      "plain-English sentence",
+    );
+    expect(buildExplanationInstructions("details", "foundational")).toContain(
+      "Formal connection",
+    );
   });
 });

@@ -103,7 +103,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
   const [selection, setSelection] = useState<SupportedSelection | null>(null);
   const [locationNotice, setLocationNotice] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
-  const [explanationDepth, setExplanationDepth] = useState<ExplanationDepth>("standard");
+  const [explanationDepth, setExplanationDepth] = useState<ExplanationDepth>("foundational");
   const [selectedInstructorIds, setSelectedInstructorIds] = useState<string[]>([]);
   const [explanationState, dispatch] = useReducer(
     explanationReducer,
@@ -347,14 +347,12 @@ export function ProofReader({ proof }: ProofReaderProps) {
           <p className={styles.summary}>{proof.summary}</p>
         </div>
         <div className={styles.packageMeta}>
-          <span>Audience: {proof.audience}</span>
-          <span>Lean build: {proof.verification.build}</span>
-          <span>Paper license: {proof.licenseStatus}</span>
+          <span>{proof.verification.build === "passed" ? "Formal proof checked" : "Formal proof not checked"}</span>
         </div>
       </header>
 
       <details className={styles.verificationEvidence}>
-        <summary>Verification evidence</summary>
+        <summary>Proof details</summary>
         <div className={styles.verificationEvidenceBody}>
           <dl>
             <div><dt>Build</dt><dd>{proof.verification.build}</dd></div>
@@ -429,7 +427,7 @@ export function ProofReader({ proof }: ProofReaderProps) {
 
       {proof.recordedExamples.length ? (
         <section className={styles.recordedExamples} aria-labelledby="recorded-examples-heading">
-          <div><p className={styles.sourceLabel}>No-key demonstration</p><h2 id="recorded-examples-heading">View a reviewed interaction</h2><p>These checked-in examples are visibly recorded and never replace a failed live request.</p></div>
+          <div><p className={styles.sourceLabel}>Try an example</p><h2 id="recorded-examples-heading">See the interaction</h2><p>Explore a recorded explanation before asking your own question.</p></div>
           <div>{proof.recordedExamples.map((example) => (
             <button key={example.id} type="button" onClick={() => dispatch({ type: "show-recorded", explanation: { selection: example.selection, request: example.request, context: example.context, text: example.answer, history: [], suggestions: example.suggestions, presentation: { kind: "recorded", model: example.model, recordedAt: example.recordedAt, reviewedBy: example.reviewedBy } } })}>{example.label}</button>
           ))}</div>
@@ -477,13 +475,13 @@ export function ProofReader({ proof }: ProofReaderProps) {
 
           {visibleInstructorEntries.length ? (
             <section className={styles.instructorGuidance} aria-labelledby="instructor-guidance-heading">
-              <div><p className={styles.sourceLabel}>Curated guidance</p><h2 id="instructor-guidance-heading">Notes from the proof curator</h2></div>
+              <div><p className={styles.sourceLabel}>Helpful note</p><h2 id="instructor-guidance-heading">A note about this step</h2></div>
               {visibleInstructorEntries.map((entry) => (
                 <details key={entry.id} open={entry.kind !== "hint"}>
                   <summary>{entry.kind}: {entry.title}</summary>
                   <p>{entry.body}</p>
                   <p className={styles.instructorAttribution}>By {entry.author} · {entry.license} · reviewed {formatDate(entry.reviewedAt)}</p>
-                  <label><input type="checkbox" checked={selectedInstructorIds.includes(entry.id)} onChange={(event) => setSelectedInstructorIds((current) => event.target.checked ? [...new Set([...current, entry.id])] : current.filter((id) => id !== entry.id))} /> Include in the next AI explanation</label>
+                  <label><input type="checkbox" checked={selectedInstructorIds.includes(entry.id)} onChange={(event) => setSelectedInstructorIds((current) => event.target.checked ? [...new Set([...current, entry.id])] : current.filter((id) => id !== entry.id))} /> Include this note in the next explanation</label>
                 </details>
               ))}
             </section>
@@ -505,12 +503,12 @@ export function ProofReader({ proof }: ProofReaderProps) {
                 <article
                   key={source.sourceId}
                   className={styles.leanExcerpt}
-                  aria-label={`Curated Lean excerpt: ${source.declaration}`}
+                  aria-label={`Formal proof excerpt: ${source.declaration}`}
                 >
                   <header>
                     <div className={styles.excerptIdentity}>
                       <strong>{source.declaration}</strong>
-                      <span className={styles.excerptBadge}>Curated excerpt</span>
+                      <span className={styles.excerptBadge}>Formal proof</span>
                     </div>
                     <div className={styles.excerptTools}>
                       <span>

@@ -1,6 +1,6 @@
 # Interactive Proof
 
-Interactive Proof is an educational reading companion for mathematical papers and their Lean formalizations. Select a sentence, equation, or Lean declaration and request a focused explanation without leaving the proof. The interface keeps four evidence types distinct: what the paper states, what Lean verifies, prerequisite background, and AI-generated explanation.
+Interactive Proof is an educational reading companion for mathematical papers and their Lean formalizations. Select a sentence, equation, or Lean declaration and request a focused explanation without leaving the proof. The answer starts in plain English, with source details and the formal proof available when you want to go deeper.
 
 This repository contains a tested release candidate. The public demo uses a cleared sample proof and an upload-first workspace for papers and optional Lean source.
 
@@ -8,12 +8,12 @@ This repository contains a tested release candidate. The public demo uses a clea
   <img src="docs/submission/media/interactive-proof-thumbnail.png" alt="Interactive Proof — Paper, Lean, Explanation" width="1200" />
 </p>
 
-Interactive Proof keeps the source in view while it explains: a reader can move from a paper passage to its mapped Lean declaration, inspect the verification evidence, and ask a focused question without losing their place.
+Interactive Proof keeps the source in view while it explains: a reader can move from a paper passage to its mapped Lean declaration, open the proof details, and ask a focused question without losing their place.
 
 ## See the reading experience
 
 <p align="center">
-  <img src="docs/submission/media/reading-room-desktop.png" alt="Interactive Proof reading room with proof library and evidence model" width="900" />
+  <img src="docs/submission/media/reading-room-desktop.png" alt="Interactive Proof reading room with proof library and source details" width="900" />
 </p>
 
 <p align="center">
@@ -42,7 +42,7 @@ The rehearsal is intentionally recorded without a live model request. Record the
 |---|---|---|---|---|
 | `odd-sum-square` | Authored one-page introduction to induction | Complete local Lean file | Passed on the recorded toolchain; open the in-reader evidence panel for details | Paper is CC BY 4.0 |
 
-The sample package demonstrates the generic reader, paper-to-Lean mappings, recorded verification evidence, and the same controls used by uploaded workspaces.
+The sample package demonstrates the generic reader, paper-to-Lean mappings, recorded proof details, and the same controls used by uploaded workspaces.
 
 ## Quick start
 
@@ -76,7 +76,7 @@ EXPLAIN_RATE_LIMIT_PER_HOUR=30
 PUBLIC_PROOF_IDS=odd-sum-square
 ```
 
-`OPENAI_API_KEY` remains server-side. With a valid key, selection actions call the streamed `/api/explain` route. Without a key, both sample papers, Lean sources, mappings, verification evidence, and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
+`OPENAI_API_KEY` remains server-side. With a valid key, selection actions call the streamed `/api/explain` route. Without a key, both sample papers, Lean sources, mappings, proof details, and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
 
 For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining values as production environment variables. Do not use a `NEXT_PUBLIC_` prefix. Environment changes take effect only after deploying a newly saved site version.
 
@@ -186,9 +186,9 @@ Then:
 
 Do not label display excerpts as full source. Do not copy a paper, repository, diagram, or substantial excerpt into a public package until its license and attribution are documented.
 
-## Verification evidence
+## Proof details
 
-Every proof reader has a **Verification evidence** disclosure containing:
+Every proof reader has a **Proof details** disclosure containing:
 
 - build result and exact command exit code;
 - source revision and Lean toolchain;
@@ -226,7 +226,7 @@ A deployment must provide:
 - an appropriate request-rate limit;
 - a public URL entered in the submission checklist.
 
-After deployment, test the sample package and upload workspace in a private browser session, one paper selection, one Lean selection, a follow-up, mobile layout, keyboard navigation, verification evidence, and the no-key/error path.
+After deployment, test the sample package and upload workspace in a private browser session, one paper selection, one Lean selection, a follow-up, mobile layout, keyboard navigation, proof details, and the no-key/error path.
 
 ## Troubleshooting
 

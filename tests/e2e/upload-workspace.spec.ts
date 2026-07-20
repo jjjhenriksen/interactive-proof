@@ -38,7 +38,8 @@ test("opens a temporary paper and optional Lean workspace", async ({ page }) => 
   await page.getByRole("button", { name: "Explain selection" }).click();
 
   await expect(page.getByText("This theorem introduces the claim.")).toBeVisible();
-  await expect(page.getByText("Uploaded Lean · unverified")).toBeVisible();
+  await page.getByText("Sources used for this explanation", { exact: true }).click();
+  await expect(page.getByText("Uploaded Lean · not verified")).toBeVisible();
   expect(requestBody?.rightsConfirmed).toBe(true);
   expect(requestBody).not.toHaveProperty("proofId");
   expect(JSON.stringify(requestBody)).not.toContain("application/pdf");

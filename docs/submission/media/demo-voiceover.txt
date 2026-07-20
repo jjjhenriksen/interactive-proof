@@ -1,0 +1,13 @@
+Interactive Proof turns a dense mathematical paper into a guided learning space.
+
+We start with a theorem: the first n odd numbers sum to n squared. The paper and its Lean formalization stay side by side.
+
+I can select any passage and open More details. This explanation is generated live by GPT-5.6 through the Responses API. The app supplies the selected paper block, its mapped Lean declaration, glossary, prerequisites, and recent context. The model writes the explanation; the app owns citations and trust labels.
+
+Notice the rendered Markdown and equations. If I want to check the answer, Sources and formal proof leads back to the exact paper passage and Lean code. The Lean package is separately build-verified, with the revision and toolchain recorded in the expandable proof details.
+
+I can change the explanation depth or ask a follow-up without losing the original passage. Uploaded papers and Lean files are temporary and clearly marked unverified; the repository-backed sample is the only verified package.
+
+Codex was the engineering collaborator. It helped turn the hackathon requirements into the product plan, architecture, tests, accessibility pass, deployment, and release review. GPT-5.6 is the runtime explanation engine.
+
+Interactive Proof makes the step that stopped your reading teachable, without pretending that an AI explanation is a formal proof.

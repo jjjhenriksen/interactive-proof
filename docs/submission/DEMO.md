@@ -22,13 +22,13 @@ The key-free rehearsal and static captures are in [`docs/submission/media/`](med
 
 “I choose More details. The source context appears first, then GPT-5.6 streams an explanation focused on this selection. The model receives a bounded bundle assembled by the server from this proof package; it does not browse the repository or choose its own evidence.”
 
-**0:58–1:16 — Source and trust chips**
+**0:58–1:16 — Source details**
 
-“These chips are application data, not model prose. They separate what the paper states, the mapped Lean source, prerequisite background, and generated explanation. Following a chip takes me back to the exact source.”
+“The answer starts in plain English. When I want to check it, I can open Sources and formal proof to return to the exact paper passage and Lean declaration used for this explanation.”
 
 **1:16–1:40 — Lean selection**
 
-“I can make the same move from the Lean side. The sample declaration is a complete local file with recorded verification evidence. For an uploaded file, the same UI remains explicit that the source is temporary and unverified.”
+“I can make the same move from the Lean side. The sample declaration is a complete local file with recorded proof details. For an uploaded file, the same UI remains explicit that the source is temporary and unverified.”
 
 **1:40–1:56 — Follow-up**
 
@@ -38,7 +38,7 @@ The key-free rehearsal and static captures are in [`docs/submission/media/`](med
 
 “The reader is package-driven rather than hardcoded for one result. I can also open the upload workspace, add a paper and optional Lean source, and inspect them temporarily without adding the files to the repository.”
 
-**2:18–2:36 — Verification evidence**
+**2:18–2:36 — Proof details**
 
 “Its complete Lean file has a recorded passing build with zero sorry declarations. The evidence panel shows the toolchain, command, source revision, output digest, and declared axioms. A passing build verifies that formal declaration; it does not prove that our explanatory mapping is perfect.”
 
@@ -69,7 +69,7 @@ The key-free rehearsal and static captures are in [`docs/submission/media/`](med
 - [ ] At least one source chip is followed to its destination.
 - [ ] A Lean selection and one follow-up are shown.
 - [ ] The upload workspace is shown with its temporary and unverified boundary.
-- [ ] Verification evidence is legible and belongs to odd-sum-square.
+- [ ] Proof details are legible and belong to odd-sum-square.
 - [ ] No invented score, learner metric, award, private URL, API key, or session ID appears.
 - [ ] Captions have been reviewed for mathematical notation and the name “Lean.”
 - [ ] The final YouTube video is public and works while signed out: `[YOUTUBE_URL]`.

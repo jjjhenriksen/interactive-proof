@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "promptVersion": "2026-07-13.1",
+  "promptVersion": "2026-07-20.1",
   "cases": [
     {
       "id": "paper-unfamiliar-recursive-definition",

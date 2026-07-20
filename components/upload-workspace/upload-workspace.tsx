@@ -10,6 +10,7 @@ import { streamUploadedExplanation } from "../../lib/uploads/client-transport";
 import type { UploadedLeanFile } from "../../lib/uploads/lean-files";
 import { readPaperUpload, type UploadedPaper } from "../../lib/uploads/paper-file";
 import type { UploadedExplainRequest } from "../../lib/uploads/schema";
+import { MarkdownContent } from "../explanation-panel/markdown-content";
 import styles from "./upload-workspace.module.css";
 
 const PdfPaperReader = dynamic(
@@ -43,7 +44,7 @@ export function UploadWorkspace() {
   const [setupStatus, setSetupStatus] = useState<"idle" | "loading" | "error">("idle");
   const [setupError, setSetupError] = useState("");
   const [mode, setMode] = useState<ExplanationMode>("details");
-  const [depth, setDepth] = useState<ExplanationDepth>("standard");
+  const [depth, setDepth] = useState<ExplanationDepth>("foundational");
   const [question, setQuestion] = useState("");
   const [explanationStatus, setExplanationStatus] = useState<ExplanationStatus>("idle");
   const [explanation, setExplanation] = useState("");
@@ -260,20 +261,20 @@ export function UploadWorkspace() {
         </section>
 
         <aside className={styles.sidePanel} aria-label="AI explanation">
-          <p className="eyebrow">AI explains</p>
+          <p className="eyebrow">Explanation</p>
           {leanFiles.length ? (
             <div className={styles.mapping}>
-              <p><strong>Provisional correspondence</strong></p>
+              <p><strong>Connect an optional Lean source</strong></p>
               <label>Lean file <select value={mappedLeanPath} onChange={(event) => setMappedLeanPath(event.target.value)}>{leanFiles.map((file) => <option key={file.path}>{file.path}</option>)}</select></label>
-              <label>Mapping note <input value={mappingNote} maxLength={500} onChange={(event) => setMappingNote(event.target.value)} placeholder="Why these sources correspond" /></label>
+              <label>Optional note <input value={mappingNote} maxLength={500} onChange={(event) => setMappingNote(event.target.value)} placeholder="How these sources connect" /></label>
             </div>
           ) : null}
           {selection ? (
             <>
               <blockquote className={styles.selectionQuote}>{selection.selectedText}</blockquote>
               <div className={styles.controls}>
-                <label>Action <select value={mode} onChange={(event) => setMode(event.target.value as ExplanationMode)}><option value="details">More details</option><option value="simpler">Explain more simply</option><option value="lean">Connect the sources</option><option value="usage">Where is this used?</option><option value="question">Ask a question</option></select></label>
-                <label>Depth <select value={depth} onChange={(event) => setDepth(event.target.value as ExplanationDepth)}><option value="concise">Concise</option><option value="standard">Standard</option><option value="foundational">Foundational</option></select></label>
+                <label>What do you want help with? <select value={mode} onChange={(event) => setMode(event.target.value as ExplanationMode)}><option value="details">Explain this step</option><option value="simpler">Make it simpler</option><option value="lean">Connect the sources</option><option value="usage">Where is this used?</option><option value="question">Ask a question</option></select></label>
+                <label>How much background? <select value={depth} onChange={(event) => setDepth(event.target.value as ExplanationDepth)}><option value="concise">Quick</option><option value="standard">Step by step</option><option value="foundational">Start from basics</option></select></label>
               </div>
               {mode === "question" ? <label className={styles.question}>Question <textarea value={question} maxLength={800} onChange={(event) => setQuestion(event.target.value)} /></label> : null}
               <div className={styles.explainActions}>
@@ -284,8 +285,8 @@ export function UploadWorkspace() {
           ) : <p className={styles.empty}>Select a passage in the paper or Lean source to begin.</p>}
 
           {explanationStatus === "connecting" ? <p className={styles.status} role="status">Gathering the selected context…</p> : null}
-          {publicContext ? <div className={styles.evidence}>{publicContext.sources.map((source) => <span key={source.id}>{source.type === "lean" ? "Uploaded Lean · unverified" : "Uploaded paper"}</span>)}</div> : null}
-          {explanation ? <div className={styles.answer} aria-live="polite">{explanation}</div> : null}
+          {publicContext ? <details className={styles.sourceDetails}><summary>Sources used for this explanation</summary><div className={styles.evidence}>{publicContext.sources.map((source) => <span key={source.id}>{source.type === "lean" ? "Uploaded Lean · not verified" : "Uploaded paper"}</span>)}</div></details> : null}
+          {explanation ? <div className={styles.answer} aria-live="polite"><MarkdownContent>{explanation}</MarkdownContent></div> : null}
           {explanationStatus === "error" ? <p className={styles.error} role="alert">{explanationError}</p> : null}
         </aside>
       </div>

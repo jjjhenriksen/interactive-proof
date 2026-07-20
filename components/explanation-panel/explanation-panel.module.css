@@ -77,6 +77,16 @@
   font-weight: 700;
 }
 
+.depthControl::after {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  color: var(--muted-foreground);
+  content: "Start with the idea, then add the formal connection when you need it.";
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .depthControl button,
 .suggestions button {
   min-height: 2.75rem;
@@ -166,6 +176,27 @@
 .evidenceSection {
   display: grid;
   gap: 0.75rem;
+}
+
+.sourceDetails {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.sourceDetails summary {
+  cursor: pointer;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.sourceDescription {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 .chipList,
