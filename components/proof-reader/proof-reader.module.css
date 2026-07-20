@@ -1,0 +1,408 @@
+.reader {
+  overflow: hidden;
+  border: 0.0625rem solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.header {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-bottom: 0.0625rem solid var(--border);
+}
+
+.eyebrow,
+.sourceLabel {
+  margin: 0;
+  color: var(--primary);
+  font-size: 0.8125rem;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  margin-top: 0.625rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.summary {
+  max-width: 65ch;
+  margin: 1rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+
+.packageMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.verificationEvidence {
+  border-bottom: 0.0625rem solid var(--border);
+  background: var(--background);
+}
+
+.verificationEvidence summary {
+  width: fit-content;
+  min-height: 2.75rem;
+  padding: 0.75rem clamp(1.25rem, 4vw, 2.5rem);
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.verificationEvidenceBody {
+  display: grid;
+  gap: 1.5rem;
+  padding: 0.5rem clamp(1.25rem, 4vw, 2.5rem) 1.5rem;
+}
+
+.verificationEvidence dl {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.verificationEvidence dl > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.verificationEvidence dt {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.verificationEvidence dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+}
+
+.verificationEvidence h2 {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  letter-spacing: 0;
+}
+
+.verificationEvidence ul,
+.verificationEvidence p {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.verificationEvidence code {
+  font-size: 0.8125rem;
+}
+
+.sourceSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 0.0625rem solid var(--border);
+  background: var(--surface-subtle);
+}
+
+.sourceSwitch button,
+.sourceSwitch a,
+.navigator button {
+  min-height: 2.75rem;
+  border: 0.0625rem solid transparent;
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sourceSwitch button,
+.sourceSwitch a {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 0.875rem;
+}
+
+.sourceSwitch button[aria-pressed="true"],
+.navigator button[aria-pressed="true"] {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.sourceSwitch a {
+  color: var(--primary);
+}
+
+.sourceSwitch a:first-of-type {
+  margin-left: auto;
+}
+
+.sourceSwitch button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.readerStatus {
+  min-height: 0;
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  font-size: 0.875rem;
+}
+
+.readerStatus:not(:empty) {
+  padding-block: 0.75rem;
+  border-bottom: 0.0625rem solid var(--border);
+}
+
+.recordedExamples { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem clamp(1.25rem, 4vw, 2.5rem); border-bottom: 0.0625rem solid var(--border); background: var(--background); }
+.recordedExamples h2 { margin-top: 0.25rem; font-family: var(--font-sans); font-size: 1.125rem; letter-spacing: 0; }
+.recordedExamples p { margin: 0.25rem 0 0; color: var(--muted-foreground); font-size: 0.875rem; }
+.recordedExamples > div:last-child { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.recordedExamples button { min-height: 2.75rem; padding: 0.5rem 0.75rem; border: 0.0625rem solid var(--border); border-radius: calc(var(--radius) - 0.25rem); background: var(--surface); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+
+.workspace {
+  display: grid;
+  min-height: 42rem;
+}
+
+.navigator {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.75rem;
+  border-bottom: 0.0625rem solid var(--border);
+  background: var(--background);
+}
+
+.navigator button {
+  flex: 0 0 auto;
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+}
+
+.sourcePane {
+  min-width: 0;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.selectionHint {
+  margin: 0.5rem 0 2rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+.instructorGuidance { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; padding: 1rem; border-left: 0.1875rem solid var(--primary); background: var(--surface-subtle); }
+.instructorGuidance h2 { margin-top: 0.25rem; font-family: var(--font-sans); font-size: 1.125rem; letter-spacing: 0; }
+.instructorGuidance details { padding-block: 0.5rem; border-top: 0.0625rem solid var(--border); }
+.instructorGuidance summary { min-height: 2.75rem; cursor: pointer; font-weight: 700; text-transform: capitalize; }
+.instructorGuidance p { max-width: 68ch; line-height: 1.6; }
+.instructorGuidance label { display: flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; font-size: 0.875rem; font-weight: 650; }
+.instructorGuidance input { width: 1.125rem; height: 1.125rem; }
+.instructorAttribution { color: var(--muted-foreground); font-size: 0.8125rem; }
+
+.paperText,
+.paperRendererLoading {
+  max-width: 70ch;
+  margin-inline: auto;
+}
+
+.paperRendererLoading {
+  display: grid;
+  place-items: center;
+  width: min(100%, 56rem);
+  aspect-ratio: 612 / 792;
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  font-size: 0.875rem;
+}
+
+.paperText {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.paperBlock {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+}
+
+.paperBlock + .paperBlock {
+  margin-top: 0.5rem;
+}
+
+.paperBlock:hover,
+.paperBlock:focus-visible {
+  background: var(--surface-subtle);
+}
+
+.paperHeading {
+  color: var(--primary);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.paperEquation {
+  background: var(--background);
+  font-size: 1.125rem;
+  text-align: center;
+}
+
+.paperMetadata {
+  color: var(--muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.leanStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.leanExcerpt {
+  overflow: hidden;
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  background: var(--background);
+}
+
+.leanExcerpt header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 0.0625rem solid var(--border);
+  font-size: 0.8125rem;
+}
+
+.excerptIdentity,
+.excerptTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.excerptTools {
+  justify-content: flex-end;
+}
+
+.leanExcerpt header span {
+  color: var(--muted-foreground);
+}
+
+.excerptBadge {
+  padding: 0.2rem 0.45rem;
+  border: 0.0625rem solid var(--border);
+  border-radius: 999rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.excerptTools button {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--primary);
+  background: transparent;
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.excerptTools button:hover {
+  background: var(--surface-subtle);
+}
+
+.excerptTools button:active {
+  transform: scale(0.98);
+}
+
+.leanExcerpt pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+.correspondence {
+  padding: 1rem;
+  border-left: 0.1875rem solid var(--primary);
+  background: var(--surface-subtle);
+}
+
+.correspondence strong {
+  text-transform: capitalize;
+}
+
+.correspondence p {
+  margin: 0.5rem 0 0;
+  color: var(--muted-foreground);
+}
+
+.correspondence button { min-height: 2.75rem; margin-top: 0.75rem; padding: 0.5rem 0.75rem; border: 0.0625rem solid var(--border); border-radius: calc(var(--radius) - 0.25rem); background: var(--surface); color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+
+@media (min-width: 64rem) {
+  .header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .verificationEvidenceBody {
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 0.5fr);
+  }
+
+  .verificationEvidence dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace {
+    grid-template-columns: 14rem minmax(0, 1fr);
+  }
+
+  .workspaceWithPanel {
+    grid-template-columns: 14rem minmax(0, 1fr) minmax(20rem, 25rem);
+  }
+
+  .navigator {
+    flex-direction: column;
+    border-right: 0.0625rem solid var(--border);
+    border-bottom: 0;
+  }
+
+  .navigator button {
+    width: 100%;
+  }
+}

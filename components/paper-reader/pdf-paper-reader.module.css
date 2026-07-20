@@ -1,0 +1,221 @@
+.reader {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.page {
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  aspect-ratio: var(--paper-aspect-ratio, 612 / 792);
+  overflow: hidden;
+  background: var(--surface);
+  border: 0.0625rem solid var(--border);
+  border-radius: calc(var(--radius) - 0.25rem);
+  box-shadow: 0 0.75rem 2rem color-mix(in oklch, var(--foreground), transparent 90%);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  transition: opacity 160ms ease-out;
+}
+
+.page[data-state="loading-document"] .canvas,
+.page[data-state="rendering"] .canvas,
+.page[data-state="error"] .canvas {
+  opacity: 0;
+}
+
+.textLayer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: clip;
+  color-scheme: only light;
+  line-height: 1;
+  letter-spacing: normal;
+  word-spacing: normal;
+  text-align: initial;
+  text-size-adjust: none;
+  transform-origin: 0 0;
+  caret-color: CanvasText;
+  forced-color-adjust: none;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+
+.textLayer :is(span, br) {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  user-select: text;
+  transform-origin: 0% 0%;
+}
+
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+.textLayer .markedContent {
+  display: contents;
+}
+
+.textLayer ::selection {
+  color: transparent;
+  background: color-mix(in oklch, var(--highlight), transparent 20%);
+}
+
+.textLayer:focus-visible {
+  outline: 0.1875rem solid var(--ring);
+  outline-offset: -0.25rem;
+}
+
+.loading,
+.error {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: var(--muted-foreground);
+  background: var(--surface);
+  text-align: center;
+}
+
+.loadingLine {
+  width: min(70%, 24rem);
+  height: 0.5rem;
+  overflow: hidden;
+  background: var(--surface-subtle);
+  border-radius: 999rem;
+}
+
+.loadingLine::after {
+  display: block;
+  width: 40%;
+  height: 100%;
+  content: "";
+  background: var(--primary);
+  border-radius: inherit;
+  animation: loading-progress 1.2s ease-in-out infinite alternate;
+}
+
+.error strong {
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.error p {
+  max-width: 34ch;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.error button {
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 0;
+  border-radius: calc(var(--radius) - 0.25rem);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error button:hover {
+  background: var(--primary-strong);
+}
+
+.error button:active {
+  transform: scale(0.98);
+}
+
+.help {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.selectionError {
+  margin: 0;
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.mobileHelp {
+  display: none;
+}
+
+@keyframes loading-progress {
+  from {
+    transform: translateX(-80%);
+  }
+  to {
+    transform: translateX(230%);
+  }
+}
+
+@media (max-width: 40rem) {
+  .host {
+    padding-bottom: 0.5rem;
+  }
+
+  .host:focus-visible {
+    outline: 0.1875rem solid var(--ring);
+    outline-offset: 0.1875rem;
+  }
+
+  .page {
+    margin-inline: 0;
+  }
+
+  .desktopHelp {
+    display: none;
+  }
+
+  .mobileHelp {
+    display: inline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas {
+    transition-duration: 0.01ms;
+  }
+
+  .loadingLine::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}

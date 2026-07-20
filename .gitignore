@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# Next.js build output
+/.next/
+/out/
+/dist/
+/.wrangler/
+
+# test output
+/coverage/
+/playwright-report/
+/test-results/
+/.playwright-cli/
+/output/playwright/
+/output/evals/
+
+# local environment files
+.env*
+!.env.example
+
+# operating system and editor files
+.DS_Store
+*.swp
+
+# TypeScript incremental cache
+*.tsbuildinfo
+next-env.d.ts

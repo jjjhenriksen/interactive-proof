@@ -1,0 +1,124 @@
+.menu {
+  position: fixed;
+  z-index: 50;
+  top: min(calc(var(--selection-bottom-y) + 0.5rem), calc(100dvh - 4rem));
+  left: clamp(1rem, var(--selection-center-x), calc(100vw - 1rem));
+  display: flex;
+  max-width: calc(100vw - 2rem);
+  padding: 0.25rem;
+  color: var(--popover-foreground, var(--foreground));
+  background: var(--popover, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 0.5rem);
+  box-shadow: var(--shadow-lg, 0 0.75rem 2rem color-mix(in srgb, var(--foreground) 14%, transparent));
+  transform: translateX(-50%);
+}
+
+.actions {
+  display: flex;
+  align-items: stretch;
+}
+
+.action,
+.dismiss {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  background: transparent;
+  border: 0;
+  border-radius: calc(var(--radius, 0.5rem) - 0.125rem);
+  cursor: pointer;
+  transition: background-color 160ms ease-out, transform 160ms ease-out;
+}
+
+.action:hover,
+.dismiss:hover {
+  background: var(--accent, var(--surface-subtle));
+}
+
+.action:active,
+.dismiss:active {
+  transform: scale(0.98);
+}
+
+.action:focus-visible,
+.dismiss:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.action:disabled,
+.dismiss:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.shortLabel,
+.mobileHeading,
+.dismiss {
+  display: none;
+}
+
+@media (max-width: 47.99rem) {
+  .menu {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    max-width: none;
+    padding: 1rem;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: var(--radius, 0.5rem) var(--radius, 0.5rem) 0 0;
+    transform: none;
+  }
+
+  .mobileHeading {
+    display: block;
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .action,
+  .dismiss {
+    min-height: 2.75rem;
+    background: var(--secondary, var(--surface-subtle));
+  }
+
+  .longLabel {
+    display: none;
+  }
+
+  .shortLabel,
+  .dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dismiss {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .dismiss {
+    transition-duration: 0.01ms;
+  }
+}

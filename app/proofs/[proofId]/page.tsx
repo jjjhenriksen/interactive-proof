@@ -1,0 +1,109 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import {
+  ProofReader,
+  type ProofReaderViewModel,
+} from "../../../components/proof-reader/proof-reader";
+import { listProofIds, loadProofPackage } from "../../../lib/proof-packages/registry.server";
+interface ProofPageProps {
+  params: Promise<{ proofId: string }>;
+}
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return listProofIds().map((proofId) => ({ proofId }));
+}
+
+export async function generateMetadata({ params }: ProofPageProps): Promise<Metadata> {
+  const { proofId } = await params;
+  const proof = await loadProofPackage(proofId);
+
+  return {
+    title: proof?.manifest.shortTitle ?? "Proof not found",
+    description: proof?.manifest.summary,
+  };
+}
+
+export default async function ProofPage({ params }: ProofPageProps) {
+  const { proofId } = await params;
+  const loaded = await loadProofPackage(proofId);
+  if (!loaded) notFound();
+
+  const mappings = loaded.manifest.mappings.map((mapping) => ({
+      id: mapping.id,
+      label: mapping.label,
+      paper: mapping.paper,
+      prerequisites: mapping.prerequisites,
+      dependencies: mapping.dependencies,
+      usedBy: mapping.usedBy,
+      correspondence: mapping.correspondence,
+      correspondenceNote: mapping.correspondenceNote,
+      lean: mapping.lean.map((source) => ({
+        ...source,
+        code: loaded.leanExcerpts[source.sourceId],
+      })),
+    }));
+
+  const proof: ProofReaderViewModel = {
+    id: loaded.manifest.id,
+    title: loaded.manifest.title,
+    summary: loaded.manifest.summary,
+    audience: loaded.manifest.audience,
+    paperTitle: loaded.manifest.paper.title,
+    paperHref: loaded.paperAssetUrl,
+    licenseStatus: loaded.manifest.paper.license.status,
+    leanRevision: loaded.manifest.lean.revision,
+    verification: {
+      build: loaded.verification.build,
+      revision: loaded.verification.revision,
+      toolchain: loaded.verification.toolchain,
+      command: loaded.verification.command,
+      checkedAt: loaded.verification.checkedAt,
+      exitCode: loaded.verification.exitCode,
+      sorryCount: loaded.verification.sorryCount,
+      axioms: loaded.verification.axioms,
+      outputDigest: loaded.verification.outputDigest,
+    },
+    pages: loaded.paperPages.pages,
+    mappings,
+    instructorEntries: loaded.instructorEntries,
+    recordedExamples: loaded.recordedExplanations.map((fixture) => {
+      const sources: ProofReaderViewModel["recordedExamples"][number]["context"]["sources"] = [];
+      for (const sourceId of fixture.sourceIds) {
+        const paperPage = loaded.paperPages.pages.find((page) => page.blocks.some((block) => block.id === sourceId));
+        if (paperPage) {
+          sources.push({ id: sourceId, type: "paper", label: `Paper page ${paperPage.number}`, page: paperPage.number });
+          continue;
+        }
+        const lean = loaded.manifest.mappings.flatMap((mapping) => mapping.lean).find((source) => source.sourceId === sourceId);
+        if (lean) sources.push({ id: sourceId, type: "lean", label: lean.declaration, file: lean.file, declaration: lean.declaration, revision: loaded.manifest.lean.revision });
+      }
+      const selection = { proofId: fixture.proofId, source: fixture.selection.source, selectedText: fixture.selection.selectedText, location: fixture.selection.location, clientRect: { top: 0, left: 0, right: 0, bottom: 0 } } as ProofReaderViewModel["recordedExamples"][number]["selection"];
+      return {
+        id: fixture.id,
+        label: fixture.selection.source === "paper" ? "View paper example" : "View Lean example",
+        answer: fixture.answer, model: fixture.model, recordedAt: fixture.recordedAt, reviewedBy: fixture.reviewedBy,
+        selection,
+        request: { selection, mode: fixture.selection.mode, depth: fixture.selection.depth, history: [] },
+        context: { sources, verification: { build: loaded.verification.build, revision: loaded.verification.revision, checkedAt: loaded.verification.checkedAt, sorryCount: loaded.verification.sorryCount }, hasPrerequisiteContext: true },
+        suggestions: fixture.suggestions,
+      };
+    }),
+  };
+
+  return (
+    <main className="proof-page" id="main-content">
+      <div className="page-shell">
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link href="/">Proofs</Link>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{loaded.manifest.shortTitle}</span>
+        </nav>
+        <ProofReader proof={proof} />
+      </div>
+    </main>
+  );
+}

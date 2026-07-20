@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "schemaVersion": 1,
+      "id": "odd-sum-paper-theorem",
+      "proofId": "odd-sum-square",
+      "requestFingerprint": "ecf7b485",
+      "promptVersion": "2026-07-13.1",
+      "model": "gpt-5.6",
+      "recordedAt": "2026-07-14T00:00:00.000Z",
+      "reviewedBy": "Interactive Proof Project",
+      "selection": {
+        "source": "paper",
+        "selectedText": "For every natural number n, the sum of the first n odd numbers is n2: 1 + 3 + 5 + ... + (2n - 1) = n2.",
+        "location": { "source": "paper", "page": 1, "blockIds": ["page-1-block-4"] },
+        "mode": "details",
+        "depth": "standard"
+      },
+      "sourceIds": ["page-1-block-4", "lean-odd-sum-theorem"],
+      "answer": "The statement says that the running total of the first n odd numbers is exactly the area of an n by n square. The induction proof works because moving from n to n + 1 adds the next odd number, 2n + 1, which is also the amount by which the square grows.\n\nLean verifies the recursive sum and the equality oddSum n = n * n at the recorded revision. That machine check supports the formal identity; the paper-to-Lean correspondence remains a curated mapping.",
+      "suggestions": [
+        { "id": "paper-successor", "label": "See the successor step", "question": "How does adding 2n + 1 produce the next square?", "sourceIds": ["page-1-block-4", "lean-odd-sum-theorem"] },
+        { "id": "paper-base", "label": "Check the base case", "question": "Why does the proof begin at n = 0?", "sourceIds": ["page-1-block-4"] }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "id": "odd-sum-lean-theorem",
+      "proofId": "odd-sum-square",
+      "requestFingerprint": "47b94ca6",
+      "promptVersion": "2026-07-13.1",
+      "model": "gpt-5.6",
+      "recordedAt": "2026-07-14T00:00:00.000Z",
+      "reviewedBy": "Interactive Proof Project",
+      "selection": {
+        "source": "lean",
+        "selectedText": "theorem oddSum_eq_square : forall n : Nat, oddSum n = n * n\n  | 0 => rfl\n  | n + 1 => by\n      rw [oddSum, oddSum_eq_square]\n      simp [Nat.mul_add, Nat.mul_two, Nat.add_assoc, Nat.mul_comm]",
+        "location": { "source": "lean", "file": "lean/Main.lean", "declaration": "oddSum_eq_square", "startLine": 8, "endLine": 13 },
+        "mode": "lean",
+        "depth": "standard"
+      },
+      "sourceIds": ["lean-odd-sum-theorem", "page-1-block-4"],
+      "answer": "Lean splits the theorem into the two constructors of natural numbers. At zero, rfl closes the goal because both sides reduce to zero. In the successor case, rw unfolds one step of oddSum and applies the induction hypothesis; simp then proves the remaining arithmetic identity n² + 2n + 1 = (n + 1)².\n\nThe recorded verification reports a successful build with no sorry declarations for this source revision.",
+      "suggestions": [
+        { "id": "lean-rw", "label": "Read the rewrite", "question": "What changes after the rw line?", "sourceIds": ["lean-odd-sum-theorem"] },
+        { "id": "lean-simp", "label": "Unpack simp", "question": "Which arithmetic fact does simp finish?", "sourceIds": ["lean-odd-sum-theorem", "page-1-block-4"] }
+      ]
+    }
+  ]
+}
