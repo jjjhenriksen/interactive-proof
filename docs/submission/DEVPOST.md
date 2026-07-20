@@ -1,6 +1,6 @@
 # Devpost submission copy
 
-This file is the paste-ready submission package for Interactive Proof. Replace only the bracketed launch placeholders. Do not convert a pending check into a claim until the signed-out launch checklist passes.
+This file is the paste-ready submission package for Interactive Proof. Replace only the bracketed submission placeholders, and keep live claims tied to the signed-out upload journey and tested release.
 
 ## Project title
 
@@ -140,7 +140,7 @@ and an available quota.
 
 ## How Codex was used
 
-Codex served as the repository collaborator across the build. Work began by turning the hackathon requirements into a PRD, technical specification, and one-week delivery plan. Codex then helped implement and review the generic proof-package architecture, streamed explanation route, deterministic context boundary, PDF.js reader, temporary upload workspace, browser tests, responsive behavior, accessibility acceptance, verification tooling, and release documentation.
+Codex served as the repository collaborator across the build. Work began by turning the hackathon requirements into a PRD and one-week delivery plan. Codex then helped implement and review the generic proof-package architecture, streamed explanation route, deterministic context boundary, PDF.js reader, temporary upload workspace, browser tests, responsive behavior, accessibility acceptance, verification tooling, and release documentation.
 
 The workflow was concrete: give Codex the goal, relevant repository paths, constraints, and an observable definition of done; inspect the resulting diff; run package validation, unit tests, type checking, lint, production builds, and browser flows; then correct failures before accepting the change. Separate branches kept implementation tracks reviewable.
 

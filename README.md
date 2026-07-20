@@ -81,7 +81,7 @@ For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining val
 app/
   api/explain/                 validated, rate-limited Responses API stream
   api/explain-upload/          bounded stream for reader-provided context
-  proofs/[proofId]/            generic proof reader and PDF route
+  proofs/[proofId]/            internal fixture reader and PDF route
   upload/                      temporary PDF and optional Lean workspace
 components/
   paper-reader/                PDF.js canvas and selectable text layer
@@ -93,11 +93,11 @@ lib/
   explanation/                 canonical context construction and model transport
   uploads/                     client parsers and temporary context boundary
   verification/                verification schema and status policy
-proofs/<id>/                   repository-owned proof packages
+proofs/<id>/                   repository-owned internal proof fixtures
 scripts/                       extraction, registry, validation, and Lean verification
 ```
 
-The browser sends a proof ID and bounded selection location. The server reconstructs authoritative context from the registered package, rejects unknown pages/files/declarations, and supplies only validated source IDs to the model. Model prose never creates source chips or verification badges.
+The browser sends bounded parsed upload context and a selection location to the upload route. The server enforces size and source limits and supplies only application-defined source metadata to the model. The separate curated-package route is for internal fixtures and verification; model prose never creates source chips or verification badges.
 
 ## Commands
 
@@ -204,11 +204,11 @@ Codex was used as a repository collaborator for planning, implementation, test g
 
 The application uses the OpenAI Responses API through the official JavaScript SDK, with `gpt-5.6` as the hackathon configuration default. The server supplies bounded, deterministic paper/Lean context, streams response text, disables model tools for the MVP, and keeps source/verification UI under application control. Human review is still responsible for mathematical interpretation, paper-to-Lean correspondence, licensing, and release claims.
 
-Before submission, preserve the Codex `/feedback` session ID that covers the core implementation and add it to the [submission checklist](docs/DEVPOST_SUBMISSION_CHECKLIST.md).
+Before submission, preserve the Codex `/feedback` session ID that covers the core implementation and add it to the paste-ready [Devpost submission copy](docs/submission/DEVPOST.md).
 
 ## Deployment
 
-The public demo is available at [interactive-proof.jjjhenriksen.chatgpt.site](https://interactive-proof.jjjhenriksen.chatgpt.site/). It is accessible without an account and keeps the OpenAI key server-side. The sample reader and recorded examples remain usable even when a local environment has no key configured.
+The public demo is available at [interactive-proof.jjjhenriksen.chatgpt.site](https://interactive-proof.jjjhenriksen.chatgpt.site/). It is accessible without an account and keeps the OpenAI key server-side. The public journey starts at `/upload`; uploaded files remain temporary to the browser session. The bundled proof package is retained for deterministic tests and internal verification, not as a public reading-room catalogue.
 
 A deployment must provide:
 
@@ -217,7 +217,7 @@ A deployment must provide:
 - anonymous access for judges;
 - PDF.js worker delivery and local PDFs;
 - an appropriate request-rate limit;
-- a public URL entered in the submission checklist.
+- a public URL and submission details recorded in `docs/submission/DEVPOST.md`.
 
 After deployment, test the upload workspace in a private browser session: paper upload, paper selection, optional Lean upload, a follow-up, mobile layout, keyboard navigation, temporary clearing, and the no-key/error path.
 
@@ -237,11 +237,12 @@ After deployment, test the upload workspace in a private browser session: paper 
 
 - [Setup and operator guide](docs/SETUP.md)
 - [Product requirements](docs/PRD.md)
-- [Technical specification](docs/SPEC.md)
 - [Implementation plan](PLAN.md)
-- [Devpost submission checklist](docs/DEVPOST_SUBMISSION_CHECKLIST.md)
+- [Devpost submission copy](docs/submission/DEVPOST.md)
+- [Demo script](docs/submission/DEMO.md)
+- [Feature roadmap](docs/features/README.md)
 - [Evaluation methodology](docs/EVALUATION.md)
 
 The public `/methodology` route reads the checked-in evaluation status. Live evaluation is optional, requires an explicit confirmation flag, and is never part of key-free CI.
 
-The application source of truth is the generic reader and the package schema under `lib/proof-packages/`.
+The application source of truth is the upload workspace and generic reader under `app/` and `components/`. The package schema under `lib/proof-packages/` supports internal fixtures and future curated authoring; it is not the public entry flow.

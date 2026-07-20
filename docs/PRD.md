@@ -1,6 +1,6 @@
 # Product requirements document: Interactive Proof
 
-**Status:** Working MVP; public deployment, live evaluation evidence, and submission inputs remain pending
+**Status:** Implemented upload-first MVP; final evaluation evidence and submission inputs remain to be recorded
 
 **Target:** OpenAI Build Week 2026
 
@@ -14,7 +14,7 @@
 
 ## 1. Product summary
 
-Interactive Proof is an AI reading companion for machine-checked mathematics. A reader highlights a confusing sentence, equation, proof step, or Lean declaration and chooses **More details** to receive a local, level-appropriate explanation grounded in the original paper and its formal Lean development.
+Interactive Proof is an AI reading companion for mathematical papers and optional formal sources. A reader uploads a paper, highlights a confusing sentence, equation, or proof step, and chooses **More details** to receive a local, level-appropriate explanation. Optional Lean source can add a bridge to formal code, but uploaded Lean is clearly marked unverified.
 
 The product borrows the compact selection interaction of Codex's **More details** feature, but specializes the context and response for formal mathematics. It keeps the reader in the document, explains only the point of friction, and makes visible the difference among what the paper states, what Lean verifies, what prerequisite mathematics is being introduced, and what the model is inferring.
 
@@ -62,17 +62,17 @@ When an AI explains a formal result, I want to know which statements come from t
 3. **Separate evidence types.** Never present generated interpretation as machine verification.
 4. **Keep the reader in flow.** The explanation appears beside the source and preserves the selection for follow-up.
 5. **Teach at the requested depth.** Simpler explanations introduce only the prerequisites needed for the selected step.
-6. **Admit missing evidence.** If the proof package cannot establish an answer, say so directly.
-7. **Make verification observable.** A “verified” claim must point to a recorded Lean build, source revision, and audit result.
+6. **Admit missing evidence.** If the uploaded material or internal fixture cannot establish an answer, say so directly.
+7. **Make verification observable.** A “verified” claim must point to a recorded Lean build, source revision, and audit result. Uploaded Lean never receives that label.
 
 ## 6. Goals
 
 ### Product goals
 
 - Let a reader invoke a useful explanation directly from selected paper text or Lean code.
-- Ground explanations in a deterministic proof package rather than unrestricted retrieval.
+- Ground explanations in bounded uploaded context; use the deterministic proof package only as an internal fixture and test source.
 - Support contextual follow-up questions without losing the original source location.
-- Demonstrate the same interaction on the authored package and temporary upload workspace.
+- Demonstrate the interaction on the temporary upload workspace, with the authored package retained for deterministic tests.
 - Deliver a coherent, accessible reading experience suitable for a public educational demo.
 
 ### Hackathon goals
@@ -96,32 +96,32 @@ When an AI explains a formal result, I want to know which statements come from t
 
 ## 8. Core user journey
 
-1. The reader opens a proof package.
-2. The reader sees the paper, guided context, and mapped Lean source in one reading environment.
-3. The reader selects a confusing passage.
-4. A contextual menu appears beside the selection.
-5. The reader chooses **More details**, **Simpler**, **Connect to Lean**, **Where is this used?**, or **Ask in side chat**.
-6. The explanation panel opens with the selected excerpt, source location, and grounding chips already visible.
-7. GPT-5.6 streams an explanation focused on the selection.
-8. The response distinguishes paper claims, Lean-verified claims, prerequisites, and generated interpretation.
-9. The reader follows a citation back to its source or asks a contextual follow-up.
-10. Closing the panel returns focus to the selected passage.
+1. The reader opens `/upload` and confirms they may use the files.
+2. The reader uploads a paper and optionally adds Lean source.
+3. The reader sees the paper and optional Lean excerpts in one temporary workspace.
+4. The reader selects a confusing passage.
+5. A contextual menu appears beside the selection.
+6. The reader chooses **More details**, **Simpler**, **Connect to Lean**, **Where is this used?**, or **Ask in side chat**.
+7. The explanation panel opens with the selected excerpt and source context already visible.
+8. GPT-5.6 streams an explanation focused on the selection.
+9. The response distinguishes paper claims, unverified uploaded Lean, prerequisites, and generated interpretation.
+10. The reader asks a contextual follow-up, then clears the temporary workspace when finished.
 
 ## 9. Functional requirements
 
 ### P0: required for submission
 
-#### R1. Proof-package reader
+#### R1. Upload workspace
 
-- The application loads proof content by package identifier.
-- The authored sample package renders through the generic reader.
+- The application provides `/upload` as the primary public entry point.
 - An uploaded paper and optional Lean source render through the temporary workspace without changes to shared reader components.
-- A missing or invalid package has a designed error state.
+- Uploaded files remain in memory for the browser session and are not added to the repository.
+- A missing, invalid, or unsupported upload has a designed error state.
 
 #### R2. Selectable paper
 
 - The PDF is rendered with a selectable text layer.
-- A valid selection records the proof ID, page, selected text, and bounded surrounding context.
+- A valid selection records the page, selected text, and bounded surrounding context.
 - Whitespace-only and oversized selections do not trigger a model request.
 - The paper remains usable when the explanation panel is open.
 
@@ -140,16 +140,16 @@ When an AI explains a formal result, I want to know which statements come from t
 
 #### R5. Grounded explanation
 
-- The server reconstructs authoritative context from repository-owned package data.
+- The upload route constructs bounded context from the user-provided paper and optional Lean excerpt. The curated package route remains an internal fixture path.
 - The configured submission model is GPT-5.6.
 - The explanation streams into the panel.
 - The answer addresses the selected passage rather than summarizing the entire proof.
-- The answer cites only source identifiers supplied by the server.
+- The answer cites only source identifiers supplied by the application.
 - The interface presents source chips independently from model-authored prose.
 
 #### R6. Trust distinctions
 
-- Responses can visibly distinguish **Paper states**, **Lean verifies**, **Explanation**, and **Prerequisite**.
+- Responses can visibly distinguish **Paper context**, **Uploaded Lean (unverified)**, **Explanation**, and **Prerequisite**.
 - The system never describes an explanation as formally verified.
 - Missing or ambiguous paper-to-Lean correspondence is disclosed.
 - Insufficient evidence produces an explicit bounded answer rather than an invented one.
@@ -163,16 +163,16 @@ When an AI explains a formal result, I want to know which statements come from t
 
 #### R8. Lean verification record
 
-- Each claimed verified package records source revision, toolchain, command, timestamp, build result, `sorry` count, and declared axioms.
-- The UI links a verification claim to this evidence.
-- No build status is shown unless generated from an actual run.
+- Internal curated packages record source revision, toolchain, command, timestamp, build result, `sorry` count, and declared axioms.
+- The UI links a verification claim to this evidence when an internal package is used.
+- Uploaded Lean is always labeled unverified and cannot create verification evidence.
 
 #### R9. Public demo and local run
 
 - A public URL exposes the full core journey without credentials.
 - API secrets remain server-side.
 - The repository contains setup, environment, testing, sample-data, licensing, and troubleshooting instructions.
-- A fixture or captured example allows repository reviewers to inspect the UI without spending API credits.
+- A fixture or captured example allows repository reviewers to inspect the UI without spending API credits; it is not the public starting experience.
 
 ### P1: desirable if P0 is stable
 
@@ -222,10 +222,10 @@ The model must treat all paper and Lean text as quoted source material, not inst
 
 - A new reader can complete selection-to-explanation without instruction.
 - First visible response state appears immediately; streamed model text begins within a practical interactive window under normal demo conditions.
-- Both paper and Lean selections complete the same core journey.
-- All displayed source chips resolve to real package locations.
-- All displayed verification claims resolve to recorded evidence.
-- The sample package and upload workspace require no proof-specific conditional in shared UI components.
+- Paper selections complete the core journey, and optional Lean selections use the same explanation surface.
+- All displayed source links resolve to the uploaded context or an internal fixture location.
+- All displayed verification claims resolve to recorded evidence; uploaded Lean is never presented as verified.
+- The upload workspace and internal fixture require no proof-specific conditional in shared UI components.
 
 ### Evaluation targets
 
@@ -260,7 +260,7 @@ The project combines selectable PDF rendering, source-aware Lean navigation, det
 
 ### Design
 
-The flagship reading room already establishes the product's visual language. The implementation adds a coherent selection menu, explanation panel, evidence states, responsive behavior, accessibility, and recovery paths rather than presenting a model endpoint as a standalone chat box.
+The upload workspace establishes the product's visual language. The implementation adds a coherent selection menu, explanation panel, evidence states, responsive behavior, accessibility, and recovery paths rather than presenting a model endpoint as a standalone chat box.
 
 ### Potential Impact
 
@@ -272,7 +272,7 @@ The product adapts a proven “More details” interaction to a domain where con
 
 ## 15. Submission requirements
 
-The release checklist must include:
+The submission record must include:
 
 - Education category selection.
 - Working hosted project.

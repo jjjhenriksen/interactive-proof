@@ -120,9 +120,10 @@ npm run dev`}</code>
               <p>
                 Add <code>OPENAI_API_KEY</code> using the host&apos;s secret manager. Add
                 <code>OPENAI_MODEL</code>, <code>EXPLAIN_RATE_LIMIT_PER_HOUR</code>, and
-                an explicit <code>PUBLIC_PROOF_IDS</code> allowlist as environment
-                variables, then deploy a new version. The public demo currently uses
-                the GPT-5.6 deployment configuration.
+                an explicit <code>PUBLIC_PROOF_IDS</code> internal-fixture allowlist as
+                environment variables, then deploy a new version. The public demo
+                starts with uploads and currently uses the GPT-5.6 deployment
+                configuration.
               </p>
             </section>
 
@@ -135,8 +136,8 @@ npm run dev`}</code>
                   <dd>This is the passage or claim selected from the paper.</dd>
                 </div>
                 <div>
-                  <dt>From the formal proof</dt>
-                  <dd>This points to the Lean declaration used for the formal check.</dd>
+                  <dt>From uploaded Lean (unverified)</dt>
+                  <dd>This points to optional Lean source supplied with the paper; it is context, not a verification claim.</dd>
                 </div>
                 <div>
                   <dt>Helpful background</dt>
@@ -149,7 +150,7 @@ npm run dev`}</code>
               </dl>
               <p>
                 The explanation starts with the idea. The source details stay available
-                when you want to check the exact paper passage or formal declaration.
+                when you want to check the exact paper passage or optional Lean excerpt.
               </p>
               <Link className={styles.textLink} href="/methodology">
                 Read the evaluation and security methodology <span aria-hidden="true">→</span>
@@ -164,7 +165,7 @@ npm run dev`}</code>
 cp .env.example .env.local
 npm run dev
 
-# Before opening a pull request
+# Before a release
 npm run proof:validate
 npm run eval:validate
 npm test

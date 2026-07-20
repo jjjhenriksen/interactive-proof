@@ -1,8 +1,10 @@
 # Feature 08: Ephemeral paper and Lean uploads
 
+**Status:** Implemented
+
 ## Outcome
 
-A reader can open a PDF paper and optional Lean sources in a temporary browser workspace, select a passage, and request the same kind of focused explanation used by registered proof packages. Uploaded material is never added to the repository-backed proof library.
+A reader can upload a PDF paper and optional Lean sources in a temporary browser workspace, select a passage, and request a focused explanation. This is the primary public flow. Uploaded material is never added to the repository or an internal curated-proof registry.
 
 ## User experience
 

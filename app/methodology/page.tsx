@@ -116,7 +116,7 @@ export default function MethodologyPage() {
             <h2 id="security-title">Source text is evidence, never instruction.</h2>
           </div>
           <ul className="security-list">
-            <li>The server reconstructs context from validated proof packages.</li>
+            <li>The upload route constructs bounded context from the reader&apos;s temporary files; curated proof packages are internal fixtures.</li>
             <li>Selections, history, mapped sources, and supporting material have fixed budgets.</li>
             <li>The model has no tools and receives an explicit allowed-source list.</li>
             <li>Offline checks reject invented source identifiers and source-text instruction overrides.</li>

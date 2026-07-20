@@ -1,10 +1,10 @@
 # Interactive Proof: one-week implementation plan
 
-This delivery plan implements [`docs/PRD.md`](docs/PRD.md) and [`docs/SPEC.md`](docs/SPEC.md).
+This delivery plan implements [`docs/PRD.md`](docs/PRD.md). The PRD is the single product source of truth; this plan records the implementation sequence and release evidence.
 
 ## Product thesis
 
-Interactive Proof is an AI reading companion for machine-checked mathematics. A reader can select a confusing sentence, equation, or Lean declaration and request a contextual explanation grounded in both the paper and its formal proof, without leaving the document.
+Interactive Proof is an AI reading companion for mathematical papers and optional formal sources. A reader uploads a paper, selects a confusing sentence or equation, and requests a contextual explanation. They may also upload Lean source when they want a bridge to formal code, without leaving the document.
 
 The product is inspired by the compact interaction of Codex's **More details** action, but it is specialized for mathematical reading. Its differentiator is not generic chat. It is the connection among four kinds of evidence:
 
@@ -13,19 +13,19 @@ The product is inspired by the compact interaction of Codex's **More details** a
 3. what prerequisite mathematics is needed;
 4. what the model is inferring to explain the relationship.
 
-The authored odd-sum-square package is the sample proof and the upload workspace is the reusable path for new papers and optional Lean source.
+The authored odd-sum-square package is an internal fixture for deterministic tests and verification. The upload workspace is the reusable public path for new papers and optional Lean source.
 
 ## Hackathon outcome
 
 By the end of the week, a judge should be able to open a hosted URL and:
 
-1. read a rendered, selectable mathematical paper;
+1. upload and read a rendered, selectable mathematical paper;
 2. highlight a passage and choose **More details**;
 3. receive a streamed explanation in a side panel;
-4. see which paper page and Lean declaration grounded the explanation;
+4. see which paper context and, when supplied, Lean excerpt grounded the explanation;
 5. ask a follow-up without losing the selected context;
 6. repeat the interaction on a Lean declaration;
-7. open a user-provided paper through the temporary upload workspace.
+7. clear the temporary workspace when finished.
 
 This is an **Education** submission. The primary audience is a mathematically curious reader who can follow an argument but gets blocked by locally compressed steps. Lean learners and authors of formally verified papers are secondary audiences.
 
@@ -71,8 +71,8 @@ The MVP will keep this state in the browser and send a bounded recent history wi
 ### In scope
 
 - One responsive web application.
-- One cleared, deliberately small proof package.
 - A temporary upload workspace for user-provided papers and optional Lean source.
+- One cleared, deliberately small proof package for internal fixtures and deterministic tests.
 - Selectable PDF text with page-aware source locations.
 - Selectable Lean excerpts with declaration-aware locations.
 - Contextual selection menu and keyboard-accessible side panel.
@@ -112,8 +112,8 @@ The API key remains server-side. The model name is configured through an environ
 ```text
 Interactive-Proof/
 ├── app/
-│   ├── api/explain/route.ts
-│   ├── proofs/[proofId]/page.tsx
+│   ├── api/explain-upload/route.ts
+│   ├── upload/page.tsx
 │   └── page.tsx
 ├── components/
 │   ├── paper-reader/
@@ -121,7 +121,7 @@ Interactive-Proof/
 │   ├── selection-menu/
 │   └── explanation-panel/
 ├── lib/
-│   ├── proof-packages/
+│   ├── proof-packages/       # internal curated fixtures
 │   ├── explanation/
 │   └── validation/
 ├── proofs/
@@ -143,7 +143,7 @@ Interactive-Proof/
 
 The exact framework-generated filenames may vary, but these ownership boundaries should remain: UI, context construction, proof data, and model transport must not be embedded in one page.
 
-### Proof-package schema
+### Internal fixture schema
 
 Each proof package should contain:
 
@@ -175,7 +175,7 @@ Each proof package should contain:
 }
 ```
 
-The client sends only an identifier and selection metadata. The server reloads the authoritative package context instead of trusting arbitrary context supplied by the browser.
+This schema is for cleared, repository-owned fixtures and verification tooling. It is not the public upload format. The public upload route accepts bounded, in-memory paper context and optional Lean excerpts without creating a package or verification record.
 
 ### Explanation request
 
@@ -183,9 +183,8 @@ The browser sends:
 
 ```ts
 type ExplainRequest = {
-  proofId: string
-  source: "paper" | "lean" | "guide"
-  location: { page?: number; declaration?: string; section?: string }
+  source: "paper" | "lean"
+  location: { page?: number; declaration?: string }
   selectedText: string
   mode: "details" | "simpler" | "lean" | "usage" | "question"
   question?: string
@@ -193,7 +192,7 @@ type ExplainRequest = {
 }
 ```
 
-The server validates the selection against a known proof package, gathers a bounded context bundle, emits source metadata, and streams the explanation. Initial context retrieval should be deterministic:
+For a curated fixture, the server validates the selection against a known package and gathers a bounded context bundle. For an uploaded paper, `POST /api/explain-upload` receives only bounded parsed text and never returns repository verification status. Initial context retrieval should be deterministic:
 
 1. selected text and surrounding page or declaration;
 2. explicitly mapped paper/Lean counterpart;
@@ -201,7 +200,7 @@ The server validates the selection against a known proof package, gathers a boun
 4. direct dependencies and downstream uses;
 5. at most the last few conversation turns.
 
-Vector search is unnecessary for two small proof packages and should only be added if deterministic mappings become inadequate.
+Vector search is unnecessary for the current upload workspace and internal fixture and should only be added if deterministic context becomes inadequate.
 
 ### Model instructions
 
@@ -315,7 +314,7 @@ If the full formal source cannot be bundled, the UI must label displayed code as
 - Add visible build, `sorry`, and axiom information.
 - Remove any proof-specific branching discovered while adding the upload workspace.
 
-**Exit gate:** the sample package and upload workspace support the same selection-to-explanation flow, and verification claims are backed by recorded command output.
+**Exit gate:** the internal fixture remains validation-backed, the upload workspace supports the public selection-to-explanation flow, and any verification claims are backed by recorded command output.
 
 ### Saturday, July 18 — evaluation, accessibility, and deployment
 
@@ -332,7 +331,7 @@ If the full formal source cannot be bundled, the UI must label displayed code as
 
 - Finish README setup and architecture documentation.
 - Document exactly how Codex and GPT-5.6 were used.
-- Include sample packages and a no-key fixture or screenshots for repository reviewers.
+- Include the internal fixture and a no-key fixture or screenshots for repository reviewers.
 - Add licensing and attribution for the paper and Lean sources.
 - Record a complete under-three-minute demo draft.
 - Freeze the core feature set.
@@ -404,13 +403,14 @@ The goal is not a contrived perfect score. Failures should become prompt, mappin
 The hackathon MVP is done when all of the following are observable:
 
 - A public URL loads without credentials.
-- The sample proof and upload workspace render through the same application.
-- Paper text and Lean code are selectable.
+- The upload workspace renders a user-provided paper and optional Lean source.
+- The internal fixture remains available to deterministic tests and verification tooling.
+- Paper text and optional Lean code are selectable.
 - **More details** returns a streamed GPT-5.6 explanation.
-- The response visibly identifies its paper and Lean grounding.
+- The response visibly identifies uploaded paper context and, when supplied, Lean context.
 - Follow-up questions retain selection context.
 - Unsupported questions receive an explicit insufficient-evidence answer.
-- Lean verification metadata reflects an actual recorded build.
+- Any Lean verification metadata reflects an actual recorded build; uploaded Lean is always marked unverified.
 - Keyboard navigation, mobile layout, loading, and failure states work.
 - Automated tests cover the core context and interaction paths.
 - The README includes setup, environment variables, test commands, architecture, licensing, and a hosted demo.
