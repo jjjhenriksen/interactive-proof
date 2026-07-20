@@ -63,25 +63,15 @@ async function waitForExplanationOrError(page: Page): Promise<void> {
     .toMatch(/^(explanation|error)$/);
 }
 
-test("opens the proof reader from the homepage", async ({ page }) => {
+test("opens the upload workspace from the homepage", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
 
   await expect(
-    page.getByRole("heading", { name: "Stay with the proof when one step stops you." }),
+    page.getByRole("heading", { name: "Upload a paper. Keep reading when one step stops you." }),
   ).toBeVisible();
-  const oddSumSquareCard = page.getByRole("article").filter({
-    has: page.getByRole("heading", { name: "Odd Numbers Build Squares" }),
-  });
-  await oddSumSquareCard.getByRole("link", { name: /Read this proof/ }).click();
-
-  await expect(page).toHaveURL(new RegExp(`${PROOF_PATH}$`));
-  await expect(
-    page.getByRole("heading", {
-      level: 1,
-      name: "Why the First n Odd Numbers Sum to n²",
-    }),
-  ).toBeVisible();
-  await expect(page.getByRole("main", { name: "paper source" })).toBeVisible();
+  await page.getByRole("link", { name: "Upload a paper" }).first().click();
+  await expect(page).toHaveURL(/\/upload$/);
+  await expect(page.getByRole("heading", { name: /Bring a paper/ })).toBeVisible();
 });
 
 test("switches between the paper and Lean source views", async ({ page }) => {
@@ -148,12 +138,12 @@ test("dismisses the contextual toolbar with Escape", async ({ page }) => {
   await expect(toolbar).toBeHidden();
 });
 
-test("returns a designed 404 for an unknown proof package", async ({ page }) => {
+test("returns an upload-first 404 for an unknown proof package", async ({ page }) => {
   const response = await page.goto("/proofs/not-a-real-proof");
 
   expect(response?.status()).toBe(404);
   await expect(
-    page.getByRole("heading", { name: "This proof is not in the reading room." }),
+    page.getByRole("heading", { name: "Start with a paper of your own." }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Return to the proof index" })).toBeVisible();
+  await expect(page.locator("#main-content").getByRole("link", { name: "Upload a paper" })).toBeVisible();
 });

@@ -212,7 +212,7 @@ export function UploadWorkspace() {
           <button className="button button--primary" type="submit" disabled={setupStatus === "loading"}>
             {setupStatus === "loading" ? "Opening files…" : "Open temporary workspace"}
           </button>
-          <p>Nothing is added to the proof library or saved by this site.</p>
+          <p>Files stay in this browser tab and are not saved by this site.</p>
         </div>
         {setupStatus === "error" ? <p className={styles.error} role="alert">{setupError}</p> : null}
       </form>

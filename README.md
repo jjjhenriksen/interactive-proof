@@ -1,8 +1,8 @@
 # Interactive Proof
 
-Interactive Proof is an educational reading companion for mathematical papers and their Lean formalizations. Select a sentence, equation, or Lean declaration and request a focused explanation without leaving the proof. The answer starts in plain English, with source details and the formal proof available when you want to go deeper.
+Interactive Proof is an educational upload-first companion for mathematical papers and their Lean formalizations. Upload a PDF, select a sentence or equation, and request a focused explanation. Add Lean only when it helps connect the idea to formal code.
 
-This repository contains a tested release candidate. The public demo uses a cleared sample proof and an upload-first workspace for papers and optional Lean source.
+This repository contains a tested release candidate. The public demo starts with a temporary upload workspace for papers and optional Lean source. A cleared proof fixture remains in the repository for deterministic validation, not as the public starting flow.
 
 <p align="center">
   <img src="docs/submission/media/interactive-proof-thumbnail.png" alt="Interactive Proof — Paper, Lean, Explanation" width="1200" />
@@ -10,18 +10,13 @@ This repository contains a tested release candidate. The public demo uses a clea
 
 Interactive Proof keeps the source in view while it explains: a reader can move from a paper passage to its mapped Lean declaration, open the proof details, and ask a focused question without losing their place.
 
-## See the reading experience
+## See the product direction
 
 <p align="center">
-  <img src="docs/submission/media/reading-room-desktop.png" alt="Interactive Proof reading room with proof library and source details" width="900" />
+  <img src="docs/submission/media/interactive-proof-thumbnail.png" alt="Interactive Proof connects a paper passage, optional Lean source, and explanation" width="900" />
 </p>
 
 <p align="center">
-  <img src="docs/submission/media/odd-sum-square-desktop.png" alt="Odd Numbers Build Squares proof reader" width="900" />
-</p>
-
-<p align="center">
-  <img src="docs/submission/media/odd-sum-square-mobile.png" alt="Interactive Proof on a mobile viewport" width="320" />
 </p>
 
 ## Demo assets
@@ -29,20 +24,18 @@ Interactive Proof keeps the source in view while it explains: a reader can move 
 The reviewed media package lives in [`docs/submission/media/`](docs/submission/media/README.md):
 
 - [Thumbnail](docs/submission/media/interactive-proof-thumbnail.png)
-- [Desktop reading-room capture](docs/submission/media/reading-room-desktop.png)
-- [Desktop proof capture](docs/submission/media/odd-sum-square-desktop.png)
-- [Mobile proof capture](docs/submission/media/odd-sum-square-mobile.png)
+- [Documentation capture](docs/submission/media/setup-docs-desktop.png)
 - [Key-free rehearsal video](docs/submission/media/demo-rehearsal-key-free.mp4)
 
 The rehearsal is intentionally recorded without a live model request. Record the final narrated stream only after deployment with the server-side API key.
 
-## Included proof packages
+## Internal validation fixture
 
 | Package | Paper | Lean source | Verification | License status |
 |---|---|---|---|---|
 | `odd-sum-square` | Authored one-page introduction to induction | Complete local Lean file | Passed on the recorded toolchain; open the in-reader evidence panel for details | Paper is CC BY 4.0 |
 
-The sample package demonstrates the generic reader, paper-to-Lean mappings, recorded proof details, and the same controls used by uploaded workspaces.
+The repository fixture supports deterministic tests and validation; it is not linked from the public site. The public experience is the upload workspace.
 
 ## Quick start
 
@@ -61,7 +54,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and choose the sample proof or the upload workspace.
+Open [http://localhost:3000/upload](http://localhost:3000/upload) to start with a paper.
 
 The in-app setup and reader guide is available at [http://localhost:3000/docs](http://localhost:3000/docs). Repository setup and deployment details are also collected in [docs/SETUP.md](docs/SETUP.md).
 
@@ -76,7 +69,7 @@ EXPLAIN_RATE_LIMIT_PER_HOUR=30
 PUBLIC_PROOF_IDS=odd-sum-square
 ```
 
-`OPENAI_API_KEY` remains server-side. With a valid key, selection actions call the streamed `/api/explain` route. Without a key, both sample papers, Lean sources, mappings, proof details, and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
+`OPENAI_API_KEY` remains server-side. With a valid key, upload selections call the streamed `/api/explain-upload` route. Without a key, the upload workspace and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
 
 For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining values as production environment variables. Do not use a `NEXT_PUBLIC_` prefix. Environment changes take effect only after deploying a newly saved site version.
 
@@ -226,7 +219,7 @@ A deployment must provide:
 - an appropriate request-rate limit;
 - a public URL entered in the submission checklist.
 
-After deployment, test the sample package and upload workspace in a private browser session, one paper selection, one Lean selection, a follow-up, mobile layout, keyboard navigation, proof details, and the no-key/error path.
+After deployment, test the upload workspace in a private browser session: paper upload, paper selection, optional Lean upload, a follow-up, mobile layout, keyboard navigation, temporary clearing, and the no-key/error path.
 
 ## Troubleshooting
 

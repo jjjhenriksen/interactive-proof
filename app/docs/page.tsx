@@ -6,12 +6,12 @@ import styles from "./page.module.css";
 export const metadata: Metadata = {
   title: "Documentation",
   description:
-    "Set up Interactive Proof, understand its source details, and bring your own paper and optional Lean source.",
+    "Upload a paper, select a difficult passage, and get a plain-language explanation with optional Lean context.",
 };
 
 const CONTENTS = [
-  { href: "#first-read", label: "Start reading" },
-  { href: "#your-material", label: "Use your material" },
+  { href: "#first-read", label: "Upload a paper" },
+  { href: "#your-material", label: "Add optional Lean" },
   { href: "#api-key", label: "Enable AI explanations" },
   { href: "#evidence", label: "Understand source details" },
   { href: "#local-development", label: "Run locally" },
@@ -25,14 +25,14 @@ export default function DocumentationPage() {
           <p className="eyebrow">Documentation</p>
           <h1>From paper to a clear explanation.</h1>
           <p className={styles.lede}>
-            Interactive Proof is useful before an API key is configured. Begin with a
-            recorded example, inspect the paper-to-Lean correspondence, or open a
-            temporary workspace with your own files. Add a server-side key only when
-            you are ready to request live explanations.
+            Interactive Proof is designed to start with your own paper. Upload a PDF,
+            select the passage that is hard to follow, and ask for a plain-language
+            explanation. Add a server-side key only when you are ready to request live
+            explanations.
           </p>
           <div className={styles.actions}>
-            <Link className="button button--primary" href="/#proof-library">
-              Read a sample proof
+            <Link className="button button--primary" href="/upload">
+              Upload a paper
             </Link>
             <Link className="button button--secondary" href="/upload">
               Open an upload workspace
@@ -62,27 +62,27 @@ export default function DocumentationPage() {
           <article className={styles.article}>
             <section id="first-read" aria-labelledby="first-read-title">
               <p className={styles.sectionNumber}>01</p>
-              <h2 id="first-read-title">Start with a proof already in the reading room.</h2>
+              <h2 id="first-read-title">Start with a paper of your own.</h2>
               <p>
-                Choose a sample proof, switch between the paper and Lean views, and
-                inspect its proof map and proof details. Recorded examples show
-                the complete explanation interface without making a model request.
+                Open the upload workspace, give consent for temporary browser storage,
+                and add a paper PDF. The file stays in your tab while you choose the
+                sentence, equation, or proof step that needs more context.
               </p>
               <ol className={styles.steps}>
-                <li>Select a sentence, equation, or Lean declaration.</li>
-                <li>Choose an action such as More details or Connect to Lean.</li>
-                <li>Open the source disclosure to return to the exact paper or Lean location.</li>
-                <li>Open the proof details when you want to confirm how the formal result was checked.</li>
+                <li>Open the upload workspace and accept the temporary-file consent.</li>
+                <li>Add a PDF, then select a sentence, equation, or proof step.</li>
+                <li>Choose an action such as More details or Explain more simply.</li>
+                <li>Open the source disclosure when you want to review what shaped the explanation.</li>
               </ol>
             </section>
 
             <section id="your-material" aria-labelledby="your-material-title">
               <p className={styles.sectionNumber}>02</p>
-              <h2 id="your-material-title">Use a paper of your own.</h2>
+              <h2 id="your-material-title">Add Lean only when it helps.</h2>
               <p>
-                The upload workspace requires a PDF and accepts optional individual
-                <code>.lean</code> files or a ZIP of Lean sources. Files are parsed in
-                your browser and are not added to the public proof library.
+                The upload workspace accepts optional individual <code>.lean</code> files
+                or a ZIP of Lean sources alongside the required PDF. Add Lean when you
+                want to connect an informal passage to formal code.
               </p>
               <div className={styles.note}>
                 <strong>Temporary by design.</strong>

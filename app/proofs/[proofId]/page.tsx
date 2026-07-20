@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import {
   ProofReader,
@@ -24,10 +24,13 @@ export async function generateMetadata({ params }: ProofPageProps): Promise<Meta
   return {
     title: proof?.manifest.shortTitle ?? "Proof not found",
     description: proof?.manifest.summary,
+    robots: { index: false, follow: false },
   };
 }
 
 export default async function ProofPage({ params }: ProofPageProps) {
+  if (process.env.NODE_ENV === "production") redirect("/upload");
+
   const { proofId } = await params;
   const loaded = await loadProofPackage(proofId);
   if (!loaded) notFound();

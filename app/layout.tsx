@@ -39,17 +39,14 @@ export default function RootLayout({
             </Link>
             <nav aria-label="Primary navigation">
               <div className="nav-links">
-                <Link className="nav-link" href="/#proof-library">
-                  Browse proofs
+                <Link className="nav-link" href="/upload">
+                  Upload a paper
                 </Link>
                 <Link className="nav-link" href="/methodology">
                   Evaluation
                 </Link>
                 <Link className="nav-link" href="/docs">
                   Docs
-                </Link>
-                <Link className="nav-link" href="/upload">
-                  Upload
                 </Link>
                 <ThemeToggle />
               </div>

@@ -1,60 +1,50 @@
 import Link from "next/link";
 
-import { listProofIds, loadProofPackage } from "../lib/proof-packages/registry.server";
-import { verificationStatus } from "../lib/verification/audit";
-
 const TRUST_LABELS = [
   {
-    label: "From the paper",
-    description: "The idea and wording from the original paper.",
+    label: "Start with your paper",
+    description: "Upload a PDF and select the sentence, equation, or proof step that stopped you.",
   },
   {
-    label: "From the formal proof",
-    description: "The matching Lean declaration, when one is available.",
+    label: "Add Lean when you have it",
+    description: "Optionally add a Lean file to see how the formal source connects to the passage.",
   },
   {
-    label: "A helpful explanation",
-    description: "A plain-language guide that connects the two without replacing either one.",
+    label: "Get a helpful explanation",
+    description: "Receive a plain-language guide that keeps the original source in view.",
   },
 ] as const;
 
-export default async function HomePage() {
-  const proofs = (
-    await Promise.all(listProofIds().map((id) => loadProofPackage(id)))
-  ).filter((proof) => proof !== null);
-
+export default function HomePage() {
   return (
     <main id="main-content">
       <section className="hero" aria-labelledby="hero-title">
         <div className="page-shell hero__grid">
           <div className="hero__copy">
-            <p className="eyebrow">A reading companion for formal mathematics</p>
-            <h1 id="hero-title">Stay with the proof when one step stops you.</h1>
+            <p className="eyebrow">An upload-first companion for formal mathematics</p>
+            <h1 id="hero-title">Upload a paper. Keep reading when one step stops you.</h1>
             <p className="hero__lede">
-              Highlight a sentence, equation, or Lean declaration to get a focused
-              explanation in plain language, with the formal proof close by when you need it.
+              Add a PDF, select a sentence or equation, and get a focused explanation in
+              plain language. Add Lean only when it helps you connect the idea to formal code.
             </p>
             <div className="hero__actions">
-              <a className="button button--primary" href="#proof-library">
-                Choose a proof
+              <Link className="button button--primary" href="/upload">
+                Upload a paper
                 <span aria-hidden="true">→</span>
-              </a>
+              </Link>
               <a className="button button--secondary" href="#how-it-works">
                 See how it works
               </a>
-              <Link className="button button--secondary" href="/upload">
-                Upload your own paper
-              </Link>
             </div>
           </div>
 
           <div className="reader-preview" aria-label="Preview of the reading experience">
             <div className="reader-preview__bar">
-              <span>Proof 01</span>
-              <span>Paper · page 2</span>
+              <span>Upload workspace</span>
+              <span>Paper PDF · page 2</span>
             </div>
             <div className="reader-preview__body">
-              <p className="reader-preview__kicker">The key reduction</p>
+              <p className="reader-preview__kicker">Select a passage</p>
               <p className="reader-preview__passage">
                 It is enough to show that the target vector lies in the image of the
                 linear map <span className="selection">associated to the graph</span>.
@@ -72,39 +62,6 @@ export default async function HomePage() {
                 </p>
               </aside>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="proof-library" id="proof-library" aria-labelledby="proof-library-title">
-        <div className="page-shell">
-          <div className="proof-library__heading">
-            <div>
-              <p className="eyebrow">The reading room</p>
-              <h2 id="proof-library-title">Choose the proof that meets you where you are.</h2>
-            </div>
-            <p>
-              Each package uses the same reader and source navigation. Only the
-              mathematics changes.
-            </p>
-          </div>
-          <div className="proof-grid">
-            {proofs.map((proof) => {
-              const status = verificationStatus(proof.manifest, proof.verification);
-              return (
-                <article className="proof-card" key={proof.manifest.id}>
-                  <div className="proof-card__meta">
-                    <span>{proof.paperPages.pages.length === 1 ? "1 paper page" : `${proof.paperPages.pages.length} paper pages`}</span>
-                    <span>{status === "verified" ? "Formal proof checked" : `Formal proof ${status}`}</span>
-                  </div>
-                  <h3>{proof.manifest.shortTitle}</h3>
-                  <p>{proof.manifest.summary}</p>
-                  <Link href={`/proofs/${proof.manifest.id}`}>
-                    Read this proof <span aria-hidden="true">→</span>
-                  </Link>
-                </article>
-              );
-            })}
           </div>
         </div>
       </section>
