@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 
 import {
   ExplanationPanel,
@@ -24,20 +23,9 @@ import {
   type ReaderLocation,
 } from "../../lib/reader/location";
 import styles from "./proof-reader.module.css";
+import { PdfPaperReader } from "../paper-reader";
 import { ProofMap } from "../proof-map/proof-map";
 import { deriveProofMap } from "../../lib/proof-map/derive";
-
-const PdfPaperReader = dynamic(
-  () => import("../paper-reader").then((module) => module.PdfPaperReader),
-  {
-    ssr: false,
-    loading: () => (
-      <div className={styles.paperRendererLoading} role="status">
-        Loading paper renderer…
-      </div>
-    ),
-  },
-);
 
 type LeanExcerpt = {
   sourceId: string;

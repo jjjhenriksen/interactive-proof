@@ -219,22 +219,9 @@
 .instructorGuidance input { width: 1.125rem; height: 1.125rem; }
 .instructorAttribution { color: var(--muted-foreground); font-size: 0.8125rem; }
 
-.paperText,
-.paperRendererLoading {
+.paperText {
   max-width: 70ch;
   margin-inline: auto;
-}
-
-.paperRendererLoading {
-  display: grid;
-  place-items: center;
-  width: min(100%, 56rem);
-  aspect-ratio: 612 / 792;
-  color: var(--muted-foreground);
-  background: var(--surface-subtle);
-  border: 0.0625rem solid var(--border);
-  border-radius: calc(var(--radius) - 0.25rem);
-  font-size: 0.875rem;
 }
 
 .paperText {
