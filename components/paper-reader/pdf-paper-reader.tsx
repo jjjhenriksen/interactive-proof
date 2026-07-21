@@ -20,6 +20,7 @@ import {
   resolvePageBlockIds,
   type PaperBlock,
 } from "./paper-layout"
+import { ensurePdfJsCompatibility } from "../../lib/uploads/pdfjs-compat"
 import styles from "./pdf-paper-reader.module.css"
 
 type PdfJs = typeof import("pdfjs-dist")
@@ -97,18 +98,21 @@ export function PdfPaperReader({
     let isCurrent = true
     let loadingTask: PDFDocumentLoadingTask | undefined
 
+    const supportsPdfWorker = ensurePdfJsCompatibility()
     void import("pdfjs-dist")
       .then(async (module) => {
-        module.GlobalWorkerOptions.workerSrc = new URL(
-          "pdfjs-dist/build/pdf.worker.min.mjs",
-          import.meta.url,
-        ).toString()
+        if (supportsPdfWorker) {
+          module.GlobalWorkerOptions.workerSrc = new URL(
+            "pdfjs-dist/build/pdf.worker.min.mjs",
+            import.meta.url,
+          ).toString()
+        }
         if (!isCurrent) return
         setStatus("loading-document")
         setErrorMessage("")
         setDocument(null)
         setPdfJs(module)
-        loadingTask = module.getDocument({ url: pdfUrl })
+        loadingTask = module.getDocument({ url: pdfUrl, ...(supportsPdfWorker ? {} : { disableWorker: true }) })
         const loadedDocument = await loadingTask.promise
         if (!isCurrent) return
         setDocument(loadedDocument)

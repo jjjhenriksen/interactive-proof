@@ -1,4 +1,5 @@
 import { UPLOAD_LIMITS } from "./schema";
+import { ensurePdfJsCompatibility } from "./pdfjs-compat";
 
 export type UploadedPaperPage = {
   page: number;
@@ -18,12 +19,16 @@ export async function readPaperUpload(file: File): Promise<UploadedPaper> {
     throw new Error("Choose a PDF paper.");
   }
 
+  const supportsPdfWorker = ensurePdfJsCompatibility();
   const pdfJs = await import("pdfjs-dist");
   pdfJs.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",
     import.meta.url,
   ).toString();
-  const task = pdfJs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
+  const task = pdfJs.getDocument({
+    data: new Uint8Array(await file.arrayBuffer()),
+    ...(supportsPdfWorker ? {} : { disableWorker: true }),
+  });
   try {
     const document = await task.promise;
     if (document.numPages > UPLOAD_LIMITS.pdfPages) {
