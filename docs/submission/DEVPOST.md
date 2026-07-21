@@ -8,7 +8,7 @@ Interactive Proof
 
 ## Tagline
 
-Select the proof step that stopped you, then see how the paper, Lean, and explanation fit together.
+Upload a paper, select the term that stopped you, and get a clear explanation in context.
 
 ## Category
 
@@ -16,15 +16,15 @@ Education
 
 ## Short description
 
-Interactive Proof is a reading companion for machine-checked mathematics. Select a sentence or Lean declaration to get a streamed explanation in plain language, with the paper, mapped formal source, and proof details available when you want to check them.
+Interactive Proof is an upload-first reading companion for mathematical papers. Select a sentence, equation, or unfamiliar term to get a streamed GPT-5.6 explanation in plain language, with optional Lean context when you have it.
 
 ## Long description
 
 ### The moment we are designing for
 
-A mathematical paper can be understandable until one compressed sentence brings the whole reading session to a stop. A Lean formalization can verify the same result and still be difficult to learn from: the declaration names, library abstractions, and proof tactics do not automatically explain the mathematics. Opening a generic chat loses the reader's exact location and makes it difficult to tell source fact from interpretation.
+A mathematical paper can be understandable until one unfamiliar term brings the whole reading session to a stop. In the demo, that term is “loopless cubic multigraph” in a paper about the cycle double-cover conjecture. A Lean formalization can verify the same result and still be difficult to learn from: declaration names, library abstractions, and proof tactics do not automatically explain the mathematics. Opening a generic chat loses the reader's exact location and makes it difficult to tell source fact from interpretation.
 
-Interactive Proof keeps that moment inside the document. A reader selects the sentence, equation, or Lean excerpt that is causing trouble and chooses **More details**, **Explain more simply**, **Connect to Lean**, **Where is this used?**, or **Ask in side chat**. A panel opens beside the source, shows the original excerpt and location, and streams an explanation focused on that local step.
+Interactive Proof keeps that moment inside the document. A reader uploads the paper, selects the term or passage that is causing trouble, and chooses **Explain this step**. A panel opens beside the source, shows the original excerpt, and streams an explanation focused on that local question. The reader can then ask where the idea is used throughout the paper or connect it to optional Lean source.
 
 ### How it works
 
@@ -36,10 +36,10 @@ the bounded context to GPT-5.6; the model does not browse arbitrary files or the
 repository.
 
 The explanation starts in plain language and keeps the selected passage in view. A
-compact **Sources and formal proof** disclosure shows what paper or optional Lean source
-shaped the response. Follow-up questions retain the original selection and use bounded
-recent history; if a follow-up fails, the prior answer remains on screen and can be
-retried.
+compact **Sources used for this explanation** disclosure shows what paper or optional
+Lean source shaped the response. Follow-up questions retain the original selection and
+use bounded recent history; if a follow-up fails, the prior answer remains on screen and
+can be retried.
 
 The repository still contains a cleared proof fixture for deterministic tests and
 verification, but it is not the public starting experience.
@@ -66,8 +66,8 @@ Interactive Proof is an AI-powered educational companion for mathematical papers
 
 - PDF upload for mathematical papers.
 - Optional Lean upload for formal-verification workflows.
-- Plain-language explanations connected directly to source material.
-- Interactive proof exploration with paper-to-Lean navigation.
+- Plain-language explanations connected directly to the uploaded source material.
+- Optional Lean context for readers who want to connect an informal idea to formal code.
 - Context-aware follow-ups that preserve the learner's place.
 
 The product is designed first for nontraditional learners, while also serving classrooms, educators, and researchers who want difficult proofs to become more transparent and approachable.
@@ -163,8 +163,8 @@ GPT-5.6 generates the explanatory prose; it does not generate source chips, veri
 1. Open <https://interactive-proof.jjjhenriksen.chatgpt.site/> in a signed-out browser window. No account should be required.
 2. Choose **Upload a paper** and open the temporary workspace.
 3. Add a PDF, confirm the temporary-file consent, and select a passage in the paper.
-4. Choose **More details** or **Explain more simply**.
-5. Confirm that the plain-language explanation streams into the panel, then open **Sources and formal proof** to inspect what shaped it.
+4. Choose **Explain this step** or **Make it simpler**.
+5. Confirm that the plain-language explanation streams into the panel, then open **Sources used for this explanation** to inspect what shaped it.
 6. Optionally add a Lean file, switch to **Uploaded Lean**, and confirm that it is labeled unverified.
 7. Ask a follow-up about the same selection; confirm that the selection context remains visible.
 8. Clear the workspace and confirm that the temporary files are removed from the view.
