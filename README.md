@@ -125,6 +125,14 @@ Run `npm run test:e2e` for every configured desktop and mobile project.
 
 ### Proof-package checks
 
+Install [elan](https://github.com/leanprover/elan) and the pinned toolchain before running `npm test` (which includes real compiler fixtures) or `proof:verify`:
+
+```bash
+elan toolchain install "$(cat proofs/odd-sum-square/lean-toolchain)"
+```
+
+CI installs this toolchain explicitly; compiler regression tests fail rather than silently skip when Lean is unavailable.
+
 ```bash
 npm run proof:registry
 npm run proof:validate
@@ -135,7 +143,9 @@ npm run proof:verify
 - `proof:validate` checks schemas, assets, source references, line ranges, and PDF hashes.
 - `proof:verify` runs supported full local Lean packages and atomically rewrites their `verification.json` records.
 
-A local package receives `passed` only when the manifest revision and toolchain match, Lean exits successfully, no `sorry` or `admit` remains, and every declared `#print axioms` audit appears in Lean's output. Failures are written as `failed` with the actual exit code and output digest; they are never converted to `passed` or silently reset to `not-run`.
+A local package receives `passed` only when the manifest revision and toolchain match, Lean exits successfully, no real `sorry` or `admit` token remains, every declared `#print axioms` audit appears in Lean's output, and no reported declaration depends on `sorryAx`. This includes admissions inherited through imported lemmas even when the mapped source has zero admission tokens. Nested comments, string and character literals, and quoted identifiers are excluded from the admission scan. Failures are written as `failed` with the actual Lean exit code and output digest; the verifier command exits nonzero even when Lean itself exits 0.
+
+Lean's foundational axioms `propext` (propositional extensionality), `Classical.choice` (choice from a nonempty type), and `Quot.sound` (related values have equal quotient constructors) are allowed and retained in the axiom report. The gate rejects `sorryAx`, rather than rejecting all axioms. Other axioms are also recorded for author review; this gate does not certify that a declaration uses only those three foundational axioms. Use explicit fully qualified audit names outside their namespace; Unicode, subscript, prime-suffixed, and `«quoted identifiers»` are supported, including quoted components within qualified names.
 
 To verify only one package:
 

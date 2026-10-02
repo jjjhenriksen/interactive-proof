@@ -41,8 +41,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install pinned Lean for compiler regression fixtures
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install "$(cat proofs/odd-sum-square/lean-toolchain)"
+
       - name: Validate proof packages
         run: npm run proof:validate
+
+      - name: Verify authored Lean package
+        run: npm run proof:verify
 
       - name: Validate evaluation set
         run: npm run eval:validate

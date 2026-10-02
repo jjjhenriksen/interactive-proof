@@ -7,10 +7,13 @@ import { createExplanationStream } from "../lib/explanation/openai-response.serv
 import { buildExplanationContext } from "../lib/explanation/serialize-context.server";
 import { validateResponseCitations } from "../lib/evaluation/citations";
 import { loadEvaluationArtifacts, validateEvaluationSet } from "../lib/evaluation/validate-set.server";
+import type { EvaluationCase } from "../lib/evaluation/schema";
 
-type SanitizedRun = {
+export type SanitizedRun = {
   caseId: string;
   completed: boolean;
+  streamFailed: boolean;
+  passed: boolean;
   responseSha256: string;
   responseCharacters: number;
   citations: string[];
@@ -37,32 +40,66 @@ async function main() {
   if (cases.length === 0) throw new Error("No matching live-eligible evaluation case");
 
   const model = process.env.OPENAI_MODEL ?? "gpt-5.6";
+  const result = await runEvaluationCases({
+    cases, model, apiKey, promptVersion: evaluationSet.promptVersion,
+    outputDirectory: path.join(process.cwd(), "output", "evals"),
+  });
+  process.exitCode = result.exitCode;
+}
+
+export async function runEvaluationCases({
+  cases, model, apiKey, promptVersion, outputDirectory,
+  createStream = createExplanationStream,
+  writeResponse = (caseId, response) => process.stdout.write(`\n--- ${caseId} ---\n${response}\n`),
+}: {
+  cases: EvaluationCase[];
+  model: string;
+  apiKey: string;
+  promptVersion: string;
+  outputDirectory: string;
+  createStream?: typeof createExplanationStream;
+  writeResponse?: (caseId: string, response: string) => void;
+}): Promise<{ exitCode: 0 | 1; outputPath: string; runs: SanitizedRun[] }> {
+  if (cases.length === 0) throw new Error("No evaluation cases selected");
   const startedAt = new Date().toISOString();
   const runs: SanitizedRun[] = [];
 
   for (const evaluationCase of cases) {
-    const { context, publicContext } = await buildExplanationContext(evaluationCase.request);
-    const stream = createExplanationStream({
-      request: evaluationCase.request,
-      context,
-      publicContext,
-      apiKey,
-      model,
-      requestId: `eval-${evaluationCase.id}`,
-      signal: new AbortController().signal,
-    });
-    const events = parseServerEvents(await readStream(stream));
+    let events: Array<Record<string, unknown>> = [];
+    let allowedSourceIds: string[] = [];
+    let streamFailed = false;
+    try {
+      const { context, publicContext } = await buildExplanationContext(evaluationCase.request);
+      allowedSourceIds = context.allowedSourceIds;
+      const stream = createStream({
+        request: evaluationCase.request,
+        context,
+        publicContext,
+        apiKey,
+        model,
+        requestId: `eval-${evaluationCase.id}`,
+        signal: new AbortController().signal,
+      });
+      events = parseServerEvents(await readStream(stream));
+      streamFailed = events.some((event) => event.type === "error");
+    } catch {
+      // Provider/context/read failures must not prevent other cases or the summary.
+      // Deliberately retain no exception text, which may contain provider secrets.
+      streamFailed = true;
+    }
     const response = events
       .filter((event) => event.type === "delta")
       .map((event) => String(event.text ?? ""))
       .join("");
     const completed = events.find((event) => event.type === "completed");
-    const citations = validateResponseCitations(response, context.allowedSourceIds);
+    const citations = validateResponseCitations(response, allowedSourceIds);
 
-    process.stdout.write(`\n--- ${evaluationCase.id} ---\n${response}\n`);
+    writeResponse(evaluationCase.id, response);
     runs.push({
       caseId: evaluationCase.id,
       completed: Boolean(completed),
+      streamFailed,
+      passed: Boolean(completed) && !streamFailed && citations.isValid,
       responseSha256: createHash("sha256").update(response).digest("hex"),
       responseCharacters: response.length,
       citations: citations.citations,
@@ -71,15 +108,15 @@ async function main() {
     });
   }
 
-  const outputDirectory = path.join(process.cwd(), "output", "evals");
   await mkdir(outputDirectory, { recursive: true });
   const outputPath = path.join(outputDirectory, `live-summary-${startedAt.replaceAll(":", "-")}.json`);
   await writeFile(
     outputPath,
-    `${JSON.stringify({ schemaVersion: 1, promptVersion: evaluationSet.promptVersion, model, startedAt, runs }, null, 2)}\n`,
+    `${JSON.stringify({ schemaVersion: 1, promptVersion, model, startedAt, runs }, null, 2)}\n`,
     "utf8",
   );
   console.log(`\nWrote sanitized metadata only to ${outputPath}. Responses and source text were not stored.`);
+  return { exitCode: runs.every((run) => run.passed) ? 0 : 1, outputPath, runs };
 }
 
 export function parseRequestedCase(args: string[]): string | undefined {

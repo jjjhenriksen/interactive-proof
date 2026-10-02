@@ -13,7 +13,7 @@ Requirements:
 - Node.js 24
 - npm
 - Chromium only for browser tests
-- Lean only when regenerating verification evidence for a full local proof package
+- Lean via elan, with the toolchain pinned in `proofs/odd-sum-square/lean-toolchain`, for the compiler regression tests in `npm test` and for regenerating verification evidence. The application itself does not require Lean.
 
 Install and start the application:
 
