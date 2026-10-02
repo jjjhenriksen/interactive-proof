@@ -77,10 +77,10 @@ describe("real Lean verification", () => {
 
   it("detects real sorry and admit despite Lean's successful exit", async () => {
     const { root, directory, source } = await fixturePackage("Admissions.lean");
-    expect(countSorryTokens(source)).toBe(2);
+    expect(countSorryTokens(source)).toBe(3);
     const compiled = await runCommand("lean", ["lean/Main.lean"], directory);
     expect(compiled.exitCode, compiled.output).toBe(0);
-    expect(parseAxiomOutput(compiled.output)).toHaveLength(2);
+    expect(parseAxiomOutput(compiled.output)).toHaveLength(3);
     expect(await verifyPackage("odd-sum-square", root)).toBe("failed");
   }, 30_000);
 });

@@ -38,52 +38,68 @@ export function leanTokens(source: string): string[] {
     while (i < chars.length && isIdRest(chars[i])) i++;
     return true;
   };
-  while (i < chars.length) {
-    if (/\s/u.test(chars[i])) { i++; continue; }
-    if (starts("--")) {
-      while (i < chars.length && chars[i] !== "\n") i++;
-      continue;
-    }
-    if (starts("/-")) {
-      i += 2;
-      let depth = 1;
-      while (i < chars.length && depth > 0) {
-        if (starts("/-")) { depth++; i += 2; }
-        else if (starts("-/")) { depth--; i += 2; }
-        else i++;
+  const scan = (untilBrace = false) => {
+    let braceDepth = 0;
+    while (i < chars.length) {
+      if (untilBrace && chars[i] === "}" && braceDepth === 0) { i++; return; }
+      if (chars[i] === "{") braceDepth++;
+      if (chars[i] === "}") braceDepth--;
+      if (/\s/u.test(chars[i])) { i++; continue; }
+      if (starts("--")) {
+        while (i < chars.length && chars[i] !== "\n") i++;
+        continue;
       }
-      continue;
-    }
-    // Lean raw strings: r"...", r#"..."#, r##"..."##, etc.
-    const raw = chars[i] === "r" ? sourceFrom(chars, i).match(/^r(#+)?"/) : null;
-    if (raw) {
-      const ending = `"${raw[1] ?? ""}`;
-      i += raw[0].length;
-      while (i < chars.length && !starts(ending)) i++;
-      i = Math.min(chars.length, i + ending.length);
-      tokens.push("<literal>");
-      continue;
-    }
-    if (chars[i] === '"' || chars[i] === "'") {
-      const quote = chars[i++];
-      while (i < chars.length) {
-        if (chars[i] === "\\") { i += 2; continue; }
-        if (chars[i++] === quote) break;
+      if (starts("/-")) {
+        i += 2;
+        let depth = 1;
+        while (i < chars.length && depth > 0) {
+          if (starts("/-")) { depth++; i += 2; }
+          else if (starts("-/")) { depth--; i += 2; }
+          else i++;
+        }
+        continue;
       }
-      tokens.push("<literal>");
-      continue;
-    }
-    const start = i;
-    if (part()) {
-      while (chars[i] === ".") {
-        const dot = i++;
-        if (!part()) { i = dot; break; }
+      // Lean raw strings: r"...", r#"..."#, r##"..."##, etc.
+      const raw = chars[i] === "r" ? sourceFrom(chars, i).match(/^r(#+)?"/) : null;
+      if (raw) {
+        const ending = `"${raw[1] ?? ""}`;
+        i += raw[0].length;
+        while (i < chars.length && !starts(ending)) i++;
+        i = Math.min(chars.length, i + ending.length);
+        tokens.push("<literal>");
+        continue;
       }
-      tokens.push(chars.slice(start, i).join(""));
-    } else {
-      tokens.push(chars[i++]);
+      if (chars[i] === '"' || chars[i] === "'") {
+        const interpolated = chars[i] === '"' && /^(s|m)!$/.test(tokens.at(-1) ?? "");
+        const quote = chars[i++];
+        tokens.push("<literal>");
+        while (i < chars.length) {
+          if (chars[i] === "\\") { i += 2; continue; }
+          // Standard Lean interpolated strings contain real terms inside braces.
+          // Keep scanning those terms, including their own comments and literals.
+          if (interpolated && chars[i] === "{") {
+            i++;
+            scan(true);
+            tokens.push("<literal>");
+            continue;
+          }
+          if (chars[i++] === quote) break;
+        }
+        continue;
+      }
+      const start = i;
+      if (part()) {
+        while (chars[i] === ".") {
+          const dot = i++;
+          if (!part()) { i = dot; break; }
+        }
+        tokens.push(chars.slice(start, i).join(""));
+      } else {
+        tokens.push(chars[i++]);
+      }
     }
-  }
+  };
+  scan();
   return tokens;
 }
 
