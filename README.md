@@ -118,12 +118,23 @@ Browser smoke test:
 
 ```bash
 npx playwright install chromium
-PLAYWRIGHT_SERVER=production npm run test:e2e:smoke
+PLAYWRIGHT_SERVER=development npm run test:e2e:smoke
+PLAYWRIGHT_SERVER=production npx playwright test tests/e2e/reader-smoke.spec.ts tests/e2e/methodology.spec.ts --project=chromium --grep 'opens the upload workspace|publishes the fixed methodology|returns an upload-first 404'
 ```
 
 Run `npm run test:e2e` for every configured desktop and mobile project.
 
+The full focused smoke suite exercises the curated fixture reader in development. Production deliberately redirects that reader to `/upload`, so its focused checks exercise the upload entry, methodology, and unknown-proof 404 instead.
+
 ### Proof-package checks
+
+Install [elan](https://github.com/leanprover/elan) and the pinned toolchain before running `npm test` (which includes real compiler fixtures) or `proof:verify`:
+
+```bash
+elan toolchain install "$(cat proofs/odd-sum-square/lean-toolchain)"
+```
+
+CI installs this toolchain explicitly; compiler regression tests fail rather than silently skip when Lean is unavailable.
 
 ```bash
 npm run proof:registry
@@ -135,7 +146,11 @@ npm run proof:verify
 - `proof:validate` checks schemas, assets, source references, line ranges, and PDF hashes.
 - `proof:verify` runs supported full local Lean packages and atomically rewrites their `verification.json` records.
 
-A local package receives `passed` only when the manifest revision and toolchain match, Lean exits successfully, no `sorry` or `admit` remains, and every declared `#print axioms` audit appears in Lean's output. Failures are written as `failed` with the actual exit code and output digest; they are never converted to `passed` or silently reset to `not-run`.
+A local package receives `passed` only when the manifest revision and toolchain match, Lean exits successfully, no real `sorry` or `admit` token remains, every declared `#print axioms` audit appears in Lean's output, and no reported declaration depends on `sorryAx`. This includes admissions inherited through imported lemmas even when the mapped source has zero admission tokens. Nested comments, string and character literals, and quoted identifiers are excluded from the admission scan. Failures are written as `failed` with the actual Lean exit code and output digest; the verifier command exits nonzero even when Lean itself exits 0.
+
+Lean's foundational axioms `propext` (propositional extensionality), `Classical.choice` (choice from a nonempty type), and `Quot.sound` (related values have equal quotient constructors) are allowed and retained in the axiom report. The gate rejects `sorryAx`, rather than rejecting all axioms. Other axioms are also recorded for author review; this gate does not certify that a declaration uses only those three foundational axioms. Use explicit fully qualified audit names outside their namespace; Unicode, subscript, prime-suffixed, and `«quoted identifiers»` are supported, including quoted components within qualified names.
+
+In standard `s!`/`m!` interpolated strings, the scanner ignores literal prose and scans the real Lean terms inside `{...}` for admissions, including nested comments and string literals within those terms.
 
 To verify only one package:
 

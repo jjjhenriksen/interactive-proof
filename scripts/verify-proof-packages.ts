@@ -8,6 +8,7 @@ import { loadProofPackageFromDirectory } from "../lib/proof-packages/load-packag
 import { listProofIds } from "../lib/proof-packages/registry.server";
 import { resolveExistingPackagePath, resolvePackagePath } from "../lib/proof-packages/locations";
 import { VerificationRecordSchema, type VerificationRecord } from "../lib/verification/schema";
+import { isLeanName, leanNameKey, leanTokens } from "../lib/verification/lean-lexer";
 
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024;
 const DEFAULT_COMMAND_TIMEOUT_MS = 2 * 60 * 1_000;
@@ -19,15 +20,14 @@ type CommandResult = {
 };
 
 export function countSorryTokens(source: string): number {
-  const withoutComments = source
-    .replace(/\/-[\s\S]*?-\//g, " ")
-    .replace(/--.*$/gm, " ");
-  return withoutComments.match(/\b(?:sorry|admit)\b/g)?.length ?? 0;
+  return leanTokens(source).filter((token) => token === "sorry" || token === "admit").length;
 }
 
 export function declaredAxiomAudits(source: string): string[] {
-  return [...source.matchAll(/^\s*#print\s+axioms\s+([A-Za-z_][\w.]*)\s*$/gm)].map(
-    (match) => match[1],
+  const tokens = leanTokens(source);
+  return tokens.flatMap((token, index) =>
+    token === "#" && tokens[index + 1] === "print" && tokens[index + 2] === "axioms" &&
+    tokens[index + 3] && isLeanName(tokens[index + 3]) ? [tokens[index + 3]] : [],
   );
 }
 
@@ -35,13 +35,13 @@ export function parseAxiomOutput(
   output: string,
 ): Array<{ declaration: string; axioms: string[] }> {
   const records: Array<{ declaration: string; axioms: string[] }> = [];
-  for (const match of output.matchAll(/'([^']+)' depends on axioms: \[([^\]]*)\]/g)) {
+  for (const match of output.matchAll(/^'(.+)' depends on axioms: \[([^\]]*)\]/gm)) {
     records.push({
       declaration: match[1],
       axioms: match[2].split(",").map((axiom) => axiom.trim()).filter(Boolean),
     });
   }
-  for (const match of output.matchAll(/'([^']+)' does not depend on any axioms/g)) {
+  for (const match of output.matchAll(/^'(.+)' does not depend on any axioms/gm)) {
     records.push({ declaration: match[1], axioms: [] });
   }
   return records;
@@ -135,8 +135,8 @@ export async function runCommand(
   });
 }
 
-async function verifyPackage(id: string): Promise<"passed" | "failed" | "skipped"> {
-  const packageDirectory = await resolveExistingPackagePath(process.cwd(), `proofs/${id}`);
+export async function verifyPackage(id: string, root = process.cwd()): Promise<"passed" | "failed" | "skipped"> {
+  const packageDirectory = await resolveExistingPackagePath(root, `proofs/${id}`);
   const loaded = await loadProofPackageFromDirectory(packageDirectory);
   if (loaded.manifest.lean.displayMode !== "full") {
     console.log(`↷ ${id}: not run (package contains display excerpts, not a local Lean project)`);
@@ -172,13 +172,15 @@ async function verifyPackage(id: string): Promise<"passed" | "failed" | "skipped
   }
   const output = outputs.join("");
   const axioms = parseAxiomOutput(output);
-  const auditedDeclarations = new Set(axioms.map(({ declaration }) => declaration));
-  const auditComplete = expectedAudits.length > 0 && expectedAudits.every((name) => auditedDeclarations.has(name));
+  const auditedDeclarations = new Set(axioms.map(({ declaration }) => leanNameKey(declaration)));
+  const auditComplete = expectedAudits.length > 0 && expectedAudits.every((name) => auditedDeclarations.has(leanNameKey(name)));
+  const admittedDeclarations = axioms.filter((audit) => audit.axioms.includes("sorryAx"));
   const command = leanFiles.map((file) => `lean ${file}`).join(" && ");
   const passed =
     exitCode === 0 &&
     sorryCount === 0 &&
     auditComplete &&
+    admittedDeclarations.length === 0 &&
     toolchain === loaded.manifest.lean.toolchain &&
     revision === loaded.manifest.lean.revision;
 
@@ -210,6 +212,7 @@ async function verifyPackage(id: string): Promise<"passed" | "failed" | "skipped
     exitCode !== 0 && `Lean exited ${exitCode}`,
     sorryCount !== 0 && `${sorryCount} sorry/admit token(s)`,
     !auditComplete && "axiom audit missing or incomplete",
+    admittedDeclarations.length > 0 && `sorryAx dependency in ${admittedDeclarations.map((audit) => audit.declaration).join(", ")}`,
     toolchain !== loaded.manifest.lean.toolchain && "toolchain differs from manifest",
     revision !== loaded.manifest.lean.revision && "source revision differs from manifest",
   ].filter(Boolean);

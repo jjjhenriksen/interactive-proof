@@ -42,6 +42,10 @@ OPENAI_API_KEY=... npm run eval:live -- --confirm-live --case paper-unfamiliar-r
 
 The command uses the same context builder and OpenAI streaming transport as the application with `store: false` and no tools. Responses are printed for human review but not written to disk. The generated `output/evals/live-summary-*.json` contains only case IDs, model and prompt versions, timestamps, response hashes and lengths, token usage, and citation IDs. It contains no API key, source text, user question, full prompt, conversation history, or model response.
 
+The deterministic live gate requires every selected case to receive a completion event, have no provider or stream error, and contain no citation IDs outside its allowed-source list. A missing completion, provider failure, or invalid citation makes the command exit 1; it exits 0 only when every selected case passes. Remaining cases still run after a failed case, and the sanitized summary is written before the exit status is set. Each case records `completed`, `streamFailed`, `passed`, and `invalidCitationIds`; provider exception details are not retained. This gate checks completion and citation validity, not whether the response includes citations or earns a good human rubric score.
+
+Offline regression tests inject fake provider streams into the real application transport to exercise provider errors, incomplete responses, missing completion, invalid citations, errors after completion, and mixed passing/failing case sets without live API calls.
+
 The checked-in `evals/results.json` changes only after a reviewer completes and documents a live run. Until then the public page says `not run` and publishes no score.
 
 ## Interpretation limits

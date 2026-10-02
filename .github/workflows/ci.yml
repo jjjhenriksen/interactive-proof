@@ -41,8 +41,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install pinned Lean for compiler regression fixtures
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" toolchain install "$(cat proofs/odd-sum-square/lean-toolchain)"
+
       - name: Validate proof packages
         run: npm run proof:validate
+
+      - name: Verify authored Lean package
+        run: npm run proof:verify
 
       - name: Validate evaluation set
         run: npm run eval:validate
@@ -62,8 +71,13 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run focused browser smoke tests
+      - name: Run development fixture browser smoke tests
+        env:
+          PLAYWRIGHT_SERVER: development
         run: npm run test:e2e:smoke
+
+      - name: Run production upload-first browser smoke tests
+        run: npx playwright test tests/e2e/reader-smoke.spec.ts tests/e2e/methodology.spec.ts --project=chromium --grep 'opens the upload workspace|publishes the fixed methodology|returns an upload-first 404'
 
       - name: Upload browser report on failure
         if: failure()
