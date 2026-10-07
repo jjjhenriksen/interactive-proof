@@ -4,15 +4,19 @@ import { createExplanationStream } from "../../../lib/explanation/openai-respons
 import { checkRateLimit, trustedRateLimitIdentity } from "../../../lib/explanation/rate-limit.server";
 import { buildUploadedExplanationContext } from "../../../lib/uploads/context.server";
 import { uploadedExplainRequestSchema } from "../../../lib/uploads/schema";
+import { readBoundedRequestText, RequestBodyTooLargeError } from "../../../lib/explanation/read-body.server";
 
 export const runtime = "edge";
 const MAX_REQUEST_BYTES = 48_000;
 
 export async function POST(request: Request) {
-  const declaredLength = Number(request.headers.get("content-length"));
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) return NextResponse.json({ code: "INVALID_REQUEST", message: "The uploaded-context request is too large." }, { status: 413 });
-  const raw = await request.text();
-  if (new TextEncoder().encode(raw).byteLength > MAX_REQUEST_BYTES) return NextResponse.json({ code: "INVALID_REQUEST", message: "The uploaded-context request is too large." }, { status: 413 });
+  let raw: string;
+  try {
+    raw = await readBoundedRequestText(request, MAX_REQUEST_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) return NextResponse.json({ code: "INVALID_REQUEST", message: "The uploaded-context request is too large." }, { status: 413 });
+    return NextResponse.json({ code: "INVALID_REQUEST", message: "The request could not be read." }, { status: 400 });
+  }
   let value: unknown;
   try { value = JSON.parse(raw); } catch { return NextResponse.json({ code: "INVALID_REQUEST", message: "The request is not valid JSON." }, { status: 400 }); }
   const parsed = uploadedExplainRequestSchema.safeParse(value);

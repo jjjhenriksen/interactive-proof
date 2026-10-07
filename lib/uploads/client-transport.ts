@@ -32,6 +32,9 @@ export async function streamUploadedExplanation(
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let bodyFinished = false;
+    const cancelOnAbort = () => { void reader.cancel().catch(() => undefined); };
+    signal.addEventListener("abort", cancelOnAbort, { once: true });
     let buffer = "";
     let ended = false;
     const consume = (frame: string) => {
@@ -40,7 +43,7 @@ export async function streamUploadedExplanation(
         .filter((line) => line.startsWith("data:"))
         .map((line) => line.slice(5).trimStart())
         .join("\n");
-      if (!data || ended) return;
+      if (!data || ended || signal.aborted) return;
       let event: ExplanationStreamEvent;
       try {
         event = JSON.parse(data) as ExplanationStreamEvent;
@@ -60,17 +63,26 @@ export async function streamUploadedExplanation(
       }
     };
 
-    while (!ended) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const frames = buffer.split(/\r?\n\r?\n/);
-      buffer = frames.pop() ?? "";
-      frames.forEach(consume);
+    try {
+      while (!ended && !signal.aborted) {
+        const { done, value } = await reader.read();
+        if (done) {
+          bodyFinished = true;
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        const frames = buffer.split(/\r?\n\r?\n/);
+        buffer = frames.pop() ?? "";
+        frames.forEach(consume);
+      }
+      buffer += decoder.decode();
+      if (!ended && buffer.trim()) consume(buffer);
+      if (!ended && !signal.aborted) callbacks.onError("The explanation stream ended unexpectedly.");
+    } finally {
+      signal.removeEventListener("abort", cancelOnAbort);
+      if (!bodyFinished) await reader.cancel().catch(() => undefined);
+      reader.releaseLock();
     }
-    buffer += decoder.decode();
-    if (!ended && buffer.trim()) consume(buffer);
-    if (!ended && !signal.aborted) callbacks.onError("The explanation stream ended unexpectedly.");
   } catch (error) {
     if (signal.aborted || (error instanceof DOMException && error.name === "AbortError")) return;
     callbacks.onError("The explanation service could not be reached.");

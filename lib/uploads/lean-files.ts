@@ -55,7 +55,8 @@ function validateZipContainer(data: Uint8Array): string[] {
   ) invalidZip();
 
   let cursor = centralOffset;
-  const entryNames: string[] = [];
+  const entries: { localOffset: number; name: string }[] = [];
+  const localOffsets = new Set<number>();
   for (let entry = 0; entry < totalEntries; entry += 1) {
     if (cursor + 46 > endOffset || view.getUint32(cursor, true) !== CENTRAL_DIRECTORY_FILE_HEADER) {
       invalidZip();
@@ -74,6 +75,8 @@ function validateZipContainer(data: Uint8Array): string[] {
       compressedSize === 0xffffffff ||
       originalSize === 0xffffffff ||
       localOffset === 0xffffffff ||
+      localOffsets.has(localOffset) ||
+      cursor + 46 + nameLength + extraLength + commentLength > endOffset ||
       localOffset + 30 > centralOffset ||
       view.getUint32(localOffset, true) !== LOCAL_FILE_HEADER
     ) invalidZip();
@@ -87,11 +90,13 @@ function validateZipContainer(data: Uint8Array): string[] {
       localNameLength !== nameLength ||
       !equalBytes(localName, centralName)
     ) invalidZip();
-    entryNames.push(strFromU8(centralName, (flags & 0x0800) === 0));
+    localOffsets.add(localOffset);
+    entries.push({ localOffset, name: strFromU8(centralName, (flags & 0x0800) === 0) });
     cursor += 46 + nameLength + extraLength + commentLength;
   }
   if (cursor !== endOffset) invalidZip();
-  return entryNames;
+  // Unzip streams local records, not the independently ordered directory.
+  return entries.sort((left, right) => left.localOffset - right.localOffset).map((entry) => entry.name);
 }
 
 function safeLeanPath(path: string): boolean {
@@ -226,6 +231,15 @@ export async function readLeanUploads(input: FileList | File[]): Promise<Uploade
   for (const file of sourceFiles) {
     const lowerName = file.name.toLowerCase();
     if (lowerName.endsWith(".lean")) {
+      if (file.size > UPLOAD_LIMITS.leanFileBytes) {
+        throw new Error(`${file.name} is larger than 256 KiB.`);
+      }
+      if (result.length >= UPLOAD_LIMITS.leanFiles) {
+        throw new Error(`Choose at most ${UPLOAD_LIMITS.leanFiles} Lean files.`);
+      }
+      if (result.reduce((sum, source) => sum + source.bytes, 0) + file.size > UPLOAD_LIMITS.leanTotalBytes) {
+        throw new Error("The extracted Lean sources are larger than 1 MiB in total.");
+      }
       result.push(decodeLean(file.name, new Uint8Array(await file.arrayBuffer())));
       continue;
     }
