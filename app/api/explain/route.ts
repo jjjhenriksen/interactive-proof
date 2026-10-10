@@ -4,6 +4,7 @@ import { buildExplanationContext, ExplanationContextError } from "../../../lib/e
 import { createExplanationStream } from "../../../lib/explanation/openai-response.server";
 import { checkRateLimit, trustedRateLimitIdentity } from "../../../lib/explanation/rate-limit.server";
 import { explainRequestSchema } from "../../../lib/explanation/request-schema";
+import { readBoundedRequestText, RequestBodyTooLargeError } from "../../../lib/explanation/read-body.server";
 
 export const runtime = "edge";
 
@@ -19,14 +20,14 @@ function publicError(
 }
 
 export async function POST(request: Request) {
-  const declaredLength = Number(request.headers.get("content-length") ?? 0);
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BYTES) {
-    return publicError(413, "INVALID_REQUEST", "The explanation request is too large.");
-  }
-
-  const rawBody = await request.text();
-  if (new TextEncoder().encode(rawBody).byteLength > MAX_REQUEST_BYTES) {
-    return publicError(413, "INVALID_REQUEST", "The explanation request is too large.");
+  let rawBody: string;
+  try {
+    rawBody = await readBoundedRequestText(request, MAX_REQUEST_BYTES);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return publicError(413, "INVALID_REQUEST", "The explanation request is too large.");
+    }
+    return publicError(400, "INVALID_REQUEST", "The explanation request could not be read.");
   }
 
   let json: unknown;
