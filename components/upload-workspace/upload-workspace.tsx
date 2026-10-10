@@ -9,6 +9,7 @@ import type { PublicContext } from "../../lib/explanation/types";
 import { streamUploadedExplanation } from "../../lib/uploads/client-transport";
 import type { UploadedLeanFile } from "../../lib/uploads/lean-files";
 import { readPaperUpload, type UploadedPaper } from "../../lib/uploads/paper-file";
+import { selectionContext } from "../../lib/uploads/selection-context";
 import type { UploadedExplainRequest } from "../../lib/uploads/schema";
 import { MarkdownContent } from "../explanation-panel/markdown-content";
 import styles from "./upload-workspace.module.css";
@@ -31,6 +32,7 @@ function boundedSelection(value: string): string {
 export function UploadWorkspace() {
   const paperInput = useRef<HTMLInputElement>(null);
   const leanInput = useRef<HTMLInputElement>(null);
+  const leanSource = useRef<HTMLPreElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const [paper, setPaper] = useState<UploadedPaper | null>(null);
   const [leanFiles, setLeanFiles] = useState<UploadedLeanFile[]>([]);
@@ -109,25 +111,37 @@ export function UploadWorkspace() {
 
   function selectPaper(value: PaperTextSelection) {
     if (!activePage) return;
+    const surroundingText = selectionContext(activePage.text, value.selectedText);
+    if (!surroundingText) return;
     setSelection({
       source: "paper",
       page: pageNumber,
       selectedText: value.selectedText,
-      surroundingText: activePage.text.slice(0, 12_000),
+      surroundingText,
     });
     setExplanationStatus("idle");
   }
 
   function selectLeanText() {
     if (!activeLean) return;
-    const browserSelection = window.getSelection()?.toString() ?? "";
-    const selectedText = boundedSelection(browserSelection || activeLean.text);
+    const browserSelection = window.getSelection();
+    const selectedText = boundedSelection(browserSelection?.toString() || activeLean.text);
+    let sourceOffset: number | undefined;
+    const range = browserSelection?.rangeCount ? browserSelection.getRangeAt(0) : undefined;
+    if (range && leanSource.current?.contains(range.commonAncestorContainer)) {
+      const prefix = range.cloneRange();
+      prefix.selectNodeContents(leanSource.current);
+      prefix.setEnd(range.startContainer, range.startOffset);
+      sourceOffset = prefix.toString().length;
+    }
+    const surroundingText = selectionContext(activeLean.text, selectedText, sourceOffset);
+    if (!surroundingText) return;
     if (selectedText.length < 2) return;
     setSelection({
       source: "lean",
       file: activeLean.path,
       selectedText,
-      surroundingText: activeLean.text.slice(0, 12_000),
+      surroundingText,
     });
     setExplanationStatus("idle");
   }
@@ -254,7 +268,7 @@ export function UploadWorkspace() {
                 <span className={styles.unverified}>Not verified</span>
               </div>
               <p className={styles.help}>Highlight Lean text, or explain the beginning of the file.</p>
-              <pre className={styles.leanSource} onPointerUp={selectLeanText} data-testid="uploaded-lean-source"><code>{activeLean.text}</code></pre>
+              <pre ref={leanSource} className={styles.leanSource} onPointerUp={selectLeanText} data-testid="uploaded-lean-source"><code>{activeLean.text}</code></pre>
               <button className="button button--secondary" type="button" onClick={selectLeanText}>Explain this Lean file</button>
             </>
           ) : null}

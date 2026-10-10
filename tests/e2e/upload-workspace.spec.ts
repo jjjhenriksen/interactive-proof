@@ -54,3 +54,41 @@ test("requires consent before opening files", async ({ page }) => {
   await page.getByRole("button", { name: "Open temporary workspace" }).click();
   await expect(page.getByText("Confirm that you may use these files.", { exact: true })).toBeVisible();
 });
+
+test("explains a late repeated Lean selection with its actual neighboring context", async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  let requestBody: { selection: { selectedText: string; surroundingText: string } } | undefined;
+  await page.route("**/api/explain-upload", async (route) => {
+    requestBody = route.request().postDataJSON();
+    await route.fulfill({ status: 200, contentType: "text/event-stream", body: 'event: completed\ndata: {"type":"completed","responseId":"test","suggestions":[]}\n\n' });
+  });
+  const source = "-- opening region\ntheorem repeated : True := by trivial\n"
+    + "-- unrelated earlier material\n".repeat(650)
+    + "-- nearby definition at the selected location\ntheorem repeated : True := by trivial\n-- following lemma";
+  await page.goto("/upload");
+  await page.getByLabel(/Paper PDF/).setInputFiles(paperPath);
+  await page.getByLabel(/Lean source/).setInputFiles({ name: "Long.lean", mimeType: "text/plain", buffer: Buffer.from(source) });
+  await page.getByLabel(/I have permission/).check();
+  await page.getByRole("button", { name: "Open temporary workspace" }).click();
+  await page.getByRole("tab", { name: /Uploaded Lean/ }).click();
+  const lean = page.getByTestId("uploaded-lean-source");
+  await lean.evaluate((element) => {
+    const node = element.querySelector("code")!.firstChild!;
+    const start = node.textContent!.lastIndexOf("theorem repeated");
+    const range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, start + "theorem repeated : True".length);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
+    element.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+  });
+  await page.getByRole("button", { name: "Explain selection" }).click();
+  await expect.poll(() => requestBody?.selection.surroundingText).toContain("nearby definition at the selected location");
+  expect(requestBody?.selection.surroundingText).toContain("following lemma");
+  expect(requestBody?.selection.surroundingText).not.toContain("opening region");
+  expect(requestBody?.selection.surroundingText.length).toBeLessThanOrEqual(12_000);
+  expect(requestBody?.selection.selectedText).toBe("theorem repeated : True");
+  expect(errors).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath("selection-context.png") });
+});
