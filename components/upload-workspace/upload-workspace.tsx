@@ -35,6 +35,7 @@ export function UploadWorkspace() {
   const leanInput = useRef<HTMLInputElement>(null);
   const leanSource = useRef<HTMLPreElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const workspaceGeneration = useRef(0);
   const [paper, setPaper] = useState<UploadedPaper | null>(null);
   const [leanFiles, setLeanFiles] = useState<UploadedLeanFile[]>([]);
   const [activeTab, setActiveTab] = useState<"paper" | "lean">("paper");
@@ -58,7 +59,10 @@ export function UploadWorkspace() {
   const activeLean = leanFiles.find((file) => file.path === activeLeanPath) ?? leanFiles[0];
 
   useEffect(() => () => {
+    workspaceGeneration.current += 1;
     abortRef.current?.abort();
+  }, []);
+  useEffect(() => () => {
     if (paper) URL.revokeObjectURL(paper.url);
   }, [paper]);
 
@@ -70,6 +74,7 @@ export function UploadWorkspace() {
       setSetupError(!paperFile ? "Choose a PDF paper to continue." : "Confirm that you may use these files.");
       return;
     }
+    const generation = ++workspaceGeneration.current;
     setSetupStatus("loading");
     setSetupError("");
     try {
@@ -80,20 +85,26 @@ export function UploadWorkspace() {
           : Promise.resolve([]),
         (unusedPaper) => URL.revokeObjectURL(unusedPaper.url),
       );
+      if (generation !== workspaceGeneration.current) {
+        URL.revokeObjectURL(nextPaper.url);
+        return;
+      }
       setPaper(nextPaper);
       setLeanFiles(nextLean);
       setActiveLeanPath(nextLean[0]?.path ?? "");
       setMappedLeanPath(nextLean[0]?.path ?? "");
       setSetupStatus("idle");
     } catch (error) {
+      if (generation !== workspaceGeneration.current) return;
       setSetupStatus("error");
       setSetupError(error instanceof Error ? error.message : "The files could not be opened.");
     }
   }
 
   function clearWorkspace() {
+    workspaceGeneration.current += 1;
     abortRef.current?.abort();
-    if (paper) URL.revokeObjectURL(paper.url);
+    abortRef.current = null;
     setPaper(null);
     setLeanFiles([]);
     setSelection(null);
@@ -101,6 +112,16 @@ export function UploadWorkspace() {
     setPublicContext(null);
     setExplanationStatus("idle");
     setPageNumber(1);
+    setQuestion("");
+    setMappingNote("");
+    setActiveTab("paper");
+    setActiveLeanPath("");
+    setMappedLeanPath("");
+    setExplanationError("");
+    setSetupError("");
+    setSetupStatus("idle");
+    setMode("details");
+    setDepth("foundational");
     setRightsConfirmed(false);
     if (paperInput.current) paperInput.current.value = "";
     if (leanInput.current) leanInput.current.value = "";
@@ -176,12 +197,18 @@ export function UploadWorkspace() {
     setExplanationStatus("connecting");
     await streamUploadedExplanation(body, {
       onContext: (context) => {
+        if (controller.signal.aborted || abortRef.current !== controller) return;
         setPublicContext(context);
         setExplanationStatus("streaming");
       },
-      onDelta: (text) => setExplanation((current) => current + text),
-      onComplete: () => setExplanationStatus("complete"),
+      onDelta: (text) => {
+        if (!controller.signal.aborted && abortRef.current === controller) setExplanation((current) => current + text);
+      },
+      onComplete: () => {
+        if (!controller.signal.aborted && abortRef.current === controller) setExplanationStatus("complete");
+      },
       onError: (message) => {
+        if (controller.signal.aborted || abortRef.current !== controller) return;
         setExplanationError(message);
         setExplanationStatus("error");
       },
