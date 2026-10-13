@@ -127,10 +127,20 @@ export function UploadWorkspace() {
     if (leanInput.current) leanInput.current.value = "";
   }
 
+  function invalidateExplanation() {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setExplanation("");
+    setExplanationError("");
+    setPublicContext(null);
+    setExplanationStatus("idle");
+  }
+
   function selectPaper(value: PaperTextSelection) {
     if (!activePage) return;
     const surroundingText = selectionContext(activePage.text, value.selectedText);
     if (!surroundingText) return;
+    invalidateExplanation();
     setSelection({
       source: "paper",
       page: pageNumber,
@@ -156,6 +166,7 @@ export function UploadWorkspace() {
     const surroundingText = selectionContext(activeLean.text, selectedText, sourceOffset);
     if (!surroundingText) return;
     if (selectedText.length < 2) return;
+    invalidateExplanation();
     setSelection({
       source: "lean",
       file: activeLean.path,
@@ -289,7 +300,7 @@ export function UploadWorkspace() {
           ) : activeLean ? (
             <>
               <div className={styles.sourceToolbar}>
-                <label>File <select value={activeLean.path} onChange={(event) => setActiveLeanPath(event.target.value)}>{leanFiles.map((file) => <option key={file.path}>{file.path}</option>)}</select></label>
+                <label>File <select value={activeLean.path} onChange={(event) => { invalidateExplanation(); setSelection(null); setActiveLeanPath(event.target.value); }}>{leanFiles.map((file) => <option key={file.path}>{file.path}</option>)}</select></label>
                 <span className={styles.unverified}>Not verified</span>
               </div>
               <p className={styles.help}>Highlight Lean text, or explain the beginning of the file.</p>
