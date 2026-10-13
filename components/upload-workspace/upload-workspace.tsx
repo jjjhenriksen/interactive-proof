@@ -125,10 +125,11 @@ export function UploadWorkspace() {
   function selectLeanText() {
     if (!activeLean) return;
     const browserSelection = window.getSelection();
-    const selectedText = boundedSelection(browserSelection?.toString() || activeLean.text);
-    let sourceOffset: number | undefined;
     const range = browserSelection?.rangeCount ? browserSelection.getRangeAt(0) : undefined;
-    if (range && leanSource.current?.contains(range.commonAncestorContainer)) {
+    const belongsToSource = Boolean(range && leanSource.current?.contains(range.commonAncestorContainer));
+    const selectedText = boundedSelection((belongsToSource ? browserSelection?.toString() : "") || activeLean.text);
+    let sourceOffset: number | undefined;
+    if (range && belongsToSource && leanSource.current) {
       const prefix = range.cloneRange();
       prefix.selectNodeContents(leanSource.current);
       prefix.setEnd(range.startContainer, range.startOffset);
