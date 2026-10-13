@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 import type { PaperTextSelection } from "../paper-reader/pdf-paper-reader";
 import type { ExplanationDepth, ExplanationMode } from "../../lib/explanation/request-schema";
@@ -31,6 +31,9 @@ function boundedSelection(value: string): string {
 }
 
 export function UploadWorkspace() {
+  const tabsId = useId();
+  const paperTab = useRef<HTMLButtonElement>(null);
+  const leanTab = useRef<HTMLButtonElement>(null);
   const paperInput = useRef<HTMLInputElement>(null);
   const leanInput = useRef<HTMLInputElement>(null);
   const leanSource = useRef<HTMLPreElement>(null);
@@ -99,6 +102,14 @@ export function UploadWorkspace() {
       setSetupStatus("error");
       setSetupError(error instanceof Error ? error.message : "The files could not be opened.");
     }
+  }
+
+  function navigateTabs(event: KeyboardEvent<HTMLButtonElement>) {
+    if (!leanFiles.length || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? "paper" : event.key === "End" ? "lean" : activeTab === "paper" ? "lean" : "paper";
+    setActiveTab(next);
+    (next === "paper" ? paperTab : leanTab).current?.focus();
   }
 
   function clearWorkspace() {
@@ -281,13 +292,13 @@ export function UploadWorkspace() {
       </header>
 
       <div className={styles.tabs} role="tablist" aria-label="Uploaded sources">
-        <button type="button" role="tab" aria-selected={activeTab === "paper"} onClick={() => setActiveTab("paper")}>Paper</button>
-        {leanFiles.length ? <button type="button" role="tab" aria-selected={activeTab === "lean"} onClick={() => setActiveTab("lean")}>Uploaded Lean <span>Unverified</span></button> : null}
+        <button ref={paperTab} id={`${tabsId}-paper-tab`} aria-controls={`${tabsId}-paper-panel`} tabIndex={activeTab === "paper" ? 0 : -1} onKeyDown={navigateTabs} type="button" role="tab" aria-selected={activeTab === "paper"} onClick={() => setActiveTab("paper")}>Paper</button>
+        {leanFiles.length ? <button ref={leanTab} id={`${tabsId}-lean-tab`} aria-controls={`${tabsId}-lean-panel`} tabIndex={activeTab === "lean" ? 0 : -1} onKeyDown={navigateTabs} type="button" role="tab" aria-selected={activeTab === "lean"} onClick={() => setActiveTab("lean")}>Uploaded Lean <span>Unverified</span></button> : null}
       </div>
 
       <div className={styles.readerGrid}>
-        <section className={styles.sourcePane}>
-          {activeTab === "paper" && activePage ? (
+        <section className={styles.sourcePane} role="tabpanel" id={`${tabsId}-paper-panel`} aria-labelledby={`${tabsId}-paper-tab`} hidden={activeTab !== "paper"}>
+          {activePage ? (
             <>
               <div className={styles.sourceToolbar}>
                 <button type="button" disabled={pageNumber === 1} onClick={() => setPageNumber((page) => page - 1)}>← Previous</button>
@@ -297,7 +308,10 @@ export function UploadWorkspace() {
               <p className={styles.help}>Highlight text on the PDF, then use the explanation panel.</p>
               <PdfPaperReader pdfUrl={paper.url} pageNumber={pageNumber} pageBlocks={activePage.blocks} title={paper.title} onSelection={selectPaper} />
             </>
-          ) : activeLean ? (
+          ) : null}
+        </section>
+        {leanFiles.length ? <section className={styles.sourcePane} role="tabpanel" id={`${tabsId}-lean-panel`} aria-labelledby={`${tabsId}-lean-tab`} hidden={activeTab !== "lean"}>
+          {activeLean ? (
             <>
               <div className={styles.sourceToolbar}>
                 <label>File <select value={activeLean.path} onChange={(event) => { invalidateExplanation(); setSelection(null); setActiveLeanPath(event.target.value); }}>{leanFiles.map((file) => <option key={file.path}>{file.path}</option>)}</select></label>
@@ -308,7 +322,7 @@ export function UploadWorkspace() {
               <button className="button button--secondary" type="button" onClick={selectLeanText}>Explain this Lean file</button>
             </>
           ) : null}
-        </section>
+        </section> : null}
 
         <aside className={styles.sidePanel} aria-label="AI explanation">
           <p className="eyebrow">Explanation</p>
