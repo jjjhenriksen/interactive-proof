@@ -9,6 +9,7 @@ import type { PublicContext } from "../../lib/explanation/types";
 import { streamUploadedExplanation } from "../../lib/uploads/client-transport";
 import type { UploadedLeanFile } from "../../lib/uploads/lean-files";
 import { readPaperUpload, type UploadedPaper } from "../../lib/uploads/paper-file";
+import { prepareWorkspaceFiles } from "../../lib/uploads/prepare-workspace";
 import { selectionContext } from "../../lib/uploads/selection-context";
 import type { UploadedExplainRequest } from "../../lib/uploads/schema";
 import { MarkdownContent } from "../explanation-panel/markdown-content";
@@ -71,24 +72,20 @@ export function UploadWorkspace() {
     }
     setSetupStatus("loading");
     setSetupError("");
-    let openedPaper: UploadedPaper | null = null;
     try {
-      const [nextPaper, nextLean] = await Promise.all([
-        readPaperUpload(paperFile).then((value) => {
-          openedPaper = value;
-          return value;
-        }),
+      const [nextPaper, nextLean] = await prepareWorkspaceFiles(
+        readPaperUpload(paperFile),
         leanInput.current?.files?.length
           ? import("../../lib/uploads/lean-files").then(({ readLeanUploads }) => readLeanUploads(leanInput.current!.files!))
           : Promise.resolve([]),
-      ]);
+        (unusedPaper) => URL.revokeObjectURL(unusedPaper.url),
+      );
       setPaper(nextPaper);
       setLeanFiles(nextLean);
       setActiveLeanPath(nextLean[0]?.path ?? "");
       setMappedLeanPath(nextLean[0]?.path ?? "");
       setSetupStatus("idle");
     } catch (error) {
-      if (openedPaper) URL.revokeObjectURL((openedPaper as UploadedPaper).url);
       setSetupStatus("error");
       setSetupError(error instanceof Error ? error.message : "The files could not be opened.");
     }
