@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { buildExplanationContext, ExplanationContextError } from "../../../lib/explanation/build-context.server";
 import { createExplanationStream } from "../../../lib/explanation/openai-response.server";
-import { checkRateLimit, trustedRateLimitIdentity } from "../../../lib/explanation/rate-limit.server";
+import { checkExplanationQuota } from "../../../lib/explanation/rate-limit.server";
 import { explainRequestSchema } from "../../../lib/explanation/request-schema";
 import { readBoundedRequestText, RequestBodyTooLargeError } from "../../../lib/explanation/read-body.server";
 
@@ -54,11 +54,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const configuredLimit = Number(process.env.EXPLAIN_RATE_LIMIT_PER_HOUR ?? 30);
-  const rateLimit = checkRateLimit(trustedRateLimitIdentity(request), {
-    limit: Number.isInteger(configuredLimit) && configuredLimit > 0 ? configuredLimit : 30,
-    windowMs: 60 * 60 * 1_000,
-  });
+  let rateLimit;
+  try {
+    rateLimit = await checkExplanationQuota(request);
+  } catch {
+    return publicError(503, "RATE_LIMIT_UNAVAILABLE", "The explanation quota is temporarily unavailable. Please try again later.", { "Retry-After": "30", "Cache-Control": "no-store" });
+  }
   if (!rateLimit.allowed) {
     return publicError(
       429,

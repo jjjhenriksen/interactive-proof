@@ -66,12 +66,15 @@ To work with your own material, open [http://localhost:3000/upload](http://local
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5.6
 EXPLAIN_RATE_LIMIT_PER_HOUR=30
+# Required for production; local development can omit both.
+EXPLAIN_QUOTA_REDIS_REST_URL=
+EXPLAIN_QUOTA_REDIS_REST_TOKEN=
 PUBLIC_PROOF_IDS=odd-sum-square
 ```
 
 `OPENAI_API_KEY` remains server-side. With a valid key, upload selections call the streamed `/api/explain-upload` route. Without a key, the upload workspace and selection UI remain available; an explanation request returns an explicit configuration error rather than a fabricated answer. Never commit `.env.local`.
 
-For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining values as production environment variables. Do not use a `NEXT_PUBLIC_` prefix. Environment changes take effect only after deploying a newly saved site version.
+For Sites, add `OPENAI_API_KEY` and `EXPLAIN_QUOTA_REDIS_REST_TOKEN` as production secrets and add the remaining values as production environment variables. Production explanations require the shared Redis REST backend; see [shared quota setup and failure behavior](docs/SETUP.md#shared-explanation-quota). Do not use a `NEXT_PUBLIC_` prefix. Environment changes take effect only after deploying a newly saved site version.
 
 `PUBLIC_PROOF_IDS` is optional for local development. Production releases must set a non-empty explicit list; unknown and duplicate IDs fail registry generation. Only listed packages are registered or copied into `public/proof-assets`.
 
@@ -79,7 +82,7 @@ For Sites, add `OPENAI_API_KEY` as a production secret and add the remaining val
 
 ```text
 app/
-  api/explain/                 validated, rate-limited Responses API stream
+  api/explain/                 validated, shared-quota Responses API stream
   api/explain-upload/          bounded stream for reader-provided context
   proofs/[proofId]/            internal fixture reader and PDF route
   upload/                      temporary PDF and optional Lean workspace
