@@ -61,7 +61,46 @@ Permanent, curated proof packages use the authoring workflow documented in the r
 
 Configure `OPENAI_API_KEY` as a server-only secret. Configure `OPENAI_MODEL`, `EXPLAIN_RATE_LIMIT_PER_HOUR`, and `PUBLIC_PROOF_IDS` as production environment variables, then deploy a newly saved version.
 
-Do not treat the current process-local request limiter as a globally shared quota across Cloudflare isolates. Use a provider-backed rate-limit binding or shared durable store before relying on it as the only production abuse control.
+### Shared explanation quota
+
+Production explanations require an HTTPS Redis REST endpoint supporting the
+Upstash-compatible command API and atomic `EVAL`. Set these server-only secrets
+through the hosting provider's secret manager (never `NEXT_PUBLIC_` variables):
+
+```dotenv
+EXPLAIN_QUOTA_REDIS_REST_URL=https://your-redis-rest-endpoint
+EXPLAIN_QUOTA_REDIS_REST_TOKEN=your_server_only_token
+```
+
+Use one shared Redis database across all replicas, regions, and edge isolates;
+the token must permit `EVAL`, `GET`, `INCR`, `PTTL`, and `PEXPIRE`. All instances
+must use the same `EXPLAIN_RATE_LIMIT_PER_HOUR`. The two routes (`/api/explain`
+and `/api/explain-upload`) consume **one combined per-identity allowance** in a
+one-hour window starting at the first admitted request. An atomic Lua operation
+checks/increments the counter and sets its expiry using Redis's clock. Rejected
+requests do not extend the window. Quota keys use a SHA-256 identity digest under
+`interactive-proof:explain:v1:`; treat these pseudonymous keys as private data.
+Use a separate database for unrelated deployments. Restarts do not reset quotas;
+deleting/evicting keys does, so configure Redis capacity and a no-eviction policy
+accordingly. Admitted requests consume quota even if subsequent model work fails.
+
+Only `NODE_ENV=development` or `test`, with **both** backend settings absent,
+uses the process-local development limiter. It is not deployment-wide. Production
+with missing settings, partial configuration in any environment, non-HTTPS URLs,
+backend errors, invalid responses, or a three-second backend timeout fails closed
+with HTTP 503 (`RATE_LIMIT_UNAVAILABLE`, `Retry-After: 30`) before a model call.
+There is no fail-open fallback. An exhausted quota returns HTTP 429 with the
+remaining-window `Retry-After`. A timed-out atomic operation may have consumed
+quota even though no model call was made; retrying must check quota again.
+
+On direct Cloudflare visitor traffic, identity is the trusted `CF-Connecting-IP`
+header. A non-Cloudflare origin must prevent clients from supplying this header
+(strip it at the ingress); without it, requests share one conservative anonymous
+bucket. This is a per-identity abuse control, **not a total deployment spend cap**:
+different identities each have their own allowance. Retain provider budget limits
+for a deployment-wide monetary ceiling. Configure and smoke-test the backend
+before enabling production explanations; no paid backend is provisioned by this
+repository.
 
 ## Validation gate
 
@@ -77,6 +116,20 @@ npm run build
 npm run build:sites
 npm audit --omit=dev
 ```
+
+The shared-quota tests mock the REST transport for route/failure checks. To
+also execute the Lua script against a disposable real Redis instance (Docker
+required, no hosted account or secrets):
+
+```bash
+docker run --rm -d --name interactive-proof-quota-test redis:7-alpine
+REDIS_TEST_CONTAINER=interactive-proof-quota-test npm test -- tests/explanation/shared-quota-redis.test.ts
+docker stop interactive-proof-quota-test
+```
+
+This opt-in test checks 25 concurrent attempts through independent module
+instances, counter expiry, denial without window extension, and missing-TTL
+repair. It is skipped in the default suite without `REDIS_TEST_CONTAINER`.
 
 For the browser suite:
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createExplanationStream } from "../../../lib/explanation/openai-response.server";
-import { checkRateLimit, trustedRateLimitIdentity } from "../../../lib/explanation/rate-limit.server";
+import { checkExplanationQuota } from "../../../lib/explanation/rate-limit.server";
 import { buildUploadedExplanationContext } from "../../../lib/uploads/context.server";
 import { uploadedExplainRequestSchema } from "../../../lib/uploads/schema";
 import { readBoundedRequestText, RequestBodyTooLargeError } from "../../../lib/explanation/read-body.server";
@@ -23,9 +23,12 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ code: "INVALID_REQUEST", message: "The uploaded context is invalid." }, { status: 400 });
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return NextResponse.json({ code: "MODEL_ERROR", message: "AI explanations are not configured on this deployment.", isRetryable: false }, { status: 503 });
-  const key = `upload:${trustedRateLimitIdentity(request)}`;
-  const configured = Number(process.env.EXPLAIN_RATE_LIMIT_PER_HOUR ?? 30);
-  const rateLimit = checkRateLimit(key, { limit: Number.isInteger(configured) && configured > 0 ? configured : 30, windowMs: 60 * 60 * 1_000 });
+  let rateLimit;
+  try {
+    rateLimit = await checkExplanationQuota(request);
+  } catch {
+    return NextResponse.json({ code: "RATE_LIMIT_UNAVAILABLE", message: "The explanation quota is temporarily unavailable. Please try again later." }, { status: 503, headers: { "Retry-After": "30", "Cache-Control": "no-store" } });
+  }
   if (!rateLimit.allowed) return NextResponse.json({ code: "RATE_LIMITED", message: "The demo explanation limit has been reached." }, { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } });
   const requestId = crypto.randomUUID();
   const stream = createExplanationStream({ ...buildUploadedExplanationContext(parsed.data), apiKey, model: process.env.OPENAI_MODEL ?? "gpt-5.6", requestId, signal: request.signal });
